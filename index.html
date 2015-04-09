@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html ng-app="Monitor">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    <title>Мониторинг</title>
+    <link rel="stylesheet" href="plugins/angular-material/angular-material.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script src="plugins/angular/angular.min.js"></script>
+    <script src="plugins/angular-route/angular-route.min.js"></script>
+    <script src="plugins/angular-material/angular-material.min.js"></script>
+    <script src="plugins/sqllite/SQLitePlugin.js"></script>
+    <script src="plugins/persistencejs/lib/persistence.js"></script>
+    <script src="plugins/persistencejs/lib/persistence.store.sql.js"></script>
+    <script src="plugins/persistencejs/lib/persistence.store.websql.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
+</head>
+
+<body>
+    <md-list ng-controller="MainController">
+        <md-subheader class="md-no-sticky">Объекты</md-subheader>
+        <md-list-item ng-repeat="list in lists">
+            <p> {{ list.name }} </p>
+        </md-list-item>
+    </md-list>
+    <script type="text/javascript" src="cordova.js"></script>
+</body>
+
+</html>
