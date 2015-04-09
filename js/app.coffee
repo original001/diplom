@@ -23,7 +23,7 @@ angular.module 'Monitor', [
         Sensor: persistence.define 'Sensor',  
             name: "TEXT",
             sensCat: "INT",
-            obj: "INT",
+            obj: "TEXT",
             date: "DATE"
         Graph: persistence.define 'Graph',  
             sensor: "INT",

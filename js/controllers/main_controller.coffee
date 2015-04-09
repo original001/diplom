@@ -3,15 +3,23 @@ angular
 
 	.controller 'MainController', ($scope, Main) ->
 		$scope.lists = []
+		$scope.count = []
 		Main.list 'Obj', $scope
+		Main.prefetch $scope
+
+		# Main.add 'Obj',
+			# name: 'object'
+			# sensCat: "1"
+			# obj: "47B38F5BE4614A9BBF20114596DD3598"
+			# date: new Date().getTime()
 
 		$scope.add =  (name) ->
-			Serv.add 'Obj', 
+			Main.add 'Obj', 
 				name: name
 
-		$scope.remove = (id) ->
-			console.log id
-			Serv.remove 'Obj', id
+		$scope.remove = (name) ->
+			console.log name
+			Main.remove 'Obj', name
 
 		$scope.hello = (name) ->
-			Serv.say name
+			Main.say name

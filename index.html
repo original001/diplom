@@ -22,9 +22,9 @@
 
 <body>
     <md-list ng-controller="MainController">
-        <md-subheader class="md-no-sticky">Объекты</md-subheader>
+        <md-subheader class="md-no-sticky"><b>Объекты</b></md-subheader>
         <md-list-item ng-repeat="list in lists">
-            <p> {{ list.name }} </p>
+            <p> {{ list.name }} </p> <i>{{list.count}}</i>
         </md-list-item>
     </md-list>
     <script type="text/javascript" src="cordova.js"></script>

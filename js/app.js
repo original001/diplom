@@ -22,7 +22,7 @@ angular.module('Monitor', ['ngRoute', 'Diplom.controllers.Main', 'Diplom.service
   Sensor: persistence.define('Sensor', {
     name: "TEXT",
     sensCat: "INT",
-    obj: "INT",
+    obj: "TEXT",
     date: "DATE"
   }),
   Graph: persistence.define('Graph', {
@@ -70,22 +70,26 @@ cordovaApp.initialize();
 
 angular.module('Diplom.controllers.Main', []).controller('MainController', function($scope, Main) {
   $scope.lists = [];
+  $scope.count = [];
   Main.list('Obj', $scope);
+  Main.prefetch($scope);
   $scope.add = function(name) {
-    return Serv.add('Obj', {
+    return Main.add('Obj', {
       name: name
     });
   };
-  $scope.remove = function(id) {
-    console.log(id);
-    return Serv.remove('Obj', id);
+  $scope.remove = function(name) {
+    console.log(name);
+    return Main.remove('Obj', name);
   };
   return $scope.hello = function(name) {
-    return Serv.say(name);
+    return Main.say(name);
   };
 });
 
 angular.module('Diplom.services.Main', []).service('Main', function(DB) {
+  DB.Sensor.hasOne('object', DB.Obj, 'obj');
+  persistence.schemaSync();
   this.list = function(dest, $scope) {
     return DB[dest].all().list(function(items) {
       var arr, count;
@@ -109,12 +113,30 @@ angular.module('Diplom.services.Main', []).service('Main', function(DB) {
       return console.log('flush done');
     });
   };
-  this.remove = function(dest, id) {
-    return DB[dest].all().filter('id', '=', id).destroyAll(function() {
+  this.remove = function(dest, name) {
+    return DB[dest].all().filter('name', '=', name).destroyAll(function() {
       return console.log('done');
     });
   };
-  this.update = function(obj) {};
+  this.prefetch = function($scope) {
+    return DB.Sensor.all().prefetch('object').list(null, function(items) {
+      var arr, count;
+      console.log(arr);
+      arr = [];
+      count = items.length;
+      items.forEach(function(item) {
+        return arr.push({
+          name: item.name
+        });
+      });
+      $scope.count = arr;
+      return $scope.$apply();
+    }, function(tx, success) {
+      return console.log(tx, success);
+    }, function(tx, error) {
+      return console.log(tx, error.message);
+    });
+  };
   this.update = function(obj) {};
   this.say = function(name) {
     return "hello " + name;
