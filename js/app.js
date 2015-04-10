@@ -79,7 +79,6 @@ angular.module('Diplom.controllers.Main', []).controller('MainController', funct
     return Main.addObj(name, $scope);
   };
   $scope.remove = function(name) {
-    console.log(name);
     return Main.remove('Obj', name);
   };
   return $scope.hello = function(name) {

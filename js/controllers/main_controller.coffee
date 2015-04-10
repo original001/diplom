@@ -8,7 +8,8 @@ angular
 			# Main.prefetch 'Metro', $scope
 		$scope.addSens = (nameSens, nameObj) ->
 			Main.addSens nameSens, nameObj, $scope
-		# Main.remove 'Obj','Metro'
+
+		# Main.remove 'Obj',''
 		# Main.prefetch $scope
 
 		# Main.add 'Obj',
@@ -21,7 +22,6 @@ angular
 			Main.addObj name, $scope
 
 		$scope.remove = (name) ->
-			console.log name
 			Main.remove 'Obj', name
 
 		$scope.hello = (name) ->

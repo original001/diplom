@@ -44,21 +44,23 @@
                     <md-button class="md-icon-button" aria-label="More">
                         <md-icon md-svg-icon="img/more_vert.svg"></md-icon>
                         <md-select placeholder="" ng-model="someVal" class="obj-action">
-                            <md-option value="1">One</md-option>
-                            <md-option value="2">Two</md-option>
+                            <md-option ng-click="remove(list.name)" value="1">Удалить</md-option>
+                            <md-option value="2">Переименовать</md-option>
                         </md-select>
                     </md-button>
                 </md-list-item>
             </md-list>
-            <div layout="row">
+            <div layout="row" layout-padding>
                 <div flex>
                     <md-input-container>
-                        <label>name</label>
-                        <input ng-model="name">
+                        <label>Название объекта</label>
+                        <input ng-model="name" ng-required="true">
                     </md-input-container>
+                    <md-button ng-click="addObj(name)">Добавить объект</md-button>
+                </div>
+                <div flex>
                 </div>
             </div>
-            <md-button class="md-raised" ng-click="addObj(name)">Add Object</md-button>
         </md-content>
     </div>
     <script type="text/javascript" src="cordova.js"></script>
