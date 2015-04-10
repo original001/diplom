@@ -69,12 +69,12 @@ cordovaApp.initialize();
 
 angular.module('Diplom.controllers.Main', []).controller('MainController', function($scope, Main) {
   $scope.lists = [];
-  $scope.count = 0;
-  Main.list('Obj', $scope);
-  $scope.add = function(name) {
-    return Main.add('Obj', {
-      name: name
-    });
+  Main.list($scope);
+  $scope.addSens = function(nameSens, nameObj) {
+    return Main.addSens(nameSens, nameObj, $scope);
+  };
+  $scope.addObj = function(name) {
+    return Main.addObj(name, $scope);
   };
   $scope.remove = function(name) {
     console.log(name);
@@ -87,10 +87,9 @@ angular.module('Diplom.controllers.Main', []).controller('MainController', funct
 
 angular.module('Diplom.services.Main', []).service('Main', function(DB) {
   DB.Obj.hasMany('sensors', DB.Sensor, 'obj');
-  DB.Sensor.hasOne('obj', DB.Obj);
   persistence.schemaSync();
-  this.list = function(dest, $scope) {
-    return DB[dest].all().list(function(items) {
+  this.list = function($scope) {
+    return DB.Obj.all().list(function(items) {
       var arr;
       arr = [];
       return items.forEach(function(item) {
@@ -108,12 +107,16 @@ angular.module('Diplom.services.Main', []).service('Main', function(DB) {
       });
     });
   };
-  this.addObj = function(options) {
+  this.addObj = function(name, $scope) {
     var t;
-    t = new DB.Obj(options);
+    t = new DB.Obj;
+    t.name = name;
     persistence.add(t);
-    return persistence.flush(function() {
-      return console.log('flush done');
+    persistence.flush();
+    return $scope.lists.push({
+      name: name,
+      page: t.id,
+      count: 0
     });
   };
   this.remove = function(dest, name) {
@@ -121,32 +124,26 @@ angular.module('Diplom.services.Main', []).service('Main', function(DB) {
       return console.log('done');
     });
   };
-  this.prefetch = function(name, $scope) {
-    return DB.Obj.findBy(persistence, null, 'name', name, function(obj) {
-      var arr;
+  this.update = function(obj) {};
+  this.addSens = function(sensName, objName, $scope) {
+    return DB.Obj.findBy(persistence, null, 'name', objName, function(obj) {
+      var s;
       if (obj) {
-        arr = [];
-        return obj.sensors.list(null, function(res) {
-          $scope.count = res.length;
-          return $scope.$apply();
+        s = new DB.Sensor({
+          name: sensName,
+          sensCat: "1",
+          date: new Date().getTime()
+        });
+        obj.sensors.add(s);
+        return persistence.flush(function() {
+          return $scope.lists.forEach(function(item, ind) {
+            if (item.name === obj.name) {
+              item.count += 1;
+              return $scope.$apply();
+            }
+          });
         });
       }
-    });
-  };
-  this.update = function(obj) {};
-  this.addSens = function(s, o) {
-    s = new DB.Sensor({
-      name: s,
-      sensCat: "1",
-      date: new Date().getTime()
-    });
-    o = new DB.Obj({
-      name: o
-    });
-    o.sensors.add(s);
-    persistence.flush();
-    return o.sensors.list(null, function(res) {
-      return console.log(res);
     });
   };
   this.say = function(name) {
