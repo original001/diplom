@@ -1,6 +1,5 @@
 angular.module 'Diplom.services.Main', []
 	.service 'Main', (DB) ->
-		# DB.Sensor.hasOne('object', DB.Obj, '')
 		DB.Obj.hasMany('sensors', DB.Sensor, 'obj')
 		persistence.schemaSync()
 		@list = ($scope) ->
@@ -24,11 +23,12 @@ angular.module 'Diplom.services.Main', []
 				name: name
 				page: t.id
 				count: 0
+
 		@remove = (dest, name) ->
 			DB[dest].all().filter 'name','=',name
 				.destroyAll ->
 					console.log 'done'
-					
+
 		@update = (obj) ->
 
 		@addSens = (sensName, objName, $scope) ->

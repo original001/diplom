@@ -1,7 +1,7 @@
 angular.module 'Monitor', [
     'ngMaterial'
     'ngRoute'
-	# 'mobile-angular-ui'
+	'mobile-angular-ui'
 	'Diplom.controllers.Main'
 	'Diplom.services.Main']
 
@@ -40,16 +40,16 @@ angular.module 'Monitor', [
             coorx: "INT",
             coory: "INT"
 
-# angular.module 'mobile-angular-ui', [
-#     'mobile-angular-ui.core.activeLinks',
-#     'mobile-angular-ui.core.fastclick',
-#     'mobile-angular-ui.core.sharedState',
-#     'mobile-angular-ui.core.outerClick', 
-#     'mobile-angular-ui.components.modals',
-#     'mobile-angular-ui.components.switch',
-#     'mobile-angular-ui.components.sidebars',
-#     'mobile-angular-ui.components.scrollable', 
-#     'mobile-angular-ui.components.navbars']
+angular.module 'mobile-angular-ui', [
+    'mobile-angular-ui.core.activeLinks',
+    'mobile-angular-ui.core.fastclick',
+    'mobile-angular-ui.core.sharedState',
+    'mobile-angular-ui.core.outerClick', 
+    'mobile-angular-ui.components.modals',
+    'mobile-angular-ui.components.switch',
+    'mobile-angular-ui.components.sidebars',
+    'mobile-angular-ui.components.scrollable', 
+    'mobile-angular-ui.components.navbars']
 
 
 cordovaApp =

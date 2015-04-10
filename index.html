@@ -15,6 +15,9 @@
     <script src="plugins/angular-aria/angular-aria.min.js"></script>
     <script src="plugins/angular-animate/angular-animate.min.js"></script>
     <script src="plugins/angular-material/angular-material.min.js"></script>
+    <script src="plugins/mobile-angular-ui/dist/js/mobile-angular-ui.min.js"></script>
+    <script src="plugins/mobile-angular-ui/dist/js/mobile-angular-ui.core.min.js"></script>
+    <script src="plugins/mobile-angular-ui/dist/js/mobile-angular-ui.components.min.js"></script>
     <script src="plugins/sqllite/SQLitePlugin.js"></script>
     <script src="plugins/persistencejs/lib/persistence.js"></script>
     <script src="plugins/persistencejs/lib/persistence.store.sql.js"></script>
@@ -23,17 +26,41 @@
 </head>
 
 <body ng-controller="MainController">
-    <md-list>
-        <md-subheader class="md-no-sticky"><b>Объекты</b></md-subheader>
-        <md-list-item ng-repeat="list in lists">
-            <p><a href="/map/{{list.page}}"> {{ list.name }} </a></p> <i>{{list.count}}</i><md-button class="md-raised" ng-click="addSens('sensor-personaly',list.name)">Add</md-button>
-        </md-list-item>
-    </md-list>
-    <md-input-container>
-      <label >name</label>
-      <input ng-model="name">
-    </md-input-container>
-    <md-button class="md-raised" ng-click="addObj(name)">Add Object</md-button>
+    <div>
+        <md-content>
+            <md-toolbar>
+                <div class="md-toolbar-tools">
+                    <md-button class="md-icon-button" aria-label="Settings">
+                        <md-icon md-svg-icon="img/menu.svg" style="color:white"></md-icon>
+                    </md-button>
+                    <h2> <span>Геотехнический мониторинг</span> </h2>
+                    <span flex></span>
+                </div>
+            </md-toolbar>
+            <md-list>
+                <md-subheader class="md-no-sticky"><b>Объекты</b></md-subheader>
+                <md-list-item ng-repeat="list in lists" ng-click="navigate(list.page)">
+                    <p>{{ list.name }}</p> <i class="sens-counter">{{list.count}}</i>
+                    <md-button class="md-icon-button" aria-label="More">
+                        <md-icon md-svg-icon="img/more_vert.svg"></md-icon>
+                        <md-select placeholder="" ng-model="someVal" class="obj-action">
+                            <md-option value="1">One</md-option>
+                            <md-option value="2">Two</md-option>
+                        </md-select>
+                    </md-button>
+                </md-list-item>
+            </md-list>
+            <div layout="row">
+                <div flex>
+                    <md-input-container>
+                        <label>name</label>
+                        <input ng-model="name">
+                    </md-input-container>
+                </div>
+            </div>
+            <md-button class="md-raised" ng-click="addObj(name)">Add Object</md-button>
+        </md-content>
+    </div>
     <script type="text/javascript" src="cordova.js"></script>
 </body>
 
