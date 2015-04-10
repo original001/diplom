@@ -3,9 +3,13 @@ angular
 
 	.controller 'MainController', ($scope, Main) ->
 		$scope.lists = []
-		$scope.count = []
+		$scope.count = 0
 		Main.list 'Obj', $scope
-		Main.prefetch $scope
+		# @scope.prefetch = (name)->
+			# Main.prefetch 'Metro', $scope
+		# Main.addSens 'newsensor3', 'waxh'
+		# Main.remove 'Obj','Metro'
+		# Main.prefetch $scope
 
 		# Main.add 'Obj',
 			# name: 'object'

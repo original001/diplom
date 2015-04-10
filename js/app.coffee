@@ -1,5 +1,5 @@
 angular.module 'Monitor', [
-    # 'ngMaterial'
+    'ngMaterial'
     'ngRoute'
 	# 'mobile-angular-ui'
 	'Diplom.controllers.Main'
@@ -7,7 +7,7 @@ angular.module 'Monitor', [
 
 	.config ($routeProvider) -> 
 		@timeNow = new Date().getTime()
-		persistence.store.websql.config persistence, 'sensors', 'База данных для мониторинга', 5 * 1024 * 1024
+		persistence.store.websql.config persistence, 'sensors2', 'База данных для мониторинга', 5 * 1024 * 1024
 		$routeProvider.when '/', 
 			templateUrl:'home.html'
 			reloadOnSearch: false
@@ -23,7 +23,6 @@ angular.module 'Monitor', [
         Sensor: persistence.define 'Sensor',  
             name: "TEXT",
             sensCat: "INT",
-            obj: "TEXT",
             date: "DATE"
         Graph: persistence.define 'Graph',  
             sensor: "INT",
