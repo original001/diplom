@@ -10,10 +10,11 @@ angular.module 'Diplom.services.Main', []
 						count = res.length
 						arr.push
 							name: item.name
-							page: item.id
+							id: item.id
 							count: count
 						$scope.lists = arr
 						do $scope.$apply
+
 		@addObj = (name, $scope) ->
 			t = new DB.Obj
 			t.name = name
@@ -21,15 +22,27 @@ angular.module 'Diplom.services.Main', []
 			persistence.flush()
 			$scope.lists.push
 				name: name
-				page: t.id
+				id: t.id
 				count: 0
 
-		@remove = (dest, name) ->
-			DB[dest].all().filter 'name','=',name
+		@remove = (id, $scope) ->
+			DB.Obj.all().filter 'id','=',id
 				.destroyAll ->
-					console.log 'done'
+					$scope.lists.forEach (elem, ind) ->	
+						if elem.id == id
+							$scope.lists.splice ind, 1
+							do $scope.$apply
+						
 
-		@update = (obj) ->
+		@update = (id, newName, $scope) ->
+			DB.Obj.all().filter 'id','=',id
+				.one (obj) ->
+					obj.name = newName
+					persistence.flush ->
+						$scope.lists.forEach (item, ind) ->
+							if item.id == obj.id
+								item.name = newName
+								do $scope.$apply
 
 		@addSens = (sensName, objName, $scope) ->
 			DB.Obj.findBy persistence, null, 'name',objName,(obj)->
@@ -45,6 +58,4 @@ angular.module 'Diplom.services.Main', []
 								item.count += 1
 								do $scope.$apply
 
-		@say = (name) ->
-			"hello #{name}"
 		return

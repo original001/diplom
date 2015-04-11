@@ -39,31 +39,33 @@
             </md-toolbar>
             <md-list>
                 <md-subheader class="md-no-sticky"><b>Объекты</b></md-subheader>
-                <md-list-item ng-repeat="list in lists" ng-click="navigate(list.page)">
+                <md-list-item ng-repeat="list in lists" ng-click="navigate(list.id)">
                     <p>{{ list.name }}</p> <i class="sens-counter">{{list.count}}</i>
                     <md-button class="md-icon-button" aria-label="More">
                         <md-icon md-svg-icon="img/more_vert.svg"></md-icon>
                         <md-select placeholder="" ng-model="someVal" class="obj-action">
-                            <md-option ng-click="remove(list.name)" value="1">Удалить</md-option>
-                            <md-option value="2">Переименовать</md-option>
+                            <md-option ng-click="showConfirm($event, list.id)" value="1">Удалить</md-option>
+                            <md-option ng-click="update(list.id, 'Объект ' + $index)" value="2">Переименовать</md-option>
                         </md-select>
                     </md-button>
                 </md-list-item>
             </md-list>
             <div layout="row" layout-padding>
                 <div flex>
-                    <md-input-container>
-                        <label>Название объекта</label>
-                        <input ng-model="name" ng-required="true">
-                    </md-input-container>
-                    <md-button ng-click="addObj(name)">Добавить объект</md-button>
+                    <form name="newObj">
+                        <md-input-container>
+                            <label>Добавить объект</label>
+                            <input name="nameObj" ng-model="name" ng-required="true">
+                        </md-input-container>
+                        <md-button class="md-raised" ng-disabled="newObj.nameObj.$invalid" ng-click="addObj(name)">Добавить объект</md-button>
+                    </form>
                 </div>
                 <div flex>
                 </div>
             </div>
         </md-content>
     </div>
-    <script type="text/javascript" src="cordova.js"></script>
+    <!-- // <script type="text/javascript" src="cordova.js"></script> -->
 </body>
 
 </html>

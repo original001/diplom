@@ -5,8 +5,11 @@ angular.module 'Monitor', [
 	'Diplom.controllers.Main'
 	'Diplom.services.Main']
 
+    .config ($mdThemingProvider) ->
+        $mdThemingProvider.theme('default')
+            .primaryPalette('cyan')
+            
 	.config ($routeProvider) -> 
-		@timeNow = new Date().getTime()
 		persistence.store.websql.config persistence, 'sensors2', 'База данных для мониторинга', 5 * 1024 * 1024
 		$routeProvider.when '/', 
 			templateUrl:'home.html'
