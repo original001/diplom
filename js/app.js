@@ -135,6 +135,11 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       return $('.index-md-content').height(w.height() - 64);
     });
   });
+  $(document).on('click', '#addPlan', function() {
+    return $('.demo-tab').each(function() {
+      return console.log('good');
+    });
+  });
   return $scope.addSens = function(name, objId) {
     return Map.addSens(name, objId, $scope);
   };
