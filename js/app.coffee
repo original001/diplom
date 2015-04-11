@@ -12,13 +12,11 @@ angular.module 'Monitor', [
 	.config ($routeProvider, $locationProvider) -> 
 		persistence.store.websql.config persistence, 'sensors2', 'База данных для мониторинга', 5 * 1024 * 1024
 		$routeProvider.when '/', 
-            templateUrl: 'view/home.html'
-            reloadOnSearch: false
-            controller: 'MainController'
-        .when '/map/:objId',
-            templateUrl:'view/map.html'
+            templateUrl: 'view/map.html'
             controller: 'MapController'
-            reloadOnSearch: false
+        # .when '/map/:objId',
+            # templateUrl:'view/map.html'
+            # controller: 'MapController'
         $locationProvider.html5Mode true
 
 	.constant 'DB',

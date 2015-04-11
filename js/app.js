@@ -6,13 +6,8 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
 }).config(function($routeProvider, $locationProvider) {
   persistence.store.websql.config(persistence, 'sensors2', 'База данных для мониторинга', 5 * 1024 * 1024);
   $routeProvider.when('/', {
-    templateUrl: 'view/home.html',
-    reloadOnSearch: false,
-    controller: 'MainController'
-  }).when('/map/:objId', {
     templateUrl: 'view/map.html',
-    controller: 'MapController',
-    reloadOnSearch: false
+    controller: 'MapController'
   });
   return $locationProvider.html5Mode(true);
 }).constant('DB', {
@@ -130,6 +125,21 @@ DialogController = function($scope, $mdDialog) {
   };
 };
 
+moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog) {
+  $scope.lists = [];
+  $(function() {
+    var w;
+    w = $(window);
+    $('.index-md-content').height(w.height() - 64);
+    return w.resize(function() {
+      return $('.index-md-content').height(w.height() - 64);
+    });
+  });
+  return $scope.addSens = function(name, objId) {
+    return Map.addSens(name, objId, $scope);
+  };
+});
+
 moduleService = angular.module('Diplom.services.Main', []).service('Main', function(DB) {
   DB.Obj.hasMany('sensors', DB.Sensor, 'obj');
   persistence.schemaSync();
@@ -207,13 +217,6 @@ moduleService = angular.module('Diplom.services.Main', []).service('Main', funct
         });
       }
     });
-  };
-});
-
-moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog) {
-  $scope.lists = [];
-  return $scope.addSens = function(name, objId) {
-    return Map.addSens(name, objId, $scope);
   };
 });
 

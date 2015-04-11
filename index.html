@@ -11,6 +11,7 @@
     <title>Мониторинг</title>
     <link rel="stylesheet" href="plugins/angular-material/angular-material.css">
     <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script src="plugins/vendor/jquery-1.11.1.min.js"></script>
     <script src="plugins/angular/angular.min.js"></script>
     <script src="plugins/angular-route/angular-route.min.js"></script>
     <script src="plugins/angular-aria/angular-aria.min.js"></script>
@@ -27,19 +28,17 @@
 </head>
 
 <body>
-    <div>
-        <md-toolbar>
-            <div class="md-toolbar-tools">
-                <md-button class="md-icon-button" aria-label="Settings">
-                    <md-icon md-svg-icon="img/menu.svg" style="color:white"></md-icon>
-                </md-button>
-                <h2> <span>Геотехнический мониторинг</span> </h2>
-                <span flex></span>
-            </div>
-        </md-toolbar>
-        <md-content ng-view>
-        </md-content>
-    </div>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <md-button class="md-icon-button" aria-label="Settings">
+                <md-icon md-svg-icon="img/menu.svg" style="color:white"></md-icon>
+            </md-button>
+            <h2> <span>Геотехнический мониторинг</span> </h2>
+            <span flex></span>
+        </div>
+    </md-toolbar>
+    <md-content ng-view class="index-md-content">
+    </md-content>
     <!-- // <script type="text/javascript" src="cordova.js"></script> -->
 </body>
 
