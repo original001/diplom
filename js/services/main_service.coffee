@@ -1,4 +1,4 @@
-angular.module 'Diplom.services.Main', []
+moduleService = angular.module 'Diplom.services.Main', []
 	.service 'Main', (DB) ->
 		DB.Obj.hasMany('sensors', DB.Sensor, 'obj')
 		persistence.schemaSync()
