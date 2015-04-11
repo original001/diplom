@@ -8,12 +8,18 @@ angular.module 'Monitor', [
     .config ($mdThemingProvider) ->
         $mdThemingProvider.theme('default')
             .primaryPalette('cyan')
-            
-	.config ($routeProvider) -> 
+
+	.config ($routeProvider, $locationProvider) -> 
 		persistence.store.websql.config persistence, 'sensors2', 'База данных для мониторинга', 5 * 1024 * 1024
 		$routeProvider.when '/', 
-			templateUrl:'home.html'
-			reloadOnSearch: false
+            templateUrl: 'view/home.html'
+            reloadOnSearch: false
+            controller: 'MainController'
+        .when '/map/:objId',
+            templateUrl:'view/map.html'
+            controller: 'MapController'
+            reloadOnSearch: false
+        $locationProvider.html5Mode true
 
 	.constant 'DB',
         Obj: persistence.define 'Obj',  

@@ -7,6 +7,7 @@
     <meta name="msapplication-tap-highlight" content="no" />
     <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    <base href="/">
     <title>Мониторинг</title>
     <link rel="stylesheet" href="plugins/angular-material/angular-material.css">
     <link rel="stylesheet" type="text/css" href="css/style.css" />
@@ -25,44 +26,18 @@
     <script type="text/javascript" src="js/app.js"></script>
 </head>
 
-<body ng-controller="MainController">
+<body>
     <div>
-        <md-content>
-            <md-toolbar>
-                <div class="md-toolbar-tools">
-                    <md-button class="md-icon-button" aria-label="Settings">
-                        <md-icon md-svg-icon="img/menu.svg" style="color:white"></md-icon>
-                    </md-button>
-                    <h2> <span>Геотехнический мониторинг</span> </h2>
-                    <span flex></span>
-                </div>
-            </md-toolbar>
-            <md-list>
-                <md-subheader class="md-no-sticky"><b>Объекты</b></md-subheader>
-                <md-list-item ng-repeat="list in lists" ng-click="navigate(list.id)">
-                    <p>{{ list.name }}</p> <i class="sens-counter">{{list.count}}</i>
-                    <md-button class="md-icon-button" aria-label="More">
-                        <md-icon md-svg-icon="img/more_vert.svg"></md-icon>
-                        <md-select placeholder="" ng-model="someVal" class="obj-action">
-                            <md-option ng-click="showConfirm($event, list.id)" value="1">Удалить</md-option>
-                            <md-option ng-click="update(list.id, 'Объект ' + $index)" value="2">Переименовать</md-option>
-                        </md-select>
-                    </md-button>
-                </md-list-item>
-            </md-list>
-            <div layout="row" layout-padding>
-                <div flex>
-                    <form name="newObj">
-                        <md-input-container>
-                            <label>Добавить объект</label>
-                            <input name="nameObj" ng-model="name" ng-required="true">
-                        </md-input-container>
-                        <md-button class="md-raised" ng-disabled="newObj.nameObj.$invalid" ng-click="addObj(name)">Добавить объект</md-button>
-                    </form>
-                </div>
-                <div flex>
-                </div>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <md-button class="md-icon-button" aria-label="Settings">
+                    <md-icon md-svg-icon="img/menu.svg" style="color:white"></md-icon>
+                </md-button>
+                <h2> <span>Геотехнический мониторинг</span> </h2>
+                <span flex></span>
             </div>
+        </md-toolbar>
+        <md-content ng-view>
         </md-content>
     </div>
     <!-- // <script type="text/javascript" src="cordova.js"></script> -->

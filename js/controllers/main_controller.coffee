@@ -1,7 +1,5 @@
-angular
-	.module 'Diplom.controllers.Main', [] 
-
-	.controller 'MainController', ($scope, Main, $mdDialog) ->
+moduleCtrl = angular.module 'Diplom.controllers.Main', []
+	.controller 'MainController', ($scope, $routeParams ,Main, $mdDialog) ->
 		$scope.lists = []
 		Main.list $scope
 
@@ -17,6 +15,22 @@ angular
 				.then ->
 					Main.remove id, $scope
 
+		$scope.showModalAdd = (e, name) ->
+			$mdDialog.show
+				controller: DialogController
+				templateUrl: '/view/dialog-add.tpl.html'
+				targetEvent: e
+			.then (answer) ->
+				Main.addObj answer, $scope
+
+		$scope.showModal = (e, id) ->
+			$mdDialog.show
+				controller: DialogController
+				templateUrl: '/view/dialog.tpl.html'
+				targetEvent: e
+			.then (answer) ->
+				Main.update id, answer, $scope
+
 		$scope.addSens = (nameSens, nameObj) ->
 			Main.addSens nameSens, nameObj, $scope
 
@@ -31,3 +45,13 @@ angular
 
 		$scope.hello = (name) ->
 			Main.say name
+
+DialogController = ($scope, $mdDialog) ->
+	$scope.cancel = ->
+		do $mdDialog.cancel
+
+	$scope.answer = (answer) ->
+		$mdDialog.hide answer
+
+
+
