@@ -5,7 +5,12 @@
   font-weight: normal;
   font-style: normal;
 }
-
+@font-face {
+  font-family: 'icons';
+  src: url('fonts.ttf');
+  font-weight: normal;
+  font-style: normal;
+}
 .obj-action {
 	margin: 0;
 	position: absolute;
@@ -66,4 +71,46 @@
 	-webkit-border-radius: 20px;
 	-moz-border-radius: 20px;
 	border-radius: 20px;
+}
+.button-custom {
+	top: 65px;
+	right: 15px;
+	position: absolute;
+	font-family: 'icons', '';
+	font-size: 0;
+	border: none;	
+}
+.button-custom .md-select-label {
+	font-size: 0;
+	border-bottom: none !important;
+}
+.button-custom:after {
+	text-align: center;
+	display: block;
+	font-size: 20px;
+	width: 41px;
+	line-height: 1.7;
+	height: 41px;
+	top: 0;
+	left: 0;
+	position: absolute;
+	content: '';
+}
+.button-remove {
+	font-family: 'FontAwesome';
+	top: 115px;
+}
+.button-remove:after {
+	font-weight: bold;
+	line-height: 2;
+	content: '';
+}
+.button-rename {
+	font-family: 'icons';
+	top: 165px;
+}
+.button-rename:after {
+	font-weight: bold;
+	line-height: 1.8;
+	content: '';
 }
