@@ -1,5 +1,54 @@
 moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) ->
-	$scope.lists = []
+	$scope.tabs = [
+		label: '1 floor'	
+		img: 'plqn1.jpg'
+		sensors:[
+			id: '58GH7ADF68'
+			top: 34.4
+			left: 45.5
+		,
+			id: '79AF58GH'
+			top: 64.4
+			left: 15.5
+		,
+			id: '8B7AD60FB'
+			top: 24.4
+			left: 46.5
+		]
+	,
+		label: '2 floor'	
+		img: 'plan_doma.gif'
+		sensors:[
+			id: '58GH7ADF68'
+			top: 34.4
+			left: 45.5
+		,
+			id: '79AF58GH'
+			top: 64.4
+			left: 15.5
+		,
+			id: '8B7AD60FB'
+			top: 24.4
+			left: 46.5
+		]
+	,
+		label: '3 floor'	
+		img: 'zad_plan.png'
+		sensors:[
+			id: '58GH7ADF68'
+			top: 34.4
+			left: 45.5
+		,
+			id: '79AF58GH'
+			top: 64.4
+			left: 15.5
+		,
+			id: '8B7AD60FB'
+			top: 24.4
+			left: 46.5
+		]
+	]
+	
 	$ ->
 		w = $ window
 		$ '.index-md-content'

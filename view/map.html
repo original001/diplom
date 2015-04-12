@@ -6,33 +6,11 @@
     <md-button ng-click="showConfirm($event)" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
     <md-button ng-click="showModal($event)"  class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
     <md-tabs md-selected="selectedIndex" md-border-bottom class="height100">
-        <md-tab label="1 этаж">
+        <md-tab label="{{tab.label}}" ng-repeat="tab in tabs">
             <div class="demo-tab tab" style="padding: 25px 60px 25px 25px; text-align: center;">
                 <div class="b-plan">
-                    <img src="img/plan_doma.gif" alt="" class="img-plan">
-                    <a href="sensor/id" class="sensor" style="top:20%;left:20%;"></a>
-                    <a href="sensor/id" class="sensor" style="top:30%;left:30%"></a>
-                    <a href="sensor/id" class="sensor" style="top:40%;left:60%"></a>
-                </div>
-            </div>
-        </md-tab>
-        <md-tab label="2 этаж">
-            <div class="demo-tab tab" style="padding: 25px 60px 25px 25px; text-align: center;">
-                <div class="b-plan">
-                    <img src="img/plqn1.jpg" class="img-plan">
-                    <a href="sensor/id" class="sensor" style="top:20%;left:20%;"></a>
-                    <a href="sensor/id" class="sensor" style="top:30%;left:30%"></a>
-                    <a href="sensor/id" class="sensor" style="top:40%;left:60%"></a>
-                </div>
-            </div>
-        </md-tab>
-        <md-tab label="3 этаж">
-            <div class="demo-tab tab" style="padding: 25px 60px 25px 25px; text-align: center;">
-                <div class="b-plan">
-                    <img src="../img/zad_plan.png" height="352" width="664" alt="" class="img-plan">
-                    <a href="sensor/id" class="sensor" style="top:20%;left:20%;"></a>
-                    <a href="sensor/id" class="sensor" style="top:30%;left:30%"></a>
-                    <a href="sensor/id" class="sensor" style="top:40%;left:60%"></a>
+                    <img src="img/plans/{{tab.img}}" alt="" class="img-plan">
+                    <a ng-repeat="sensor in tab.sensors" href="sensor/{{sensor.id}}" class="sensor" style="top:{{sensor.top}}%;left:{{sensor.left}}%"></a>
                 </div>
             </div>
         </md-tab>
