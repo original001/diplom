@@ -52,6 +52,3 @@ DialogController = ($scope, $mdDialog) ->
 
 	$scope.answer = (answer) ->
 		$mdDialog.hide answer
-
-
-

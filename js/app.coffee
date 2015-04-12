@@ -3,7 +3,8 @@ angular.module 'Monitor', [
     'ngRoute'
 	'mobile-angular-ui'
 	'Diplom.controllers.Main'
-	'Diplom.services.Main']
+	'Diplom.services.Main'
+    'naif.base64']
 
     .config ($mdThemingProvider) ->
         $mdThemingProvider.theme('default')
@@ -30,9 +31,9 @@ angular.module 'Monitor', [
         Sensor: persistence.define 'Sensor',  
             name: "TEXT",
             sensCat: "INT",
-            date: "DATE"
+            top: "INT"
+            left: "INT"
         Graph: persistence.define 'Graph',  
-            sensor: "INT",
             date: "DATE",
             mu: "INT",
             eps: "INT"
@@ -40,12 +41,10 @@ angular.module 'Monitor', [
             name: "TEXT",
             sensCat: "INT",
             obj: "INT"
-        Maps: persistence.define 'Maps',  
-            floor: "INT",
-            obj: "INT",
-            sensor: "INT",
-            coorx: "INT",
-            coory: "INT"
+        Maps: persistence.define 'Maps2',  
+            name: "TEXT",
+            img: "TEXT",
+            sensor: "JSON",
 
 angular.module 'mobile-angular-ui', [
     'mobile-angular-ui.core.activeLinks',

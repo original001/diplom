@@ -1,9 +1,9 @@
 moduleService
 	.service 'Map', (DB) ->
-		DB.Obj.hasMany('sensors', DB.Sensor, 'obj')
+		DB.Maps.hasMany('sensors', DB.Sensor, 'map')
 		persistence.schemaSync()
 		@list = ($scope) ->
-			DB.Obj.all().list (items) ->
+			DB.Maps.all().list (items) ->
 				arr = []
 				items.forEach (item)->
 					item.sensors.list null, (res)->
@@ -15,23 +15,24 @@ moduleService
 						$scope.lists = arr
 						do $scope.$apply
 
-		@addObj = (name, $scope) ->
-			t = new DB.Obj
+		@addPlan = (name, img, $scope) ->
+			t = new DB.Maps
 			t.name = name
+			t.img = img
 			persistence.add t
 			persistence.flush()
-			$scope.lists.push
-				name: name
+			$scope.tabs.push
 				id: t.id
-				count: 0
+				name: name
+				img: img
 
-		@remove = (id, $scope) ->
-			DB.Obj.all().filter 'id','=',id
+		@removePlan = (id, $scope) ->
+			DB.Maps.all().filter 'id','=',id
 				.destroyAll ->
-					$scope.lists.forEach (elem, ind) ->	
-						if elem.id == id
-							$scope.lists.splice ind, 1
-							do $scope.$apply
+					# $scope.tabs.forEach (elem, ind) ->	
+						# if elem.id == id
+							# $scope.lists.splice ind, 1
+							# do $scope.$apply
 						
 
 		@update = (id, newName, $scope) ->

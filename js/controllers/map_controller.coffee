@@ -1,7 +1,7 @@
 moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) ->
 	$scope.tabs = [
-		label: '1 floor'	
-		img: 'plqn1.jpg'
+		name: '1 floor'	
+		img: 'img/plans/plqn1.jpg'
 		sensors:[
 			id: '58GH7ADF68'
 			top: 34.4
@@ -16,8 +16,8 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 			left: 46.5
 		]
 	,
-		label: '2 floor'	
-		img: 'plan_doma.gif'
+		name: '2 floor'	
+		img: 'img/plans/plan_doma.gif'
 		sensors:[
 			id: '58GH7ADF68'
 			top: 34.4
@@ -32,8 +32,8 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 			left: 46.5
 		]
 	,
-		label: '3 floor'	
-		img: 'zad_plan.png'
+		name: '3 floor'	
+		img: 'img/plans/zad_plan.png'
 		sensors:[
 			id: '58GH7ADF68'
 			top: 34.4
@@ -48,7 +48,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 			left: 46.5
 		]
 	]
-	
+
 	$ ->
 		w = $ window
 		$ '.index-md-content'
@@ -107,15 +107,15 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 			.targetEvent(e)
 		$mdDialog.show confirm
 			.then ->
-				# Main.remove id, $scope
+				Map.removePlan '2A72E5D20C6A4271BE5D03A17CEAAC2B', $scope
 
 	$scope.showModalAdd = (e, name) ->
 		$mdDialog.show
 			controller: DialogController
-			templateUrl: '/view/dialog-add.tpl.html'
+			templateUrl: '/view/dialog-add-map.tpl.html'
 			targetEvent: e
 		.then (answer) ->
-			# Main.addObj answer, $scope
+			Map.addPlan answer.name, answer.img, $scope
 
 	$scope.showModal = (e, id) ->
 		$mdDialog.show
