@@ -1,0 +1,16 @@
+<md-list>
+    <md-subheader class="md-no-sticky"><b>Объекты</b></md-subheader>
+    <md-list-item ng-repeat="list in lists" ng-click="navigate(list.id)">
+        <a class="td-none" href="map/{{list.id}}">{{ list.name }}</a> <i class="sens-counter">{{list.count}}</i>
+        <md-button class="md-icon-button" aria-label="More">
+            <md-icon md-svg-icon="img/more_vert.svg"></md-icon>
+            <md-select placeholder="" ng-model="someVal" class="obj-action">
+                <md-option ng-click="showConfirm($event, list.id)" value="1">Удалить</md-option>
+                <md-option ng-click="showModal($event, list.id)" value="2">Переименовать</md-option>
+            </md-select>
+        </md-button>
+    </md-list-item>
+</md-list>
+<div layout="row" layout-align="center">
+    <md-button class="md-raised md-primary" ng-click="showModalAdd($event)">Добавить объект</md-button>
+</div>

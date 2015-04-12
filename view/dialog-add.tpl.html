@@ -1,0 +1,16 @@
+<md-dialog aria-label="Добавить">
+    <form name="renameFormObj">
+        <md-content>
+            <form name="renameFormObj">
+                <md-input-container>
+                    <label>Имя</label>
+                    <input name="renameObj" ng-model="rename.name" ng-required="true">
+                </md-input-container>
+        </md-content>
+        </form>
+        <div class="md-actions">
+            <md-button ng-click="cancel()">Отмена</md-button>
+            <md-button class="md-raised" ng-disabled="renameFormObj.renameObj.$invalid" ng-click="answer(rename.name)">Добавить</md-button>
+        </div>
+    </form>
+</md-dialog>

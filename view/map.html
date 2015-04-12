@@ -1,0 +1,30 @@
+<div class="sample" layout="column" style="height:100%">
+    <md-select ng-model="someVal" class="md-fab md-mini md-button md-default-theme button-custom">
+        <md-option id="addPlan" ng-click="addPlan()" value="1">Добавить план</md-option>
+        <md-option value="2">Добавить датчик</md-option>
+    </md-select>
+    <md-button class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
+    <md-button class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
+    <md-tabs md-selected="selectedIndex" md-border-bottom class="height100">
+        <md-tab label="1 этаж">
+            <div class="demo-tab tab" style="padding: 25px 60px 25px 25px; text-align: center;">
+                <div class="b-plan">
+                    <img src="img/plan_doma.gif" alt="" class="img-plan">
+                    <div class="sensor" style="top:20%;left:20%;"></div>
+                    <div class="sensor" style="top:30%;left:30%"></div>
+                    <div class="sensor" style="top:40%;left:60%"></div>
+                </div>
+            </div>
+        </md-tab>
+        <md-tab label="2 этаж">
+            <div class="demo-tab tab" style="padding: 25px; text-align: center;">
+                <img src="img/plqn1.jpg">
+            </div>
+        </md-tab>
+        <md-tab label="3 этаж">
+            <div class="demo-tab tab" style="padding: 25px; text-align: center;">
+                <img src="../img/PlanTracer_2_1.gif">
+            </div>
+        </md-tab>
+    </md-tabs>
+</div>
