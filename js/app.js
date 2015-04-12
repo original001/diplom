@@ -125,7 +125,7 @@ DialogController = function($scope, $mdDialog) {
   };
 };
 
-moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog) {
+moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog, $window, $document) {
   $scope.lists = [];
   $(function() {
     var w;
@@ -135,11 +135,24 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       return $('.index-md-content').height(w.height() - 64);
     });
   });
-  $(document).on('click', '#addPlan', function() {
-    return $('.demo-tab').each(function() {
-      return console.log('good');
+  $scope.addPlan = function() {
+    $(".b-plan").each(function() {
+      return $('<div class="help-screen" />').appendTo($(this)).fadeIn();
     });
-  });
+    $(document).on('click', 'md-tab-content.md-active', function(e) {
+      var $plan, h, left, sensor, top, w;
+      $plan = $(this).find('.b-plan');
+      w = $plan.width();
+      h = $plan.height();
+      left = e.offsetX / w * 100;
+      top = e.offsetY / h * 100;
+      sensor = $('<div />').css({
+        top: top + '%',
+        left: left + '%'
+      }).addClass('sensor');
+      return $(this).find('.b-plan').append(sensor);
+    });
+  };
   return $scope.addSens = function(name, objId) {
     return Map.addSens(name, objId, $scope);
   };

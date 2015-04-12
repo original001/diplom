@@ -1,4 +1,4 @@
-moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog) ->
+moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $window, $document) ->
 	$scope.lists = []
 
 	$ ->
@@ -9,11 +9,29 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog) ->
 			$ '.index-md-content'
 				.height w.height() - 64
 
-	$ document
-		.on 'click', '#addPlan', ->
-			$ '.demo-tab'
-				.each ->
-					console.log 'good'
+	$scope.addPlan =  ->
+		$ ".b-plan"
+			.each ->
+				$ '<div class="help-screen" />'
+					.appendTo $ this
+					.fadeIn()
+		$ document
+			.on 'click','md-tab-content.md-active',(e) ->
+				$plan = $ this
+					.find '.b-plan'
+				w = $plan.width()
+				h = $plan.height()
+				left = e.offsetX/w*100
+				top = e.offsetY/h*100
+				sensor = $ '<div />'
+					.css
+						top: top + '%'
+						left: left + '%'
+					.addClass 'sensor'
+					$ this
+						.find '.b-plan'
+							.append sensor
+		return
 
 	$scope.addSens = (name, objId) ->
 		Map.addSens name, objId, $scope

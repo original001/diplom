@@ -64,8 +64,8 @@
 	position: absolute;
 	width: 35px;
 	height: 35px;
-	margin-left: -16px;
-	margin-top: -16px;
+	margin-left: -18px;
+	margin-top: -18px;
 	background: url(../img/sensor.png) 50% 50% no-repeat;
 	border: 1px solid #363636;
 	-webkit-border-radius: 20px;
@@ -113,4 +113,14 @@
 	font-weight: bold;
 	line-height: 1.8;
 	content: '';
+}
+.help-screen {
+	display: none;
+	z-index: 10;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(64, 255, 103, .32);
 }
