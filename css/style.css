@@ -61,6 +61,7 @@
 	position: relative;
 }
 .sensor {
+	display: block;
 	position: absolute;
 	width: 35px;
 	height: 35px;
@@ -71,6 +72,15 @@
 	-webkit-border-radius: 20px;
 	-moz-border-radius: 20px;
 	border-radius: 20px;
+	-webkit-transition:background .174s;
+	-ms-transition:background .174s;
+	-o-transition:background .174s;
+	transition:background .174s;
+	-moz-transition:background .174s;
+	cursor: pointer;
+}
+.sensor:hover {
+	background-color: rgba(203, 0, 0, 0.16);
 }
 .button-custom {
 	top: 65px;

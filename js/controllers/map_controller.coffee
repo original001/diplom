@@ -35,7 +35,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 				h = $plan.height()
 				left = (e.offsetX/w*100).toPrecision 3
 				top = (e.offsetY/h*100).toPrecision 3
-				sensor = $ '<div />'
+				sensor = $ '<a />'
 					.css
 						top: top + '%'
 						left: left + '%'
@@ -75,7 +75,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 			targetEvent: e
 		.then (answer) ->
 			# Main.update id, answer, $scope
-			
+
 	# toastController
 
 	$scope.toastPosition =

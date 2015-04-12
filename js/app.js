@@ -158,7 +158,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       h = $plan.height();
       left = (e.offsetX / w * 100).toPrecision(3);
       top = (e.offsetY / h * 100).toPrecision(3);
-      sensor = $('<div />').css({
+      sensor = $('<a />').css({
         top: top + '%',
         left: left + '%'
       }).addClass('sensor');
