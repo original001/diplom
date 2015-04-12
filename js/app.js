@@ -76,7 +76,7 @@ moduleCtrl = angular.module('Diplom.controllers.Main', []).controller('MainContr
   Main.list($scope);
   $scope.showConfirm = function(e, id) {
     var confirm;
-    confirm = $mdDialog.confirm().parent(angular.element(document.body)).title('Вы уверены, что хотите удалить елемент').ariaLabel('Подтверждение удаления').ok('Да').cancel('Нет').targetEvent(e);
+    confirm = $mdDialog.confirm().parent(angular.element(document.body)).title('Вы уверены, что хотите удалить объект').ariaLabel('Подтверждение удаления').ok('Да').cancel('Нет').targetEvent(e);
     return $mdDialog.show(confirm).then(function() {
       return Main.remove(id, $scope);
     });
@@ -136,7 +136,9 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
     });
   });
   $scope.cancelAddPlan = function() {
-    $('.help-screen').fadeOut().remove();
+    $('.help-screen').fadeOut(200, function() {
+      return $(this).remove();
+    });
     return $(document).off('click', 'md-tab-content.md-active');
   };
   $scope.addPlan = function() {
@@ -165,6 +167,25 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   };
   $scope.addSens = function(name, objId) {
     return Map.addSens(name, objId, $scope);
+  };
+  $scope.showConfirm = function(e, id) {
+    var confirm;
+    confirm = $mdDialog.confirm().parent(angular.element(document.body)).title('Вы уверены, что хотите удалить карту?').ariaLabel('Подтверждение удаления').ok('Да').cancel('Нет').targetEvent(e);
+    return $mdDialog.show(confirm).then(function() {});
+  };
+  $scope.showModalAdd = function(e, name) {
+    return $mdDialog.show({
+      controller: DialogController,
+      templateUrl: '/view/dialog-add.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {});
+  };
+  $scope.showModal = function(e, id) {
+    return $mdDialog.show({
+      controller: DialogController,
+      templateUrl: '/view/dialog.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {});
   };
   $scope.toastPosition = {
     bottom: false,

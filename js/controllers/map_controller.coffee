@@ -10,8 +10,9 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 
 	$scope.cancelAddPlan = ->
 		$ '.help-screen'
-			.fadeOut()
-			.remove()
+			.fadeOut 200, ->
+				$ this
+					.remove()
 
 		$ document
 			.off 'click', 'md-tab-content.md-active'
@@ -47,6 +48,34 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	$scope.addSens = (name, objId) ->
 		Map.addSens name, objId, $scope
 
+	$scope.showConfirm = (e, id) ->
+		confirm = $mdDialog.confirm()
+			.parent angular.element document.body
+			.title 'Вы уверены, что хотите удалить карту?'
+			.ariaLabel 'Подтверждение удаления'
+			.ok 'Да'
+			.cancel 'Нет'
+			.targetEvent(e)
+		$mdDialog.show confirm
+			.then ->
+				# Main.remove id, $scope
+
+	$scope.showModalAdd = (e, name) ->
+		$mdDialog.show
+			controller: DialogController
+			templateUrl: '/view/dialog-add.tpl.html'
+			targetEvent: e
+		.then (answer) ->
+			# Main.addObj answer, $scope
+
+	$scope.showModal = (e, id) ->
+		$mdDialog.show
+			controller: DialogController
+			templateUrl: '/view/dialog.tpl.html'
+			targetEvent: e
+		.then (answer) ->
+			# Main.update id, answer, $scope
+			
 	# toastController
 
 	$scope.toastPosition =

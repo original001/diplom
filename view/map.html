@@ -1,10 +1,10 @@
 <div class="sample" layout="column" style="height:100%">
     <md-select ng-model="someVal" class="md-fab md-mini md-button md-default-theme button-custom">
-        <md-option ng-click="addPlan()" value="1">Добавить план</md-option>
-        <md-option value="2">Добавить датчик</md-option>
+        <md-option ng-click="showModalAdd($event)" value="1">Добавить план</md-option>
+        <md-option ng-click="addPlan()" value="2">Добавить датчик</md-option>
     </md-select>
-    <md-button class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
-    <md-button class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
+    <md-button ng-click="showConfirm($event)" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
+    <md-button ng-click="showModal($event)"  class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
     <md-tabs md-selected="selectedIndex" md-border-bottom class="height100">
         <md-tab label="1 этаж">
             <div class="demo-tab tab" style="padding: 25px 60px 25px 25px; text-align: center;">

@@ -6,7 +6,7 @@ moduleCtrl = angular.module 'Diplom.controllers.Main', []
 		$scope.showConfirm = (e, id) ->
 			confirm = $mdDialog.confirm()
 				.parent angular.element document.body
-				.title 'Вы уверены, что хотите удалить елемент'
+				.title 'Вы уверены, что хотите удалить объект'
 				.ariaLabel 'Подтверждение удаления'
 				.ok 'Да'
 				.cancel 'Нет'
