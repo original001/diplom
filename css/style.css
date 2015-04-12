@@ -64,8 +64,8 @@
 	position: absolute;
 	width: 35px;
 	height: 35px;
-	margin-left: -18px;
-	margin-top: -18px;
+	margin-left: -20px;
+	margin-top: -20px;
 	background: url(../img/sensor.png) 50% 50% no-repeat;
 	border: 1px solid #363636;
 	-webkit-border-radius: 20px;

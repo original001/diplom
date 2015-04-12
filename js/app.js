@@ -125,7 +125,7 @@ DialogController = function($scope, $mdDialog) {
   };
 };
 
-moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog, $window, $document) {
+moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) {
   $scope.lists = [];
   $(function() {
     var w;
@@ -135,17 +135,27 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       return $('.index-md-content').height(w.height() - 64);
     });
   });
+  $scope.cancelAddPlan = function() {
+    $('.help-screen').fadeOut().remove();
+    return $(document).off('click', 'md-tab-content.md-active');
+  };
   $scope.addPlan = function() {
+    var toast;
+    toast = false;
     $(".b-plan").each(function() {
       return $('<div class="help-screen" />').appendTo($(this)).fadeIn();
     });
     $(document).on('click', 'md-tab-content.md-active', function(e) {
       var $plan, h, left, sensor, top, w;
+      if (!toast) {
+        toast = true;
+        $scope.showActionToast();
+      }
       $plan = $(this).find('.b-plan');
       w = $plan.width();
       h = $plan.height();
-      left = e.offsetX / w * 100;
-      top = e.offsetY / h * 100;
+      left = (e.offsetX / w * 100).toPrecision(3);
+      top = (e.offsetY / h * 100).toPrecision(3);
       sensor = $('<div />').css({
         top: top + '%',
         left: left + '%'
@@ -153,8 +163,26 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       return $(this).find('.b-plan').append(sensor);
     });
   };
-  return $scope.addSens = function(name, objId) {
+  $scope.addSens = function(name, objId) {
     return Map.addSens(name, objId, $scope);
+  };
+  $scope.toastPosition = {
+    bottom: false,
+    top: true,
+    left: false,
+    right: true
+  };
+  $scope.getToastPosition = function() {
+    return Object.keys($scope.toastPosition).filter(function(pos) {
+      return $scope.toastPosition[pos];
+    }).join(' ');
+  };
+  return $scope.showActionToast = function() {
+    var toast;
+    toast = $mdToast.simple().content('Датчик добавлен').action('Сохранить').highlightAction(false).position($scope.getToastPosition());
+    return $mdToast.show(toast).then(function() {
+      return $scope.cancelAddPlan();
+    });
   };
 });
 
