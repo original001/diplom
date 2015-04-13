@@ -4,9 +4,11 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 		img: ''
 	]
 	$scope.mapId = 0
+	$scope.lazyShow = true
 
 	$scope.onTab = (id)->	
 		$scope.mapId = id
+
 
 	Map.list $scope
 

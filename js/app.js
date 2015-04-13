@@ -131,6 +131,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
     }
   ];
   $scope.mapId = 0;
+  $scope.lazyShow = true;
   $scope.onTab = function(id) {
     return $scope.mapId = id;
   };
@@ -373,7 +374,8 @@ moduleService.service('Map', function(DB) {
         });
         $scope.tabs = arr;
         $scope.mapId = arr[0].id;
-        return $scope.$apply();
+        $scope.$apply();
+        return $scope.lazyShow = false;
       });
     });
   };

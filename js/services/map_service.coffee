@@ -15,6 +15,7 @@ moduleService
 					$scope.tabs = arr
 					$scope.mapId = arr[0].id
 					do $scope.$apply
+					$scope.lazyShow = false
 
 		@addPlan = (name, img, $scope) ->
 			t = new DB.Maps
