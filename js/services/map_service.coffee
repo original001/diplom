@@ -6,14 +6,15 @@ moduleService
 			DB.Maps.all().list (items) ->
 				arr = []
 				items.forEach (item)->
-					item.sensors.list null, (res)->
-						count = res.length
-						arr.push
-							name: item.name
-							id: item.id
-							count: count
-						$scope.lists = arr
-						do $scope.$apply
+					# item.sensors.list null, (res)->
+					# count = res.length
+					arr.push
+						name: item.name
+						id: item.id
+						img: item.img
+					$scope.tabs = arr
+					$scope.mapId = arr[0].id
+					do $scope.$apply
 
 		@addPlan = (name, img, $scope) ->
 			t = new DB.Maps
@@ -29,20 +30,23 @@ moduleService
 		@removePlan = (id, $scope) ->
 			DB.Maps.all().filter 'id','=',id
 				.destroyAll ->
-					# $scope.tabs.forEach (elem, ind) ->	
-						# if elem.id == id
-							# $scope.lists.splice ind, 1
-							# do $scope.$apply
+					$scope.tabs.forEach (elem, ind) ->	
+						if elem.id == id
+							$scope.tabs.splice ind, 1
+							do $scope.$apply
+					$scope.mapId = $scope.tabs[$scope.selectedIndex].id
 						
 
-		@update = (id, newName, $scope) ->
-			DB.Obj.all().filter 'id','=',id
+		@update = (id, newName, newImg, $scope) ->
+			DB.Maps.all().filter 'id','=',id
 				.one (obj) ->
 					obj.name = newName
+					obj.img = newImg if newImg
 					persistence.flush ->
-						$scope.lists.forEach (item, ind) ->
+						$scope.tabs.forEach (item, ind) ->
 							if item.id == obj.id
 								item.name = newName
+								item.img = newImg if newImg
 								do $scope.$apply
 
 		@addSens = (sensName, objId, $scope) ->
@@ -54,7 +58,7 @@ moduleService
 						date: new Date().getTime()
 					obj.sensors.add(s)
 					persistence.flush ->
-						$scope.lists.forEach (item, ind) ->
+						$scope.tabs.forEach (item, ind) ->
 							if item.name == obj.name
 								item.count += 1
 								do $scope.$apply

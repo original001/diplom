@@ -1,5 +1,16 @@
 moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) ->
 	$scope.tabs = [
+		name: 'tab'
+		img: ''
+	]
+	$scope.mapId = 0
+
+	$scope.onTab = (id)->	
+		$scope.mapId = id
+
+	Map.list $scope
+
+	array = [
 		name: '1 floor'	
 		img: 'img/plans/plqn1.jpg'
 		sensors:[
@@ -97,7 +108,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	$scope.addSens = (name, objId) ->
 		Map.addSens name, objId, $scope
 
-	$scope.showConfirm = (e, id) ->
+	$scope.deletePlan = (e, id) ->
 		confirm = $mdDialog.confirm()
 			.parent angular.element document.body
 			.title 'Вы уверены, что хотите удалить карту?'
@@ -107,7 +118,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 			.targetEvent(e)
 		$mdDialog.show confirm
 			.then ->
-				Map.removePlan '2A72E5D20C6A4271BE5D03A17CEAAC2B', $scope
+				Map.removePlan id, $scope
 
 	$scope.showModalAdd = (e, name) ->
 		$mdDialog.show
@@ -117,13 +128,13 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 		.then (answer) ->
 			Map.addPlan answer.name, answer.img, $scope
 
-	$scope.showModal = (e, id) ->
+	$scope.editPlan = (e, id) ->
 		$mdDialog.show
 			controller: DialogController
-			templateUrl: '/view/dialog.tpl.html'
+			templateUrl: '/view/dialog-edit-map.tpl.html'
 			targetEvent: e
 		.then (answer) ->
-			# Main.update id, answer, $scope
+			Map.update id, answer.name, answer.img, $scope
 
 	# toastController
 

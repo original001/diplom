@@ -3,10 +3,10 @@
         <md-option ng-click="showModalAdd($event)" value="1">Добавить план</md-option>
         <md-option ng-click="addPlan()" value="2">Добавить датчик</md-option>
     </md-select>
-    <md-button ng-click="showConfirm($event)" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
-    <md-button ng-click="showModal($event)"  class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
+    <md-button ng-click="deletePlan($event, mapId)" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
+    <md-button ng-click="editPlan($event, mapId)"  class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
     <md-tabs md-selected="selectedIndex" md-border-bottom class="height100">
-        <md-tab label="{{tab.name}}" ng-repeat="tab in tabs">
+        <md-tab label="{{tab.name}}" ng-repeat="tab in tabs" md-on-select="onTab(tab.id)">
             <div class="demo-tab tab" style="padding: 25px 60px 25px 25px; text-align: center;">
                 <div class="b-plan">
                     <img ng-src="{{tab.img}}" alt="" class="img-plan">
@@ -15,4 +15,5 @@
             </div>
         </md-tab>
     </md-tabs>
+    <!-- <md-progress-circular md-mode="indeterminate"></md-progress-circular> -->
 </div>

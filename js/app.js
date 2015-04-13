@@ -39,8 +39,7 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   }),
   Maps: persistence.define('Maps2', {
     name: "TEXT",
-    img: "TEXT",
-    sensor: "JSON"
+    img: "TEXT"
   })
 });
 
@@ -124,7 +123,19 @@ DialogController = function($scope, $mdDialog) {
 };
 
 moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) {
+  var array;
   $scope.tabs = [
+    {
+      name: 'tab',
+      img: ''
+    }
+  ];
+  $scope.mapId = 0;
+  $scope.onTab = function(id) {
+    return $scope.mapId = id;
+  };
+  Map.list($scope);
+  array = [
     {
       name: '1 floor',
       img: 'img/plans/plqn1.jpg',
@@ -222,11 +233,11 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   $scope.addSens = function(name, objId) {
     return Map.addSens(name, objId, $scope);
   };
-  $scope.showConfirm = function(e, id) {
+  $scope.deletePlan = function(e, id) {
     var confirm;
     confirm = $mdDialog.confirm().parent(angular.element(document.body)).title('Вы уверены, что хотите удалить карту?').ariaLabel('Подтверждение удаления').ok('Да').cancel('Нет').targetEvent(e);
     return $mdDialog.show(confirm).then(function() {
-      return Map.removePlan('2A72E5D20C6A4271BE5D03A17CEAAC2B', $scope);
+      return Map.removePlan(id, $scope);
     });
   };
   $scope.showModalAdd = function(e, name) {
@@ -238,12 +249,14 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       return Map.addPlan(answer.name, answer.img, $scope);
     });
   };
-  $scope.showModal = function(e, id) {
+  $scope.editPlan = function(e, id) {
     return $mdDialog.show({
       controller: DialogController,
-      templateUrl: '/view/dialog.tpl.html',
+      templateUrl: '/view/dialog-edit-map.tpl.html',
       targetEvent: e
-    }).then(function(answer) {});
+    }).then(function(answer) {
+      return Map.update(id, answer.name, answer.img, $scope);
+    });
   };
   $scope.toastPosition = {
     bottom: false,
@@ -353,17 +366,14 @@ moduleService.service('Map', function(DB) {
       var arr;
       arr = [];
       return items.forEach(function(item) {
-        return item.sensors.list(null, function(res) {
-          var count;
-          count = res.length;
-          arr.push({
-            name: item.name,
-            id: item.id,
-            count: count
-          });
-          $scope.lists = arr;
-          return $scope.$apply();
+        arr.push({
+          name: item.name,
+          id: item.id,
+          img: item.img
         });
+        $scope.tabs = arr;
+        $scope.mapId = arr[0].id;
+        return $scope.$apply();
       });
     });
   };
@@ -381,15 +391,29 @@ moduleService.service('Map', function(DB) {
     });
   };
   this.removePlan = function(id, $scope) {
-    return DB.Maps.all().filter('id', '=', id).destroyAll(function() {});
+    return DB.Maps.all().filter('id', '=', id).destroyAll(function() {
+      $scope.tabs.forEach(function(elem, ind) {
+        if (elem.id === id) {
+          $scope.tabs.splice(ind, 1);
+          return $scope.$apply();
+        }
+      });
+      return $scope.mapId = $scope.tabs[$scope.selectedIndex].id;
+    });
   };
-  this.update = function(id, newName, $scope) {
-    return DB.Obj.all().filter('id', '=', id).one(function(obj) {
+  this.update = function(id, newName, newImg, $scope) {
+    return DB.Maps.all().filter('id', '=', id).one(function(obj) {
       obj.name = newName;
+      if (newImg) {
+        obj.img = newImg;
+      }
       return persistence.flush(function() {
-        return $scope.lists.forEach(function(item, ind) {
+        return $scope.tabs.forEach(function(item, ind) {
           if (item.id === obj.id) {
             item.name = newName;
+            if (newImg) {
+              item.img = newImg;
+            }
             return $scope.$apply();
           }
         });
@@ -407,7 +431,7 @@ moduleService.service('Map', function(DB) {
         });
         obj.sensors.add(s);
         return persistence.flush(function() {
-          return $scope.lists.forEach(function(item, ind) {
+          return $scope.tabs.forEach(function(item, ind) {
             if (item.name === obj.name) {
               item.count += 1;
               return $scope.$apply();

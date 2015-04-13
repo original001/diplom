@@ -44,7 +44,6 @@ angular.module 'Monitor', [
         Maps: persistence.define 'Maps2',  
             name: "TEXT",
             img: "TEXT",
-            sensor: "JSON",
 
 angular.module 'mobile-angular-ui', [
     'mobile-angular-ui.core.activeLinks',

@@ -1,0 +1,20 @@
+<md-dialog aria-label="Переименовать">
+    <form name="renameFormObj">
+        <md-content>
+            <form name="renameFormObj">
+                <md-input-container>
+                    <label>Новое имя</label>
+                    <input name="renameObj" ng-model="rename.name" ng-required="true">
+                </md-input-container>
+                <md-input-container>
+                    <label style="padding-bottom:30px">Новое изображение</label>
+                    <input type="file" ng-model="plan.img" base-sixty-four-input>
+                </md-input-container>
+        </md-content>
+        </form>
+        <div class="md-actions">
+            <md-button ng-click="cancel()">Отмена</md-button>
+            <md-button class="md-raised" ng-disabled="renameFormObj.renameObj.$invalid" ng-click="answer({name: rename.name,img: plan.img.dataURI()})">Переименовать</md-button>
+        </div>
+    </form>
+</md-dialog>
