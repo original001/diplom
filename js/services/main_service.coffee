@@ -1,12 +1,10 @@
 moduleService = angular.module 'Diplom.services.Main', []
 	.service 'Main', (DB) ->
-		DB.Obj.hasMany('sensors', DB.Sensor, 'obj')
-		persistence.schemaSync()
 		@list = ($scope) ->
 			DB.Obj.all().list (items) ->
 				arr = []
 				items.forEach (item)->
-					item.sensors.list null, (res)->
+					item.sensors.list (res)->
 						count = res.length
 						arr.push
 							name: item.name

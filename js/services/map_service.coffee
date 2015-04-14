@@ -1,32 +1,36 @@
 moduleService
 	.service 'Map', (DB) ->
-		DB.Maps.hasMany('sensors', DB.Sensor, 'map')
-		persistence.schemaSync()
-		@list = ($scope) ->
-			DB.Maps.all().list (items) ->
-				arr = []
-				items.forEach (item)->
-					# item.sensors.list null, (res)->
-					# count = res.length
-					arr.push
-						name: item.name
-						id: item.id
-						img: item.img
-					$scope.tabs = arr
-					$scope.mapId = arr[0].id
-					do $scope.$apply
-					$scope.lazyShow = false
+		@list = ($scope, objId) ->
+			DB.Obj.findBy persistence, null, 'id',objId,(obj)->
+				if obj
+					obj.maps.list (items) ->
+						arr = []
+						if items.length != 0
+							items.forEach (item)->
+								# item.sensors.list null, (res)->
+								# count = res.length
+								arr.push
+									name: item.name
+									id: item.id
+									img: item.img
+								$scope.mapId = arr[0].id
+						$scope.tabs = arr
+						do $scope.$apply
+						$scope.lazyShow = false
 
-		@addPlan = (name, img, $scope) ->
-			t = new DB.Maps
-			t.name = name
-			t.img = img
-			persistence.add t
-			persistence.flush()
-			$scope.tabs.push
-				id: t.id
-				name: name
-				img: img
+		@addPlan = (name, img, $scope, objId) ->
+			DB.Obj.findBy persistence, null, 'id',objId,(obj)->
+				if obj
+					t = new DB.Maps
+					t.name = name
+					t.img = img
+					obj.maps.add t
+					persistence.flush ->
+						$scope.tabs.push
+							id: t.id
+							name: name
+							img: img
+						do $scope.$apply
 
 		@removePlan = (id, $scope) ->
 			DB.Maps.all().filter 'id','=',id

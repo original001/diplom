@@ -9,8 +9,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	$scope.onTab = (id)->	
 		$scope.mapId = id
 
-
-	Map.list $scope
+	Map.list $scope, $routeParams.objId
 
 	array = [
 		name: '1 floor'	
@@ -79,7 +78,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 		$ document
 			.off 'click', 'md-tab-content.md-active'
 
-	$scope.addPlan =  ->
+	$scope.addSens =  ->
 		toast = false
 		$ ".b-plan"
 			.each ->
@@ -107,9 +106,6 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 							.append sensor
 		return
 
-	$scope.addSens = (name, objId) ->
-		Map.addSens name, objId, $scope
-
 	$scope.deletePlan = (e, id) ->
 		confirm = $mdDialog.confirm()
 			.parent angular.element document.body
@@ -128,7 +124,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 			templateUrl: '/view/dialog-add-map.tpl.html'
 			targetEvent: e
 		.then (answer) ->
-			Map.addPlan answer.name, answer.img, $scope
+			Map.addPlan answer.name, answer.img, $scope, $routeParams.objId
 
 	$scope.editPlan = (e, id) ->
 		$mdDialog.show

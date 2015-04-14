@@ -13,11 +13,11 @@ angular.module 'Monitor', [
 	.config ($routeProvider, $locationProvider) -> 
 		persistence.store.websql.config persistence, 'sensors2', 'База данных для мониторинга', 5 * 1024 * 1024
 		$routeProvider.when '/', 
-            templateUrl: 'view/map.html'
+            templateUrl: 'view/home.html'
+            controller: 'MainController'
+        .when '/map/:objId',
+            templateUrl:'view/map.html'
             controller: 'MapController'
-        # .when '/map/:objId',
-            # templateUrl:'view/map.html'
-            # controller: 'MapController'
         $locationProvider.html5Mode true
 
 	.constant 'DB',
@@ -28,7 +28,7 @@ angular.module 'Monitor', [
         SensMany: persistence.define 'SensMany',  
             sensor: "INT",
             GroupOfSens: "INT"
-        Sensor: persistence.define 'Sensor',  
+        Sensor: persistence.define 'Sensor4',  
             name: "TEXT",
             sensCat: "INT",
             top: "INT"
@@ -41,9 +41,15 @@ angular.module 'Monitor', [
             name: "TEXT",
             sensCat: "INT",
             obj: "INT"
-        Maps: persistence.define 'Maps2',  
+        Maps: persistence.define 'Maps5',
             name: "TEXT",
             img: "TEXT",
+    .config (DB) ->
+        DB.Maps.hasMany('sensors', DB.Sensor, 'map')
+        DB.Obj.hasMany('maps', DB.Maps, 'obj')
+        DB.Obj.hasMany('sensors', DB.Sensor, 'obj')
+        persistence.schemaSync()
+        
 
 angular.module 'mobile-angular-ui', [
     'mobile-angular-ui.core.activeLinks',

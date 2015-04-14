@@ -6,6 +6,9 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
 }).config(function($routeProvider, $locationProvider) {
   persistence.store.websql.config(persistence, 'sensors2', 'База данных для мониторинга', 5 * 1024 * 1024);
   $routeProvider.when('/', {
+    templateUrl: 'view/home.html',
+    controller: 'MainController'
+  }).when('/map/:objId', {
     templateUrl: 'view/map.html',
     controller: 'MapController'
   });
@@ -21,7 +24,7 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
     sensor: "INT",
     GroupOfSens: "INT"
   }),
-  Sensor: persistence.define('Sensor', {
+  Sensor: persistence.define('Sensor4', {
     name: "TEXT",
     sensCat: "INT",
     top: "INT",
@@ -37,10 +40,15 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
     sensCat: "INT",
     obj: "INT"
   }),
-  Maps: persistence.define('Maps2', {
+  Maps: persistence.define('Maps5', {
     name: "TEXT",
     img: "TEXT"
   })
+}).config(function(DB) {
+  DB.Maps.hasMany('sensors', DB.Sensor, 'map');
+  DB.Obj.hasMany('maps', DB.Maps, 'obj');
+  DB.Obj.hasMany('sensors', DB.Sensor, 'obj');
+  return persistence.schemaSync();
 });
 
 angular.module('mobile-angular-ui', ['mobile-angular-ui.core.activeLinks', 'mobile-angular-ui.core.fastclick', 'mobile-angular-ui.core.sharedState', 'mobile-angular-ui.core.outerClick', 'mobile-angular-ui.components.modals', 'mobile-angular-ui.components.switch', 'mobile-angular-ui.components.sidebars', 'mobile-angular-ui.components.scrollable', 'mobile-angular-ui.components.navbars']);
@@ -135,7 +143,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   $scope.onTab = function(id) {
     return $scope.mapId = id;
   };
-  Map.list($scope);
+  Map.list($scope, $routeParams.objId);
   array = [
     {
       name: '1 floor',
@@ -207,7 +215,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
     });
     return $(document).off('click', 'md-tab-content.md-active');
   };
-  $scope.addPlan = function() {
+  $scope.addSens = function() {
     var toast;
     toast = false;
     $(".b-plan").each(function() {
@@ -231,9 +239,6 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       return $(this).find('.b-plan').append(sensor);
     });
   };
-  $scope.addSens = function(name, objId) {
-    return Map.addSens(name, objId, $scope);
-  };
   $scope.deletePlan = function(e, id) {
     var confirm;
     confirm = $mdDialog.confirm().parent(angular.element(document.body)).title('Вы уверены, что хотите удалить карту?').ariaLabel('Подтверждение удаления').ok('Да').cancel('Нет').targetEvent(e);
@@ -247,7 +252,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       templateUrl: '/view/dialog-add-map.tpl.html',
       targetEvent: e
     }).then(function(answer) {
-      return Map.addPlan(answer.name, answer.img, $scope);
+      return Map.addPlan(answer.name, answer.img, $scope, $routeParams.objId);
     });
   };
   $scope.editPlan = function(e, id) {
@@ -280,14 +285,12 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
 });
 
 moduleService = angular.module('Diplom.services.Main', []).service('Main', function(DB) {
-  DB.Obj.hasMany('sensors', DB.Sensor, 'obj');
-  persistence.schemaSync();
   this.list = function($scope) {
     return DB.Obj.all().list(function(items) {
       var arr;
       arr = [];
       return items.forEach(function(item) {
-        return item.sensors.list(null, function(res) {
+        return item.sensors.list(function(res) {
           var count;
           count = res.length;
           arr.push({
@@ -360,36 +363,46 @@ moduleService = angular.module('Diplom.services.Main', []).service('Main', funct
 });
 
 moduleService.service('Map', function(DB) {
-  DB.Maps.hasMany('sensors', DB.Sensor, 'map');
-  persistence.schemaSync();
-  this.list = function($scope) {
-    return DB.Maps.all().list(function(items) {
-      var arr;
-      arr = [];
-      return items.forEach(function(item) {
-        arr.push({
-          name: item.name,
-          id: item.id,
-          img: item.img
+  this.list = function($scope, objId) {
+    return DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
+      if (obj) {
+        return obj.maps.list(function(items) {
+          var arr;
+          arr = [];
+          if (items.length !== 0) {
+            items.forEach(function(item) {
+              arr.push({
+                name: item.name,
+                id: item.id,
+                img: item.img
+              });
+              return $scope.mapId = arr[0].id;
+            });
+          }
+          $scope.tabs = arr;
+          $scope.$apply();
+          return $scope.lazyShow = false;
         });
-        $scope.tabs = arr;
-        $scope.mapId = arr[0].id;
-        $scope.$apply();
-        return $scope.lazyShow = false;
-      });
+      }
     });
   };
-  this.addPlan = function(name, img, $scope) {
-    var t;
-    t = new DB.Maps;
-    t.name = name;
-    t.img = img;
-    persistence.add(t);
-    persistence.flush();
-    return $scope.tabs.push({
-      id: t.id,
-      name: name,
-      img: img
+  this.addPlan = function(name, img, $scope, objId) {
+    return DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
+      var t;
+      if (obj) {
+        t = new DB.Maps;
+        t.name = name;
+        t.img = img;
+        obj.maps.add(t);
+        return persistence.flush(function() {
+          $scope.tabs.push({
+            id: t.id,
+            name: name,
+            img: img
+          });
+          return $scope.$apply();
+        });
+      }
     });
   };
   this.removePlan = function(id, $scope) {
