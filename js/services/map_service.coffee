@@ -7,16 +7,22 @@ moduleService
 						arr = []
 						if items.length != 0
 							items.forEach (item)->
-								# item.sensors.list null, (res)->
-								# count = res.length
-								arr.push
-									name: item.name
-									id: item.id
-									img: item.img
-								$scope.mapId = arr[0].id
-						$scope.tabs = arr
-						do $scope.$apply
-						$scope.lazyShow = false
+								sensors = []
+								item.sensors.list null, (sens)->
+									sens.forEach (sen)->
+										sensors.push
+											id: sen.id
+											top: sen.top
+											left: sen.left
+									arr.push
+										name: item.name
+										id: item.id
+										img: item.img
+										sensors: sensors
+									$scope.mapId = arr[0].id
+									$scope.tabs = arr
+									do $scope.$apply
+									$scope.lazyShow = false
 
 		@addPlan = (name, img, $scope, objId) ->
 			DB.Obj.findBy persistence, null, 'id',objId,(obj)->
@@ -30,6 +36,8 @@ moduleService
 							id: t.id
 							name: name
 							img: img
+							sensors: []
+						$scope.mapId = t.id
 						do $scope.$apply
 
 		@removePlan = (id, $scope) ->
@@ -54,18 +62,25 @@ moduleService
 								item.img = newImg if newImg
 								do $scope.$apply
 
-		@addSens = (sensName, objId, $scope) ->
+		@addSens = (sensName,top,left, objId,mapId, $scope) ->
 			DB.Obj.findBy persistence, null, 'id',objId,(obj)->
 				if obj
-					s = new DB.Sensor
-						name: sensName
-						sensCat: "1"
-						date: new Date().getTime()
-					obj.sensors.add(s)
-					persistence.flush ->
-						$scope.tabs.forEach (item, ind) ->
-							if item.name == obj.name
-								item.count += 1
-								do $scope.$apply
+					DB.Maps.findBy persistence, null, 'id',mapId,(map)->
+						if map
+							s = new DB.Sensor
+								name: sensName
+								top: top
+								left: left
+							obj.sensors.add(s)
+							map.sensors.add(s)
+							persistence.flush ->
+								$scope.tabs.forEach (item, ind) ->
+									if item.id == map.id
+										$scope.tabs.sensors ?= []
+										$scope.tabs.sensors.push
+											id: s.id	
+											top: top	
+											left: left
+										do $scope.$apply
 
 		return

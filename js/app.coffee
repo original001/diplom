@@ -18,7 +18,9 @@ angular.module 'Monitor', [
         .when '/map/:objId',
             templateUrl:'view/map.html'
             controller: 'MapController'
-        $locationProvider.html5Mode true
+        $locationProvider.html5Mode
+            enable: false
+            requireBase: false
 
 	.constant 'DB',
         Obj: persistence.define 'Obj',  
@@ -28,9 +30,8 @@ angular.module 'Monitor', [
         SensMany: persistence.define 'SensMany',  
             sensor: "INT",
             GroupOfSens: "INT"
-        Sensor: persistence.define 'Sensor4',  
+        Sensor: persistence.define 'Sensor5',  
             name: "TEXT",
-            sensCat: "INT",
             top: "INT"
             left: "INT"
         Graph: persistence.define 'Graph',  

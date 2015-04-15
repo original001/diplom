@@ -2,6 +2,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	$scope.tabs = [
 		name: 'tab'
 		img: ''
+		sensors: []
 	]
 	$scope.mapId = 0
 	$scope.lazyShow = true
@@ -101,6 +102,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 						top: top + '%'
 						left: left + '%'
 					.addClass 'sensor'
+					Map.addSens 'sensor',top,left,$routeParams.objId,$scope.mapId,$scope
 					$ this
 						.find '.b-plan'
 							.append sensor

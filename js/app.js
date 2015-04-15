@@ -12,7 +12,10 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
     templateUrl: 'view/map.html',
     controller: 'MapController'
   });
-  return $locationProvider.html5Mode(true);
+  return $locationProvider.html5Mode({
+    enable: false,
+    requireBase: false
+  });
 }).constant('DB', {
   Obj: persistence.define('Obj', {
     name: "TEXT"
@@ -24,9 +27,8 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
     sensor: "INT",
     GroupOfSens: "INT"
   }),
-  Sensor: persistence.define('Sensor4', {
+  Sensor: persistence.define('Sensor5', {
     name: "TEXT",
-    sensCat: "INT",
     top: "INT",
     left: "INT"
   }),
@@ -135,7 +137,8 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   $scope.tabs = [
     {
       name: 'tab',
-      img: ''
+      img: '',
+      sensors: []
     }
   ];
   $scope.mapId = 0;
@@ -236,6 +239,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
         top: top + '%',
         left: left + '%'
       }).addClass('sensor');
+      Map.addSens('sensor', top, left, $routeParams.objId, $scope.mapId, $scope);
       return $(this).find('.b-plan').append(sensor);
     });
   };
@@ -370,18 +374,30 @@ moduleService.service('Map', function(DB) {
           var arr;
           arr = [];
           if (items.length !== 0) {
-            items.forEach(function(item) {
-              arr.push({
-                name: item.name,
-                id: item.id,
-                img: item.img
+            return items.forEach(function(item) {
+              var sensors;
+              sensors = [];
+              return item.sensors.list(null, function(sens) {
+                sens.forEach(function(sen) {
+                  return sensors.push({
+                    id: sen.id,
+                    top: sen.top,
+                    left: sen.left
+                  });
+                });
+                arr.push({
+                  name: item.name,
+                  id: item.id,
+                  img: item.img,
+                  sensors: sensors
+                });
+                $scope.mapId = arr[0].id;
+                $scope.tabs = arr;
+                $scope.$apply();
+                return $scope.lazyShow = false;
               });
-              return $scope.mapId = arr[0].id;
             });
           }
-          $scope.tabs = arr;
-          $scope.$apply();
-          return $scope.lazyShow = false;
         });
       }
     });
@@ -398,8 +414,10 @@ moduleService.service('Map', function(DB) {
           $scope.tabs.push({
             id: t.id,
             name: name,
-            img: img
+            img: img,
+            sensors: []
           });
+          $scope.mapId = t.id;
           return $scope.$apply();
         });
       }
@@ -435,23 +453,36 @@ moduleService.service('Map', function(DB) {
       });
     });
   };
-  this.addSens = function(sensName, objId, $scope) {
+  this.addSens = function(sensName, top, left, objId, mapId, $scope) {
     return DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
-      var s;
       if (obj) {
-        s = new DB.Sensor({
-          name: sensName,
-          sensCat: "1",
-          date: new Date().getTime()
-        });
-        obj.sensors.add(s);
-        return persistence.flush(function() {
-          return $scope.tabs.forEach(function(item, ind) {
-            if (item.name === obj.name) {
-              item.count += 1;
-              return $scope.$apply();
-            }
-          });
+        return DB.Maps.findBy(persistence, null, 'id', mapId, function(map) {
+          var s;
+          if (map) {
+            s = new DB.Sensor({
+              name: sensName,
+              top: top,
+              left: left
+            });
+            obj.sensors.add(s);
+            map.sensors.add(s);
+            return persistence.flush(function() {
+              return $scope.tabs.forEach(function(item, ind) {
+                var _base;
+                if (item.id === map.id) {
+                  if ((_base = $scope.tabs).sensors == null) {
+                    _base.sensors = [];
+                  }
+                  $scope.tabs.sensors.push({
+                    id: s.id,
+                    top: top,
+                    left: left
+                  });
+                  return $scope.$apply();
+                }
+              });
+            });
+          }
         });
       }
     });
