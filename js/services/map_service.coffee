@@ -5,7 +5,7 @@ moduleService
 				if obj
 					obj.maps.list (items) ->
 						arr = []
-						if items.length? 
+						if items.length == 0 
 							$scope.lazyShow = false
 							$scope.tabs = []
 							do $scope.$apply

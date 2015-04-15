@@ -11,6 +11,9 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   }).when('/map/:objId', {
     templateUrl: 'view/map.html',
     controller: 'MapController'
+  }).when('/sensor/:sensId', {
+    templateUrl: 'view/sensor.html',
+    controller: 'SensController'
   });
   return $locationProvider.html5Mode({
     enable: false,
@@ -324,7 +327,7 @@ moduleService.service('Map', function(DB) {
         return obj.maps.list(function(items) {
           var arr;
           arr = [];
-          if (items.length != null) {
+          if (items.length === 0) {
             $scope.lazyShow = false;
             $scope.tabs = [];
             $scope.$apply();
@@ -445,5 +448,47 @@ moduleService.service('Map', function(DB) {
         });
       }
     });
+  };
+});
+
+moduleCtrl.controller('SensController', function($scope, $routeParams, Sens) {
+  $scope.sensor = [];
+  $scope.name = '';
+  return Sens.list($scope, $routeParams.sensId);
+});
+
+moduleService.service('Sens', function(DB) {
+  this.list = function($scope, sensId) {
+    return DB.Sensor.findBy(persistence, null, 'id', sensId, function(sens) {
+      var arr;
+      if (sens != null) {
+        arr = [];
+        return sens.fetch('obj', function(obj) {
+          var objName;
+          objName = obj.name;
+          return sens.fetch('map', function(map) {
+            var mapName;
+            mapName = map.name;
+            arr.push({
+              id: sens.id,
+              top: sens.top,
+              name: sens.name,
+              left: sens.left,
+              obj: objName,
+              map: mapName
+            });
+            $scope.sensor = arr;
+            $scope.name = sens.name;
+            return $scope.$apply();
+          });
+        });
+      }
+    });
+  };
+  this.removeSens = function(id, $scope) {
+    return DB.Sensor.all().filter('id', '=', id).destroyAll(function() {});
+  };
+  this.update = function(id, newName, newImg, $scope) {
+    return DB.Sensor.all().filter('id', '=', id).one(function(obj) {});
   };
 });

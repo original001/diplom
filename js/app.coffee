@@ -18,6 +18,9 @@ angular.module 'Monitor', [
         .when '/map/:objId',
             templateUrl:'view/map.html'
             controller: 'MapController'
+        .when '/sensor/:sensId',
+            templateUrl:'view/sensor.html'
+            controller: 'SensController'
         $locationProvider.html5Mode
             enable: false
             requireBase: false

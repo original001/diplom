@@ -1,0 +1,10 @@
+<md-list>
+    <md-subheader class="md-no-sticky"><b>{{name}}</b></md-subheader>
+    <div layout="column" layout-padding ng-repeat="sens in sensor">
+        <p>{{sens.id}}</p>
+        <p>{{sens.left}}</p>
+        <p>{{sens.top}}</p>
+        <p>{{sens.obj}}</p>
+        <p>{{sens.map}}</p>
+    </div>
+</md-list>
