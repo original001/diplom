@@ -80,6 +80,15 @@ cordovaApp.initialize();
 
 moduleCtrl = angular.module('Diplom.controllers.Main', []).controller('MainController', function($scope, $routeParams, Main, $mdDialog) {
   $scope.lists = [];
+  $scope.lazyShow = true;
+  $(function() {
+    var w;
+    w = $(window);
+    $('.index-md-content').height(w.height() - 64);
+    return w.resize(function() {
+      return $('.index-md-content').height(w.height() - 64);
+    });
+  });
   Main.list($scope);
   $scope.showConfirm = function(e, id) {
     var confirm;
@@ -230,7 +239,9 @@ moduleService = angular.module('Diplom.services.Main', []).service('Main', funct
     return DB.Obj.all().list(function(items) {
       var arr;
       arr = [];
-      return items.forEach(function(item) {
+      return items.forEach(function(item, ind, itemsArray) {
+        var indLast;
+        indLast = itemsArray.length - 1;
         return item.sensors.list(function(res) {
           var count;
           count = res.length;
@@ -240,6 +251,9 @@ moduleService = angular.module('Diplom.services.Main', []).service('Main', funct
             count: count
           });
           $scope.lists = arr;
+          if (ind === indLast) {
+            $scope.lazyShow = false;
+          }
           return $scope.$apply();
         });
       });
@@ -310,31 +324,35 @@ moduleService.service('Map', function(DB) {
         return obj.maps.list(function(items) {
           var arr;
           arr = [];
-          if (items.length !== 0) {
-            return items.forEach(function(item) {
-              var sensors;
-              sensors = [];
-              return item.sensors.list(null, function(sens) {
-                sens.forEach(function(sen) {
-                  return sensors.push({
-                    id: sen.id,
-                    top: sen.top,
-                    left: sen.left
-                  });
-                });
-                arr.push({
-                  name: item.name,
-                  id: item.id,
-                  img: item.img,
-                  sensors: sensors
-                });
-                $scope.mapId = arr[0].id;
-                $scope.tabs = arr;
-                $scope.$apply();
-                return $scope.lazyShow = false;
-              });
-            });
+          if (items.length != null) {
+            $scope.lazyShow = false;
+            $scope.tabs = [];
+            $scope.$apply();
+            return;
           }
+          return items.forEach(function(item) {
+            var sensors;
+            sensors = [];
+            return item.sensors.list(null, function(sens) {
+              sens.forEach(function(sen) {
+                return sensors.push({
+                  id: sen.id,
+                  top: sen.top,
+                  left: sen.left
+                });
+              });
+              arr.push({
+                name: item.name,
+                id: item.id,
+                img: item.img,
+                sensors: sensors
+              });
+              $scope.mapId = arr[0].id;
+              $scope.tabs = arr;
+              $scope.lazyShow = false;
+              return $scope.$apply();
+            });
+          });
         });
       }
     });
@@ -362,13 +380,17 @@ moduleService.service('Map', function(DB) {
   };
   this.removePlan = function(id, $scope) {
     return DB.Maps.all().filter('id', '=', id).destroyAll(function() {
-      $scope.tabs.forEach(function(elem, ind) {
+      return $scope.tabs.forEach(function(elem, ind) {
+        var selInd;
         if (elem.id === id) {
           $scope.tabs.splice(ind, 1);
-          return $scope.$apply();
+          $scope.$apply();
         }
+        selInd = $scope.tabs[$scope.selectedIndex] || {
+          id: 0
+        };
+        return $scope.mapId = selInd.id != null ? selInd.id : 0;
       });
-      return $scope.mapId = $scope.tabs[$scope.selectedIndex].id;
     });
   };
   this.update = function(id, newName, newImg, $scope) {
@@ -425,5 +447,3 @@ moduleService.service('Map', function(DB) {
     });
   };
 });
-
-//# sourceMappingURL=app.js.map

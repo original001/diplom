@@ -1,6 +1,16 @@
 moduleCtrl = angular.module 'Diplom.controllers.Main', []
 	.controller 'MainController', ($scope, $routeParams ,Main, $mdDialog) ->
 		$scope.lists = []
+		$scope.lazyShow = true
+
+		$ ->
+			w = $ window
+			$ '.index-md-content'
+				.height w.height() - 64
+			w.resize ->
+				$ '.index-md-content'
+					.height w.height() - 64
+
 		Main.list $scope
 
 		$scope.showConfirm = (e, id) ->

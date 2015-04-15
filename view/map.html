@@ -10,7 +10,7 @@
             <div class="demo-tab tab" style="padding: 25px 60px 25px 25px; text-align: center;">
                 <div class="b-plan">
                     <img ng-src="{{tab.img}}" alt="" class="img-plan">
-                    <a ng-repeat="sensor in tab.sensors" ng-href="sensor/{{sensor.id}}" class="sensor" style="top:{{sensor.top}}%;left:{{sensor.left}}%"></a>
+                    <a ng-repeat="sensor in tab.sensors" ng-href="#/sensor/{{sensor.id}}" class="sensor" style="top:{{sensor.top}}%;left:{{sensor.left}}%"></a>
                 </div>
             </div>
         </md-tab>

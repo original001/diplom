@@ -3,7 +3,8 @@ moduleService = angular.module 'Diplom.services.Main', []
 		@list = ($scope) ->
 			DB.Obj.all().list (items) ->
 				arr = []
-				items.forEach (item)->
+				items.forEach (item, ind, itemsArray)->
+					indLast = itemsArray.length - 1
 					item.sensors.list (res)->
 						count = res.length
 						arr.push
@@ -11,6 +12,8 @@ moduleService = angular.module 'Diplom.services.Main', []
 							id: item.id
 							count: count
 						$scope.lists = arr
+						if ind == indLast
+							$scope.lazyShow = false
 						do $scope.$apply
 
 		@addObj = (name, $scope) ->

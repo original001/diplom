@@ -5,24 +5,28 @@ moduleService
 				if obj
 					obj.maps.list (items) ->
 						arr = []
-						if items.length != 0
-							items.forEach (item)->
-								sensors = []
-								item.sensors.list null, (sens)->
-									sens.forEach (sen)->
-										sensors.push
-											id: sen.id
-											top: sen.top
-											left: sen.left
-									arr.push
-										name: item.name
-										id: item.id
-										img: item.img
-										sensors: sensors
-									$scope.mapId = arr[0].id
-									$scope.tabs = arr
-									do $scope.$apply
-									$scope.lazyShow = false
+						if items.length? 
+							$scope.lazyShow = false
+							$scope.tabs = []
+							do $scope.$apply
+							return
+						items.forEach (item)->
+							sensors = []
+							item.sensors.list null, (sens)->
+								sens.forEach (sen)->
+									sensors.push
+										id: sen.id
+										top: sen.top
+										left: sen.left
+								arr.push
+									name: item.name
+									id: item.id
+									img: item.img
+									sensors: sensors
+								$scope.mapId = arr[0].id
+								$scope.tabs = arr
+								$scope.lazyShow = false
+								do $scope.$apply
 
 		@addPlan = (name, img, $scope, objId) ->
 			DB.Obj.findBy persistence, null, 'id',objId,(obj)->
@@ -47,7 +51,8 @@ moduleService
 						if elem.id == id
 							$scope.tabs.splice ind, 1
 							do $scope.$apply
-					$scope.mapId = $scope.tabs[$scope.selectedIndex].id
+						selInd = $scope.tabs[$scope.selectedIndex] || {id:0}
+						$scope.mapId = if selInd.id? then selInd.id else 0
 						
 
 		@update = (id, newName, newImg, $scope) ->
