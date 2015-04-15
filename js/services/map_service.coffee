@@ -74,10 +74,10 @@ moduleService
 							obj.sensors.add(s)
 							map.sensors.add(s)
 							persistence.flush ->
-								$scope.tabs.forEach (item, ind) ->
-									if item.id == map.id
-										$scope.tabs.sensors ?= []
-										$scope.tabs.sensors.push
+								$scope.tabs.forEach (tabs, ind) ->
+									if tabs.id == map.id
+										$scope.tabs[ind].sensors ?= []
+										$scope.tabs[ind].sensors.push
 											id: s.id	
 											top: top	
 											left: left

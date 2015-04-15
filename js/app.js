@@ -133,7 +133,6 @@ DialogController = function($scope, $mdDialog) {
 };
 
 moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) {
-  var array;
   $scope.tabs = [
     {
       name: 'tab',
@@ -147,63 +146,6 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
     return $scope.mapId = id;
   };
   Map.list($scope, $routeParams.objId);
-  array = [
-    {
-      name: '1 floor',
-      img: 'img/plans/plqn1.jpg',
-      sensors: [
-        {
-          id: '58GH7ADF68',
-          top: 34.4,
-          left: 45.5
-        }, {
-          id: '79AF58GH',
-          top: 64.4,
-          left: 15.5
-        }, {
-          id: '8B7AD60FB',
-          top: 24.4,
-          left: 46.5
-        }
-      ]
-    }, {
-      name: '2 floor',
-      img: 'img/plans/plan_doma.gif',
-      sensors: [
-        {
-          id: '58GH7ADF68',
-          top: 34.4,
-          left: 45.5
-        }, {
-          id: '79AF58GH',
-          top: 64.4,
-          left: 15.5
-        }, {
-          id: '8B7AD60FB',
-          top: 24.4,
-          left: 46.5
-        }
-      ]
-    }, {
-      name: '3 floor',
-      img: 'img/plans/zad_plan.png',
-      sensors: [
-        {
-          id: '58GH7ADF68',
-          top: 34.4,
-          left: 45.5
-        }, {
-          id: '79AF58GH',
-          top: 64.4,
-          left: 15.5
-        }, {
-          id: '8B7AD60FB',
-          top: 24.4,
-          left: 46.5
-        }
-      ]
-    }
-  ];
   $(function() {
     var w;
     w = $(window);
@@ -225,7 +167,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       return $('<div class="help-screen" />').appendTo($(this)).fadeIn();
     });
     $(document).on('click', 'md-tab-content.md-active', function(e) {
-      var $plan, h, left, sensor, top, w;
+      var $plan, h, left, top, w;
       if (!toast) {
         toast = true;
         $scope.showActionToast();
@@ -235,12 +177,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       h = $plan.height();
       left = (e.offsetX / w * 100).toPrecision(3);
       top = (e.offsetY / h * 100).toPrecision(3);
-      sensor = $('<a />').css({
-        top: top + '%',
-        left: left + '%'
-      }).addClass('sensor');
-      Map.addSens('sensor', top, left, $routeParams.objId, $scope.mapId, $scope);
-      return $(this).find('.b-plan').append(sensor);
+      return Map.addSens('sensor', top, left, $routeParams.objId, $scope.mapId, $scope);
     });
   };
   $scope.deletePlan = function(e, id) {
@@ -467,13 +404,13 @@ moduleService.service('Map', function(DB) {
             obj.sensors.add(s);
             map.sensors.add(s);
             return persistence.flush(function() {
-              return $scope.tabs.forEach(function(item, ind) {
+              return $scope.tabs.forEach(function(tabs, ind) {
                 var _base;
-                if (item.id === map.id) {
-                  if ((_base = $scope.tabs).sensors == null) {
+                if (tabs.id === map.id) {
+                  if ((_base = $scope.tabs[ind]).sensors == null) {
                     _base.sensors = [];
                   }
-                  $scope.tabs.sensors.push({
+                  $scope.tabs[ind].sensors.push({
                     id: s.id,
                     top: top,
                     left: left

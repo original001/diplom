@@ -12,56 +12,6 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 
 	Map.list $scope, $routeParams.objId
 
-	array = [
-		name: '1 floor'	
-		img: 'img/plans/plqn1.jpg'
-		sensors:[
-			id: '58GH7ADF68'
-			top: 34.4
-			left: 45.5
-		,
-			id: '79AF58GH'
-			top: 64.4
-			left: 15.5
-		,
-			id: '8B7AD60FB'
-			top: 24.4
-			left: 46.5
-		]
-	,
-		name: '2 floor'	
-		img: 'img/plans/plan_doma.gif'
-		sensors:[
-			id: '58GH7ADF68'
-			top: 34.4
-			left: 45.5
-		,
-			id: '79AF58GH'
-			top: 64.4
-			left: 15.5
-		,
-			id: '8B7AD60FB'
-			top: 24.4
-			left: 46.5
-		]
-	,
-		name: '3 floor'	
-		img: 'img/plans/zad_plan.png'
-		sensors:[
-			id: '58GH7ADF68'
-			top: 34.4
-			left: 45.5
-		,
-			id: '79AF58GH'
-			top: 64.4
-			left: 15.5
-		,
-			id: '8B7AD60FB'
-			top: 24.4
-			left: 46.5
-		]
-	]
-
 	$ ->
 		w = $ window
 		$ '.index-md-content'
@@ -97,15 +47,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 				h = $plan.height()
 				left = (e.offsetX/w*100).toPrecision 3
 				top = (e.offsetY/h*100).toPrecision 3
-				sensor = $ '<a />'
-					.css
-						top: top + '%'
-						left: left + '%'
-					.addClass 'sensor'
-					Map.addSens 'sensor',top,left,$routeParams.objId,$scope.mapId,$scope
-					$ this
-						.find '.b-plan'
-							.append sensor
+				Map.addSens 'sensor',top,left,$routeParams.objId,$scope.mapId,$scope
 		return
 
 	$scope.deletePlan = (e, id) ->
