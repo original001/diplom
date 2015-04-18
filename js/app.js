@@ -53,6 +53,7 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   DB.Maps.hasMany('sensors', DB.Sensor, 'map');
   DB.Obj.hasMany('maps', DB.Maps, 'obj');
   DB.Obj.hasMany('sensors', DB.Sensor, 'obj');
+  DB.Sensor.hasMany('graphs', DB.Graph, 'sens');
   return persistence.schemaSync();
 });
 
@@ -235,6 +236,100 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       return $scope.cancelAddPlan();
     });
   };
+});
+
+moduleCtrl.controller('SensController', function($scope, $routeParams, Sens, $window, $document, $mdDialog) {
+  var paper, s, updatePath;
+  $scope.sensor = [];
+  $scope.graph = [
+    {
+      date: new Date('Sun Apr 19 2015 00:41:22 GMT+0600 (YEKT)'),
+      mu: 1,
+      eps: 2
+    }, {
+      date: new Date('Sun Apr 19 2015 00:40:22 GMT+0600 (YEKT)'),
+      mu: 3,
+      eps: 6
+    }, {
+      date: new Date('Sun Apr 19 2015 00:39:22 GMT+0600 (YEKT)'),
+      mu: 3,
+      eps: 3
+    }, {
+      date: new Date('Sun Apr 19 2015 00:38:22 GMT+0600 (YEKT)'),
+      mu: 5,
+      eps: 3
+    }, {
+      date: new Date('Sun Apr 19 2015 00:36:22 GMT+0600 (YEKT)'),
+      mu: 1,
+      eps: 3
+    }, {
+      date: new Date('Sun Apr 19 2015 00:33:22 GMT+0600 (YEKT)'),
+      mu: 7,
+      eps: 3
+    }, {
+      date: new Date('Sun Apr 19 2015 00:31:22 GMT+0600 (YEKT)'),
+      mu: 5,
+      eps: 2
+    }
+  ];
+  s = Snap('#graph');
+  paper = s.paper;
+  updatePath = function(arr, paramY) {
+    var el, getx, gety, h, i, ind, kx, ky, maxy, minx, miny, num, paramArr, time, w, _i, _j, _len, _len1, _results;
+    paper.clear();
+    num = arr.length;
+    h = 400 / 2;
+    w = $window.innerWidth - 50;
+    kx = (-arr[0].date.getTime() + arr[num - 1].date.getTime()) / w;
+    minx = arr[0].date.getTime();
+    paramArr = [];
+    for (_i = 0, _len = arr.length; _i < _len; _i++) {
+      i = arr[_i];
+      paramArr.push(i.eps);
+    }
+    maxy = Math.max.apply(Math, paramArr);
+    miny = Math.min.apply(Math, paramArr);
+    ky = (maxy - miny) / h;
+    getx = function(x) {
+      return (x.date.getTime() - minx) / kx + 5;
+    };
+    gety = function(y) {
+      return h + 100 - (y[paramY] - miny) / ky;
+    };
+    paper.text(0, 20, paramY);
+    _results = [];
+    for (ind = _j = 0, _len1 = arr.length; _j < _len1; ind = ++_j) {
+      el = arr[ind];
+      time = [el.date.getSeconds(), el.date.getMinutes(), el.date.getHours()].reverse().join(':');
+      paper.circle(getx(el), gety(el), 3).attr({
+        fill: '#000'
+      });
+      paper.text(getx(el) - 3, gety(el) - 10, el[paramY]);
+      paper.text(getx(el) - 3, h * 2, time).transform('r90,' + (getx(el) - 5) + ',' + h * 2);
+      if (ind === 0) {
+        continue;
+      }
+      _results.push(paper.path('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)).attr({
+        stroke: '#000',
+        strokeWidth: 1
+      }));
+    }
+    return _results;
+  };
+  updatePath($scope.graph, 'eps');
+  $scope.updatePath = function(param) {
+    return updatePath($scope.graph, param);
+  };
+  $scope.addGraph = function(e) {
+    return $mdDialog.show({
+      controller: DialogController,
+      templateUrl: '/view/dialog-add-graph.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      return console.log(answer);
+    });
+  };
+  return Sens.list($scope, $routeParams.sensId);
 });
 
 moduleService = angular.module('Diplom.services.Main', []).service('Main', function(DB) {
@@ -451,12 +546,6 @@ moduleService.service('Map', function(DB) {
   };
 });
 
-moduleCtrl.controller('SensController', function($scope, $routeParams, Sens) {
-  $scope.sensor = [];
-  $scope.name = '';
-  return Sens.list($scope, $routeParams.sensId);
-});
-
 moduleService.service('Sens', function(DB) {
   this.list = function($scope, sensId) {
     return DB.Sensor.findBy(persistence, null, 'id', sensId, function(sens) {
@@ -478,7 +567,6 @@ moduleService.service('Sens', function(DB) {
               map: mapName
             });
             $scope.sensor = arr;
-            $scope.name = sens.name;
             return $scope.$apply();
           });
         });

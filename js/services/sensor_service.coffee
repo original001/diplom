@@ -16,7 +16,6 @@ moduleService
 								obj:objName
 								map:mapName
 							$scope.sensor = arr
-							$scope.name = sens.name
 							do $scope.$apply
 
 		@removeSens = (id, $scope) ->

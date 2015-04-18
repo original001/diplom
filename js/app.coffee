@@ -52,6 +52,7 @@ angular.module 'Monitor', [
         DB.Maps.hasMany('sensors', DB.Sensor, 'map')
         DB.Obj.hasMany('maps', DB.Maps, 'obj')
         DB.Obj.hasMany('sensors', DB.Sensor, 'obj')
+        DB.Sensor.hasMany('graphs',DB.Graph, 'sens')
         persistence.schemaSync()
         
 
