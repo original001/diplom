@@ -1,8 +1,22 @@
 <md-list>
     <md-subheader class="md-no-sticky"><b>{{sensor[0].obj}} / {{sensor[0].map}} / {{sensor[0].name}}</b></md-subheader>
+    <!-- ABS BUTTON GROUP -->
     <md-button ng-click="addGraph($event)" class="md-fab md-mini md-button md-default-theme button-custom button-add" aria-label="button"></md-button>
-    <md-button class="md-raised md-primary" ng-click="updatePath('mu')">mu</md-button>
-    <md-button  class="md-raised md-primary"ng-click="updatePath('eps')">eps</md-button>
+    <!-- ABS BUTTON GROUP -->
+
+    <!-- PARAMS BUTTON GROUP -->
+    <md-button ng-repeat="param in params" class="md-raised md-primary" ng-click="updatePath(param)">{{param}}</md-button>
+    <!-- PARAMS BUTTON END -->
+
+    <!-- CONTROL BUTTON GROUP -->
+    <md-button  class="md-icon-button" aria-label="add param">
+        <md-icon md-svg-icon="img/add.svg"></md-icon>
+    </md-button>
+    <!-- CONTROL BUTTON GROUP END -->
+    
+    <md-button  class="md-icon-button" aria-label="add param" style="margin-left: -10px;">
+        <md-icon md-svg-icon="img/remove.svg"></md-icon>
+    </md-button>
     <div layout="row" layout-padding>
         <svg id="graph" width="100%" height="500px">
         </svg>

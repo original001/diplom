@@ -238,8 +238,8 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   };
 });
 
-moduleCtrl.controller('SensController', function($scope, $routeParams, Sens, $window, $document, $mdDialog) {
-  var paper, s, updatePath;
+moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParams, Sens, $window, $document, $mdDialog) {
+  var SensDialogController, paper, s, updatePath;
   $scope.sensor = [];
   $scope.graph = [
     {
@@ -249,7 +249,8 @@ moduleCtrl.controller('SensController', function($scope, $routeParams, Sens, $wi
     }, {
       date: new Date('Sun Apr 19 2015 00:40:22 GMT+0600 (YEKT)'),
       mu: 3,
-      eps: 6
+      eps: 6,
+      pi: 5
     }, {
       date: new Date('Sun Apr 19 2015 00:39:22 GMT+0600 (YEKT)'),
       mu: 3,
@@ -261,11 +262,13 @@ moduleCtrl.controller('SensController', function($scope, $routeParams, Sens, $wi
     }, {
       date: new Date('Sun Apr 19 2015 00:36:22 GMT+0600 (YEKT)'),
       mu: 1,
-      eps: 3
+      eps: 3,
+      pi: 6
     }, {
       date: new Date('Sun Apr 19 2015 00:33:22 GMT+0600 (YEKT)'),
       mu: 7,
-      eps: 3
+      eps: 3,
+      pi: 3
     }, {
       date: new Date('Sun Apr 19 2015 00:31:22 GMT+0600 (YEKT)'),
       mu: 5,
@@ -277,6 +280,13 @@ moduleCtrl.controller('SensController', function($scope, $routeParams, Sens, $wi
   updatePath = function(arr, paramY) {
     var el, getx, gety, h, i, ind, kx, ky, maxy, minx, miny, num, paramArr, time, w, _i, _j, _len, _len1, _results;
     paper.clear();
+    arr = arr.filter(function(el, i, a) {
+      if (el.hasOwnProperty(paramY)) {
+        return true;
+      } else {
+        return false;
+      }
+    });
     num = arr.length;
     h = 400 / 2;
     w = $window.innerWidth - 50;
@@ -285,7 +295,7 @@ moduleCtrl.controller('SensController', function($scope, $routeParams, Sens, $wi
     paramArr = [];
     for (_i = 0, _len = arr.length; _i < _len; _i++) {
       i = arr[_i];
-      paramArr.push(i.eps);
+      paramArr.push(i[paramY]);
     }
     maxy = Math.max.apply(Math, paramArr);
     miny = Math.min.apply(Math, paramArr);
@@ -300,7 +310,7 @@ moduleCtrl.controller('SensController', function($scope, $routeParams, Sens, $wi
     _results = [];
     for (ind = _j = 0, _len1 = arr.length; _j < _len1; ind = ++_j) {
       el = arr[ind];
-      time = [el.date.getSeconds(), el.date.getMinutes(), el.date.getHours()].reverse().join(':');
+      time = [el.date.getDate(), el.date.getMonth() + 1, el.date.getFullYear() - 2000].join('.');
       paper.circle(getx(el), gety(el), 3).attr({
         fill: '#000'
       });
@@ -322,14 +332,37 @@ moduleCtrl.controller('SensController', function($scope, $routeParams, Sens, $wi
   };
   $scope.addGraph = function(e) {
     return $mdDialog.show({
-      controller: DialogController,
+      controller: SensDialogController,
       templateUrl: '/view/dialog-add-graph.tpl.html',
       targetEvent: e
     }).then(function(answer) {
       return console.log(answer);
     });
   };
-  return Sens.list($scope, $routeParams.sensId);
+  Sens.list($scope, $routeParams.sensId);
+  $scope.params = ['mu', 'eps', 'pi'];
+  $rootScope.params = $scope.params;
+  return SensDialogController = function($rootScope, $scope, $mdDialog) {
+    $scope.cancel = function() {
+      return $mdDialog.cancel();
+    };
+    $scope.answer = function(answer) {
+      var o;
+      o = {
+        params: $scope.graph.val,
+        date: answer
+      };
+      return $mdDialog.hide(o);
+    };
+    $scope.params = $rootScope.params;
+    return $scope.graph = {
+      val: {
+        'mu': null,
+        'eps': null,
+        'pi': null
+      }
+    };
+  };
 });
 
 moduleService = angular.module('Diplom.services.Main', []).service('Main', function(DB) {

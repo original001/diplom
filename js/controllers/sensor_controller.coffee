@@ -1,4 +1,4 @@
-moduleCtrl.controller 'SensController', ($scope, $routeParams ,Sens, $window, $document, $mdDialog) ->
+moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens, $window, $document, $mdDialog) ->
 	$scope.sensor = []
 	$scope.graph = [
 		date: new Date('Sun Apr 19 2015 00:41:22 GMT+0600 (YEKT)')
@@ -8,6 +8,7 @@ moduleCtrl.controller 'SensController', ($scope, $routeParams ,Sens, $window, $d
 		date: new Date('Sun Apr 19 2015 00:40:22 GMT+0600 (YEKT)')
 		mu: 3
 		eps:6
+		pi:5
 	,
 		date: new Date('Sun Apr 19 2015 00:39:22 GMT+0600 (YEKT)')
 		mu: 3
@@ -20,10 +21,12 @@ moduleCtrl.controller 'SensController', ($scope, $routeParams ,Sens, $window, $d
 		date: new Date('Sun Apr 19 2015 00:36:22 GMT+0600 (YEKT)')
 		mu: 1
 		eps:3
+		pi: 6
 	,
 		date: new Date('Sun Apr 19 2015 00:33:22 GMT+0600 (YEKT)')
 		mu: 7
 		eps:3
+		pi:3
 	,
 		date: new Date('Sun Apr 19 2015 00:31:22 GMT+0600 (YEKT)')
 		mu: 5
@@ -35,6 +38,8 @@ moduleCtrl.controller 'SensController', ($scope, $routeParams ,Sens, $window, $d
 
 	updatePath =  (arr,paramY) ->
 		do paper.clear
+		arr = arr.filter (el, i, a) -> 
+			if el.hasOwnProperty paramY then return true else false
 		num = arr.length
 		h = 400/2
 		w = $window.innerWidth - 50
@@ -42,7 +47,7 @@ moduleCtrl.controller 'SensController', ($scope, $routeParams ,Sens, $window, $d
 		minx = arr[0].date.getTime()
 		paramArr = []
 		for i in arr
-			paramArr.push i.eps
+			paramArr.push i[paramY]
 		maxy = Math.max.apply Math, paramArr
 		miny = Math.min.apply Math, paramArr
 		ky = (maxy - miny)/h
@@ -53,10 +58,10 @@ moduleCtrl.controller 'SensController', ($scope, $routeParams ,Sens, $window, $d
 		paper.text 0,20, paramY
 		for el,ind in arr
 			time = [
-				el.date.getSeconds()	
-				el.date.getMinutes()	
-				el.date.getHours()	
-				].reverse().join ':'
+				el.date.getDate()	
+				el.date.getMonth()+1	
+				el.date.getFullYear()-2000	
+				].join '.'
 			paper
 				.circle getx(el), gety(el), 3
 				.attr
@@ -79,11 +84,36 @@ moduleCtrl.controller 'SensController', ($scope, $routeParams ,Sens, $window, $d
 
 	$scope.addGraph = (e) ->
 		$mdDialog.show
-			controller: DialogController
+			controller: SensDialogController
 			templateUrl: '/view/dialog-add-graph.tpl.html'
 			targetEvent: e
 		.then (answer) ->
 			console.log answer
 			# Map.addPlan answer.name, answer.img, $scope, $routeParams.objId
 
+
+
 	Sens.list $scope, $routeParams.sensId
+
+	$scope.params = ['mu','eps','pi']
+
+	$rootScope.params = $scope.params
+
+	SensDialogController = ($rootScope, $scope, $mdDialog) ->
+		$scope.cancel = ->
+			do $mdDialog.cancel
+
+		$scope.answer = (answer) ->
+			o = 
+				params: $scope.graph.val
+				date: answer
+			$mdDialog.hide o
+
+		$scope.params = $rootScope.params
+
+		$scope.graph = 
+			val:
+				'mu':null
+				'eps':null
+				'pi':null
+

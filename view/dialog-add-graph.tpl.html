@@ -2,27 +2,27 @@
     <form name="nameFormObj">
         <md-content>
             <form name="nameFormObj">
-                <md-input-container>
-                    <label>Переменная</label>
-                    <input name="nameObj" ng-model="graph.name" ng-required="true">
-                </md-input-container>
-                <md-input-container>
-                    <label>Значение</label>
-                    <input type="number" ng-model="graph.val">
-                </md-input-container>
-                <md-input-container>
-                    <label>Дата</label>
-                    <input type="date" ng-model="graph.date">
-                </md-input-container>
-                <md-input-container>
-                    <label>Время</label>
-                    <input type="time" ng-model="graph.time">
-                </md-input-container>
+                <div layout="row">
+                    <md-input-container ng-repeat="param in params">
+                        <label>{{param}}</label>
+                        <input type="number" ng-model="graph.val[param]" ng-required="true">
+                    </md-input-container>
+                </div>
+                <div layout="row">
+                    <md-input-container>
+                        <label>Дата</label>
+                        <input type="date" ng-model="graph.date" ng-required="true"> 
+                    </md-input-container>
+                    <md-input-container>
+                        <label>Время</label>
+                        <input type="time" ng-model="graph.date">
+                    </md-input-container>
+                </div>
         </md-content>
         </form>
         <div class="md-actions">
             <md-button ng-click="cancel()">Отмена</md-button>
-            <md-button class="md-raised" ng-disabled="nameFormObj.nameObj.$invalid" ng-click="answer({name: graph.name,val: graph.val, date:graph.date, date:graph.time})">Добавить</md-button>
+            <md-button class="md-raised" ng-disabled="nameFormObj.$invalid" ng-click="answer(graph.date)">Добавить</md-button>
         </div>
     </form>
 </md-dialog>
