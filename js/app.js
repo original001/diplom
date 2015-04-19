@@ -256,9 +256,12 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
         return false;
       }
     });
+    arr = arr.sort(function(a, b) {
+      return a.date.getTime() - b.date.getTime();
+    });
     num = arr.length;
     h = 400 / 2;
-    w = $window.innerWidth - 50;
+    w = 80 * num;
     kx = (-arr[0].date.getTime() + arr[num - 1].date.getTime()) / w;
     minx = arr[0].date.getTime();
     paramArr = [];
@@ -590,7 +593,6 @@ moduleService.service('Sens', function(DB) {
           if (ind === l - 1) {
             $scope.graph = graphArr;
             $scope.$apply();
-            console.log(graphArr);
             return $scope.updatePath(Object.getOwnPropertyNames(graphArr[0].params)[0]);
           }
         });

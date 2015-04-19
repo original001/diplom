@@ -10,9 +10,12 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 		return false unless arr.length
 		arr = arr.filter (el, i, a) -> 
 			if el.params.hasOwnProperty paramY then return true else false
+		arr = arr.sort (a,b) -> 
+			a.date.getTime() - b.date.getTime()
+			# console.log a.date.getTime , b.date.getTime
 		num = arr.length
 		h = 400/2
-		w = $window.innerWidth - 50
+		w = 80*num
 		kx = (- arr[0].date.getTime() + arr[num - 1].date.getTime())/w
 		minx = arr[0].date.getTime()
 		paramArr = []
