@@ -37,10 +37,9 @@ angular.module 'Monitor', [
             name: "TEXT",
             top: "INT"
             left: "INT"
-        Graph: persistence.define 'Graph',  
+        Graph: persistence.define 'Graph3',  
             date: "DATE",
-            mu: "INT",
-            eps: "INT"
+            params: 'JSON'
         GroupOfSens: persistence.define 'GroupOfSens',  
             name: "TEXT",
             sensCat: "INT",
