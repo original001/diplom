@@ -21,12 +21,21 @@ moduleService
 					graphArr = []
 					l = graphs.length
 					graphs.forEach (graph, ind) ->	
+						params = JSON.parse graph.params
+
 						graphArr.push
 							date: new Date(graph.date)
-							params: JSON.parse graph.params
+							params: params 
+
+						if Object.keys(params).length > $scope.params.length
+							for k, v of params
+								if k == 'mu' or k == 'eps' then continue
+								$scope.params.push k
+
 						if ind == l - 1 
 							$scope.graph = graphArr
 							do $scope.$apply
+							console.log $scope.params
 							$scope.updatePath Object.getOwnPropertyNames(graphArr[0].params)[0]
 
 

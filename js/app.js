@@ -238,17 +238,16 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
 });
 
 moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParams, Sens, $window, $document, $mdDialog) {
-  var SensDialogController, paper, s, updatePath;
+  var $g, SensDialogController, paper, s, updatePath;
   $scope.sensor = [];
   $scope.graph = [];
+  $scope.paramInput = false;
+  $g = $('#graph');
   s = Snap('#graph');
   paper = s.paper;
   updatePath = function(arr, paramY) {
     var el, getx, gety, h, i, ind, kx, ky, maxy, minx, miny, num, paramArr, time, w, _i, _j, _len, _len1, _results;
     paper.clear();
-    if (!arr.length) {
-      return false;
-    }
     arr = arr.filter(function(el, i, a) {
       if (el.params.hasOwnProperty(paramY)) {
         return true;
@@ -256,12 +255,18 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
         return false;
       }
     });
+    if (!arr.length) {
+      return false;
+    }
     arr = arr.sort(function(a, b) {
       return a.date.getTime() - b.date.getTime();
     });
     num = arr.length;
-    h = 400 / 2;
+    h = 320 / 2;
     w = 80 * num;
+    if (w > $g.width()) {
+      $g.width(w + 40);
+    }
     kx = (-arr[0].date.getTime() + arr[num - 1].date.getTime()) / w;
     minx = arr[0].date.getTime();
     paramArr = [];
@@ -282,7 +287,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       if (!ky) {
         return h;
       }
-      return h + 100 - (y.params[paramY] - miny) / ky;
+      return h + 120 - (y.params[paramY] - miny) / ky;
     };
     paper.text(0, 20, paramY);
     _results = [];
@@ -303,6 +308,14 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       }));
     }
     return _results;
+  };
+  $scope.addParam = function() {
+    if (!$scope.paramInput) {
+      return $scope.paramInput = true;
+    } else {
+      $scope.paramInput = false;
+      return $scope.params.push($scope.paramName);
+    }
   };
   $scope.updatePath = function(param) {
     return updatePath($scope.graph, param);
@@ -327,19 +340,14 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       return $mdDialog.cancel();
     };
     $scope.answer = function(answer) {
-      var o;
-      o = {
+      return $mdDialog.hide({
         params: $scope.graph.val,
         date: answer
-      };
-      return $mdDialog.hide(o);
+      });
     };
     $scope.params = $rootScope.params;
     return $scope.graph = {
-      val: {
-        'mu': null,
-        'eps': null
-      }
+      val: {}
     };
   };
 });
@@ -586,13 +594,25 @@ moduleService.service('Sens', function(DB) {
         graphArr = [];
         l = graphs.length;
         return graphs.forEach(function(graph, ind) {
+          var k, params, v;
+          params = JSON.parse(graph.params);
           graphArr.push({
             date: new Date(graph.date),
-            params: JSON.parse(graph.params)
+            params: params
           });
+          if (Object.keys(params).length > $scope.params.length) {
+            for (k in params) {
+              v = params[k];
+              if (k === 'mu' || k === 'eps') {
+                continue;
+              }
+              $scope.params.push(k);
+            }
+          }
           if (ind === l - 1) {
             $scope.graph = graphArr;
             $scope.$apply();
+            console.log($scope.params);
             return $scope.updatePath(Object.getOwnPropertyNames(graphArr[0].params)[0]);
           }
         });

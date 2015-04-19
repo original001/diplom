@@ -1,36 +1,47 @@
 moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens, $window, $document, $mdDialog) ->
 	$scope.sensor = []
 	$scope.graph = []
+	$scope.paramInput = false
 
+	$g = $ '#graph'
 	s = Snap '#graph'
 	paper = s.paper
 
 	updatePath =  (arr,paramY) ->
 		do paper.clear
-		return false unless arr.length
+
 		arr = arr.filter (el, i, a) -> 
 			if el.params.hasOwnProperty paramY then return true else false
+		return false unless arr.length
+
 		arr = arr.sort (a,b) -> 
 			a.date.getTime() - b.date.getTime()
-			# console.log a.date.getTime , b.date.getTime
+
 		num = arr.length
-		h = 400/2
+		h = 320/2
 		w = 80*num
+		if w > $g.width()
+			$g.width w + 40
+
 		kx = (- arr[0].date.getTime() + arr[num - 1].date.getTime())/w
 		minx = arr[0].date.getTime()
+
 		paramArr = []
 		for i in arr
 			paramArr.push i.params[paramY]
 		maxy = Math.max.apply Math, paramArr
 		miny = Math.min.apply Math, paramArr
 		ky = (maxy - miny)/h
+
 		getx = (x) ->
 			return 5 unless kx
 			(x.date.getTime() - minx)/kx + 5
 		gety = (y) ->
 			return h unless ky
-			h + 100 - (y.params[paramY] - miny)/ky
+			h + 120 - (y.params[paramY] - miny)/ky
+
 		paper.text 0,20, paramY
+
 		for el,ind in arr
 			time = [
 				el.date.getDate()	
@@ -51,6 +62,13 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				.attr	
 					stroke: '#000'
 					strokeWidth: 1
+
+	$scope.addParam = ->
+		unless $scope.paramInput 
+			$scope.paramInput  = true
+		else 
+			$scope.paramInput  = false
+			$scope.params.push $scope.paramName
 
 	$scope.updatePath = (param) ->
 		updatePath $scope.graph, param
@@ -78,15 +96,12 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			do $mdDialog.cancel
 
 		$scope.answer = (answer) ->
-			o = 
+			$mdDialog.hide
 				params: $scope.graph.val
 				date: answer
-			$mdDialog.hide o
 
 		$scope.params = $rootScope.params
 
 		$scope.graph = 
-			val:
-				'mu':null
-				'eps':null
+			val: {}
 
