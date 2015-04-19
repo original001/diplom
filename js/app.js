@@ -246,7 +246,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   s = Snap('#graph');
   paper = s.paper;
   updatePath = function(arr, paramY) {
-    var el, getx, gety, h, i, ind, kx, ky, maxy, minx, miny, num, paramArr, time, w, _i, _j, _len, _len1, _results;
+    var el, getx, gety, h, i, ind, kx, ky, maxy, minx, miny, num, paramArr, style, time, w, _i, _j, _len, _len1, _results;
     paper.clear();
     arr = arr.filter(function(el, i, a) {
       if (el.params.hasOwnProperty(paramY)) {
@@ -267,6 +267,11 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
     if (w > $g.width()) {
       $g.width(w + 40);
     }
+    style = {
+      stroke: '#000'
+    };
+    paper.path("M 5," + (h * 2 - 5) + "L " + (w + 10) + "," + (h * 2 - 5) + "," + w + "," + (h * 2 - 10) + "," + w + "," + (h * 2) + "," + (w + 10) + "," + (h * 2 - 5) + ",").attr(style);
+    paper.path("M 5," + (h * 2 - 5) + "L 5,0,10,10,0,10,5,0").attr(style);
     kx = (-arr[0].date.getTime() + arr[num - 1].date.getTime()) / w;
     minx = arr[0].date.getTime();
     paramArr = [];
@@ -276,7 +281,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
     }
     maxy = Math.max.apply(Math, paramArr);
     miny = Math.min.apply(Math, paramArr);
-    ky = (maxy - miny) / h;
+    ky = (maxy - miny) / (h + 50);
     getx = function(x) {
       if (!kx) {
         return 5;
@@ -289,7 +294,8 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       }
       return h + 120 - (y.params[paramY] - miny) / ky;
     };
-    paper.text(0, 20, paramY);
+    paper.text(10, 20, paramY);
+    paper.text(w + 15, h * 2, 't');
     _results = [];
     for (ind = _j = 0, _len1 = arr.length; _j < _len1; ind = ++_j) {
       el = arr[ind];
@@ -302,10 +308,10 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       if (ind === 0) {
         continue;
       }
-      _results.push(paper.path('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)).attr({
-        stroke: '#000',
-        strokeWidth: 1
-      }));
+      paper.path("M " + (getx(el)) + "," + (gety(el)) + "L" + (getx(el)) + "," + (h * 2 - 5)).attr({
+        stroke: '#00BCD4'
+      });
+      _results.push(paper.path('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)).attr(style));
     }
     return _results;
   };

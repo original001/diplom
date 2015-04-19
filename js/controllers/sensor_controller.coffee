@@ -23,6 +23,17 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 		if w > $g.width()
 			$g.width w + 40
 
+		style =
+			stroke: '#000'
+
+		paper
+			.path "M 5,#{h*2-5}L #{w+10},#{h*2-5},#{w},#{h*2-10},#{w},#{h*2},#{w+10},#{h*2-5},"
+			.attr style
+
+		paper
+			.path "M 5,#{h*2-5}L 5,0,10,10,0,10,5,0"
+			.attr style
+
 		kx = (- arr[0].date.getTime() + arr[num - 1].date.getTime())/w
 		minx = arr[0].date.getTime()
 
@@ -31,7 +42,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			paramArr.push i.params[paramY]
 		maxy = Math.max.apply Math, paramArr
 		miny = Math.min.apply Math, paramArr
-		ky = (maxy - miny)/h
+		ky = (maxy - miny)/(h+50)
 
 		getx = (x) ->
 			return 5 unless kx
@@ -40,7 +51,8 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			return h unless ky
 			h + 120 - (y.params[paramY] - miny)/ky
 
-		paper.text 0,20, paramY
+		paper.text 10,20, paramY
+		paper.text w+15,h*2, 't'
 
 		for el,ind in arr
 			time = [
@@ -57,12 +69,17 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				.text getx(el) - 3 , h*2, time
 				.transform 'r90,'+(getx(el)-5)+','+h*2
 			if ind == 0 then continue
+
+			paper
+				.path "M #{getx(el)},#{gety(el)}L#{getx(el)},#{h*2-5}"
+				.attr
+					stroke: '#00BCD4'
+
 			paper
 				.path 'M '+getx(arr[ind-1])+','+gety(arr[ind-1])+'L '+getx(el)+','+gety(el)
-				.attr	
-					stroke: '#000'
-					strokeWidth: 1
+				.attr style	
 
+					
 	$scope.addParam = ->
 		unless $scope.paramInput 
 			$scope.paramInput  = true
