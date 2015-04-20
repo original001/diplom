@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="Monitor">
+<html>
 
 <head>
     <meta charset="utf-8" />
@@ -29,7 +29,7 @@
     <script type="text/javascript" src="js/app.js"></script>
 </head>
 
-<body>
+<body ng-app="Monitor">
     <md-toolbar>
         <div class="md-toolbar-tools">
             <md-button class="md-icon-button" aria-label="Settings">
@@ -37,11 +37,12 @@
             </md-button>
             <h2> <span>Геотехнический мониторинг</span> </h2>
             <span flex></span>
+            <md-button ng-href="#/" class="md-icon-button home-icon" ></md-button>
         </div>
     </md-toolbar>
     <md-content ng-view class="index-md-content">
     </md-content>
-    <!-- // <script type="text/javascript" src="cordova.js"></script> -->
+    <script type="text/javascript" src="cordova.js"></script>
 </body>
 
 </html>

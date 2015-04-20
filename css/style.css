@@ -158,3 +158,11 @@
 	outline: none;
 	margin: 6px;
 }
+.home-icon {
+	float: right;
+}
+.home-icon:before {
+	content: '\e05C';
+	font-family: 'icons';
+	font-size: 24px;
+}

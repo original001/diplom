@@ -1,5 +1,5 @@
 moduleService
-	.service 'Sens', (DB) ->
+	.service 'Sens', (DB, $window) ->
 		@list = ($scope, sensId) ->
 			DB.Sensor.findBy persistence, null, 'id',sensId,(sens)->
 				arr = []
@@ -46,8 +46,11 @@ moduleService
 
 
 		@removeSens = (id, $scope) ->
-			DB.Sensor.all().filter 'id','=',id
-				.destroyAll ->
+			DB.Sensor.findBy persistence, null, 'id',id, (sens)->
+				sens.fetch 'obj', (obj)->
+					persistence.remove sens
+					persistence.flush -> 
+						$window.location.href = "#/map/#{obj.id}"	
 
 		@removeGraph = ($scope) ->
 			DB.Graph.all().destroyAll ->

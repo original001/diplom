@@ -92,6 +92,9 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	$scope.updatePath = (param) ->
 		updatePath $scope.graph, param
 
+	$scope.removeSens = ->
+		Sens.removeSens $routeParams.sensId, $scope
+
 	$scope.removeGraph = ->
 		Sens.removeGraph $scope
 

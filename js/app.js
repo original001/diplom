@@ -328,6 +328,9 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   $scope.updatePath = function(param) {
     return updatePath($scope.graph, param);
   };
+  $scope.removeSens = function() {
+    return Sens.removeSens($routeParams.sensId, $scope);
+  };
   $scope.removeGraph = function() {
     return Sens.removeGraph($scope);
   };
@@ -574,7 +577,7 @@ moduleService.service('Map', function(DB) {
   };
 });
 
-moduleService.service('Sens', function(DB) {
+moduleService.service('Sens', function(DB, $window) {
   this.list = function($scope, sensId) {
     return DB.Sensor.findBy(persistence, null, 'id', sensId, function(sens) {
       var arr;
@@ -635,7 +638,14 @@ moduleService.service('Sens', function(DB) {
     });
   };
   this.removeSens = function(id, $scope) {
-    return DB.Sensor.all().filter('id', '=', id).destroyAll(function() {});
+    return DB.Sensor.findBy(persistence, null, 'id', id, function(sens) {
+      return sens.fetch('obj', function(obj) {
+        persistence.remove(sens);
+        return persistence.flush(function() {
+          return $window.location.href = "#/map/" + obj.id;
+        });
+      });
+    });
   };
   this.removeGraph = function($scope) {
     return DB.Graph.all().destroyAll(function() {});
