@@ -83,7 +83,9 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	$scope.addParam = ->
 		unless $scope.paramInput 
 			$scope.paramInput  = true
-		else 
+		else unless $scope.paramName
+			$scope.paramInput  = false
+		else
 			$scope.paramInput  = false
 			$scope.params.push $scope.paramName
 

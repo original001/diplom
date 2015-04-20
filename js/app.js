@@ -318,6 +318,8 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   $scope.addParam = function() {
     if (!$scope.paramInput) {
       return $scope.paramInput = true;
+    } else if (!$scope.paramName) {
+      return $scope.paramInput = false;
     } else {
       $scope.paramInput = false;
       return $scope.params.push($scope.paramName);
@@ -600,20 +602,27 @@ moduleService.service('Sens', function(DB) {
         graphArr = [];
         l = graphs.length;
         return graphs.forEach(function(graph, ind) {
-          var k, params, v;
+          var ar1, ar2, el1, el2, i, j, params, _i, _j, _k, _len, _len1, _len2;
           params = JSON.parse(graph.params);
           graphArr.push({
             date: new Date(graph.date),
             params: params
           });
-          if (Object.keys(params).length > $scope.params.length) {
-            for (k in params) {
-              v = params[k];
-              if (k === 'mu' || k === 'eps') {
+          ar2 = Object.keys(params);
+          ar1 = $scope.params;
+          for (i = _i = 0, _len = ar1.length; _i < _len; i = ++_i) {
+            el1 = ar1[i];
+            for (j = _j = 0, _len1 = ar2.length; _j < _len1; j = ++_j) {
+              el2 = ar2[j];
+              if (el1 !== el2) {
                 continue;
               }
-              $scope.params.push(k);
+              ar2.splice(j, 1);
             }
+          }
+          for (_k = 0, _len2 = ar2.length; _k < _len2; _k++) {
+            i = ar2[_k];
+            $scope.params.push(i);
           }
           if (ind === l - 1) {
             $scope.graph = graphArr;

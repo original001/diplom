@@ -27,10 +27,15 @@ moduleService
 							date: new Date(graph.date)
 							params: params 
 
-						if Object.keys(params).length > $scope.params.length
-							for k, v of params
-								if k == 'mu' or k == 'eps' then continue
-								$scope.params.push k
+						ar2 = Object.keys(params)
+						ar1 = $scope.params	
+
+						for el1, i in ar1
+							for el2, j in ar2
+								if el1 != el2 then continue
+								ar2.splice j,1
+						for i in ar2		
+							$scope.params.push i
 
 						if ind == l - 1 
 							$scope.graph = graphArr
