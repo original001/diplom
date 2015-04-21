@@ -7,7 +7,6 @@
     <meta name="msapplication-tap-highlight" content="no" />
     <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-    <base href="/">
     <title>Мониторинг</title>
     <link rel="stylesheet" href="plugins/angular-material/angular-material.css">
     <link rel="stylesheet" type="text/css" href="css/style.css" />
@@ -21,7 +20,6 @@
     <script src="plugins/mobile-angular-ui/dist/js/mobile-angular-ui.core.min.js"></script>
     <script src="plugins/mobile-angular-ui/dist/js/mobile-angular-ui.components.min.js"></script>
     <script src="plugins/angular-base64-upload/dist/angular-base64-upload.min.js"></script>
-    <script src="plugins/sqllite/SQLitePlugin.js"></script>
     <script src="plugins/persistencejs/lib/persistence.js"></script>
     <script src="plugins/persistencejs/lib/persistence.store.sql.js"></script>
     <script src="plugins/persistencejs/lib/persistence.store.websql.js"></script>
@@ -42,7 +40,9 @@
     </md-toolbar>
     <md-content ng-view class="index-md-content">
     </md-content>
-    <script type="text/javascript" src="cordova.js"></script>
+    
+    <script src="plugins/sqllite/SQLitePlugin.js"></script>
+    <!-- // <script type="text/javascript" src="cordova.js"></script> -->
 </body>
 
 </html>

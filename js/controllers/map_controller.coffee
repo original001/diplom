@@ -65,7 +65,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	$scope.showModalAdd = (e, name) ->
 		$mdDialog.show
 			controller: DialogController
-			templateUrl: '/view/dialog-add-map.tpl.html'
+			templateUrl: 'view/dialog-add-map.tpl.html'
 			targetEvent: e
 		.then (answer) ->
 			Map.addPlan answer.name, answer.img, $scope, $routeParams.objId
@@ -73,7 +73,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	$scope.editPlan = (e, id) ->
 		$mdDialog.show
 			controller: DialogController
-			templateUrl: '/view/dialog-edit-map.tpl.html'
+			templateUrl: 'view/dialog-edit-map.tpl.html'
 			targetEvent: e
 		.then (answer) ->
 			Map.update id, answer.name, answer.img, $scope

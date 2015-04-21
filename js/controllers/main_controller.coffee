@@ -1,7 +1,7 @@
 moduleCtrl = angular.module 'Diplom.controllers.Main', []
 	.controller 'MainController', ($scope, $routeParams ,Main, $mdDialog) ->
 		$scope.lists = []
-		$scope.lazyShow = true
+		$scope.lazyShow = false
 
 		$ ->
 			w = $ window
@@ -28,7 +28,7 @@ moduleCtrl = angular.module 'Diplom.controllers.Main', []
 		$scope.showModalAdd = (e, name) ->
 			$mdDialog.show
 				controller: DialogController
-				templateUrl: '/view/dialog-add.tpl.html'
+				templateUrl: 'view/dialog-add.tpl.html'
 				targetEvent: e
 			.then (answer) ->
 				Main.addObj answer, $scope
@@ -36,7 +36,7 @@ moduleCtrl = angular.module 'Diplom.controllers.Main', []
 		$scope.showModal = (e, id) ->
 			$mdDialog.show
 				controller: DialogController
-				templateUrl: '/view/dialog.tpl.html'
+				templateUrl: 'view/dialog.tpl.html'
 				targetEvent: e
 			.then (answer) ->
 				Main.update id, answer, $scope

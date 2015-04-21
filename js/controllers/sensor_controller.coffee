@@ -101,7 +101,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	$scope.addGraph = (e) ->
 		$mdDialog.show
 			controller: SensDialogController
-			templateUrl: '/view/dialog-add-graph.tpl.html'
+			templateUrl: 'view/dialog-add-graph.tpl.html'
 			targetEvent: e
 		.then (answer) ->
 			Sens.addGraph answer.date, answer.params, $scope, $routeParams.sensId

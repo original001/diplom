@@ -4,7 +4,7 @@ var DialogController, cordovaApp, moduleCtrl, moduleService;
 angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom.controllers.Main', 'Diplom.services.Main', 'naif.base64']).config(function($mdThemingProvider) {
   return $mdThemingProvider.theme('default').primaryPalette('cyan');
 }).config(function($routeProvider, $locationProvider) {
-  persistence.store.websql.config(persistence, 'sensors2', 'База данных для мониторинга', 5 * 1024 * 1024);
+  persistence.store.websql.config(persistence, 'sensors3', 'База данных для мониторинга', 5 * 1024 * 1024);
   $routeProvider.when('/', {
     templateUrl: 'view/home.html',
     controller: 'MainController'
@@ -66,16 +66,7 @@ cordovaApp = {
     return document.addEventListener('deviceready', this.onDeviceReady, false);
   },
   onDeviceReady: function() {
-    return app.receivedEvent('deviceready');
-  },
-  receivedEvent: function(id) {
-    var listeningElement, parentElement, receivedElement;
-    parentElement = document.getElementById(id);
-    listeningElement = parentElement.querySelector('.listening');
-    receivedElement = parentElement.querySelector('.received');
-    listeningElement.setAttribute('style', 'display:none');
-    receivedElement.setAttribute('style', 'display:block');
-    return console.log('Received Event: ' + id);
+    return console.log('deviceready');
   }
 };
 
@@ -83,7 +74,7 @@ cordovaApp.initialize();
 
 moduleCtrl = angular.module('Diplom.controllers.Main', []).controller('MainController', function($scope, $routeParams, Main, $mdDialog) {
   $scope.lists = [];
-  $scope.lazyShow = true;
+  $scope.lazyShow = false;
   $(function() {
     var w;
     w = $(window);
@@ -103,7 +94,7 @@ moduleCtrl = angular.module('Diplom.controllers.Main', []).controller('MainContr
   $scope.showModalAdd = function(e, name) {
     return $mdDialog.show({
       controller: DialogController,
-      templateUrl: '/view/dialog-add.tpl.html',
+      templateUrl: 'view/dialog-add.tpl.html',
       targetEvent: e
     }).then(function(answer) {
       return Main.addObj(answer, $scope);
@@ -112,7 +103,7 @@ moduleCtrl = angular.module('Diplom.controllers.Main', []).controller('MainContr
   $scope.showModal = function(e, id) {
     return $mdDialog.show({
       controller: DialogController,
-      templateUrl: '/view/dialog.tpl.html',
+      templateUrl: 'view/dialog.tpl.html',
       targetEvent: e
     }).then(function(answer) {
       return Main.update(id, answer, $scope);
@@ -202,7 +193,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   $scope.showModalAdd = function(e, name) {
     return $mdDialog.show({
       controller: DialogController,
-      templateUrl: '/view/dialog-add-map.tpl.html',
+      templateUrl: 'view/dialog-add-map.tpl.html',
       targetEvent: e
     }).then(function(answer) {
       return Map.addPlan(answer.name, answer.img, $scope, $routeParams.objId);
@@ -211,7 +202,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   $scope.editPlan = function(e, id) {
     return $mdDialog.show({
       controller: DialogController,
-      templateUrl: '/view/dialog-edit-map.tpl.html',
+      templateUrl: 'view/dialog-edit-map.tpl.html',
       targetEvent: e
     }).then(function(answer) {
       return Map.update(id, answer.name, answer.img, $scope);
@@ -337,7 +328,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   $scope.addGraph = function(e) {
     return $mdDialog.show({
       controller: SensDialogController,
-      templateUrl: '/view/dialog-add-graph.tpl.html',
+      templateUrl: 'view/dialog-add-graph.tpl.html',
       targetEvent: e
     }).then(function(answer) {
       return Sens.addGraph(answer.date, answer.params, $scope, $routeParams.sensId);
@@ -367,25 +358,28 @@ moduleService = angular.module('Diplom.services.Main', []).service('Main', funct
   this.list = function($scope) {
     return DB.Obj.all().list(function(items) {
       var arr;
-      arr = [];
-      return items.forEach(function(item, ind, itemsArray) {
-        var indLast;
-        indLast = itemsArray.length - 1;
-        return item.sensors.list(function(res) {
-          var count;
-          count = res.length;
-          arr.push({
-            name: item.name,
-            id: item.id,
-            count: count
+      if (items.length) {
+        $scope.lazyShow = true;
+        arr = [];
+        return items.forEach(function(item, ind, itemsArray) {
+          var indLast;
+          indLast = itemsArray.length - 1;
+          return item.sensors.list(function(res) {
+            var count;
+            count = res.length;
+            arr.push({
+              name: item.name,
+              id: item.id,
+              count: count
+            });
+            $scope.lists = arr;
+            if (ind === indLast) {
+              $scope.lazyShow = false;
+            }
+            return $scope.$apply();
           });
-          $scope.lists = arr;
-          if (ind === indLast) {
-            $scope.lazyShow = false;
-          }
-          return $scope.$apply();
         });
-      });
+      }
     });
   };
   this.addObj = function(name, $scope) {

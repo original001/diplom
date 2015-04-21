@@ -11,7 +11,7 @@ angular.module 'Monitor', [
             .primaryPalette('cyan')
 
 	.config ($routeProvider, $locationProvider) -> 
-		persistence.store.websql.config persistence, 'sensors2', 'База данных для мониторинга', 5 * 1024 * 1024
+		persistence.store.websql.config persistence, 'sensors3', 'База данных для мониторинга', 5 * 1024 * 1024
 		$routeProvider.when '/', 
             templateUrl: 'view/home.html'
             controller: 'MainController'
@@ -73,15 +73,6 @@ cordovaApp =
     bindEvents: ()->
         document.addEventListener('deviceready', this.onDeviceReady, false)
     onDeviceReady: ()->
-        app.receivedEvent('deviceready')
-    receivedEvent: (id) -> 
-        parentElement = document.getElementById(id)
-        listeningElement = parentElement.querySelector('.listening')
-        receivedElement = parentElement.querySelector('.received')
-
-        listeningElement.setAttribute('style', 'display:none')
-        receivedElement.setAttribute('style', 'display:block')
-
-        console.log('Received Event: ' + id)
+        console.log 'deviceready'
 
 do cordovaApp.initialize

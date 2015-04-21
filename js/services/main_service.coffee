@@ -2,19 +2,21 @@ moduleService = angular.module 'Diplom.services.Main', []
 	.service 'Main', (DB) ->
 		@list = ($scope) ->
 			DB.Obj.all().list (items) ->
-				arr = []
-				items.forEach (item, ind, itemsArray)->
-					indLast = itemsArray.length - 1
-					item.sensors.list (res)->
-						count = res.length
-						arr.push
-							name: item.name
-							id: item.id
-							count: count
-						$scope.lists = arr
-						if ind == indLast
-							$scope.lazyShow = false
-						do $scope.$apply
+				if items.length
+					$scope.lazyShow = true
+					arr = []
+					items.forEach (item, ind, itemsArray)->
+						indLast = itemsArray.length - 1
+						item.sensors.list (res)->
+							count = res.length
+							arr.push
+								name: item.name
+								id: item.id
+								count: count
+							$scope.lists = arr
+							if ind == indLast
+								$scope.lazyShow = false
+							do $scope.$apply
 
 		@addObj = (name, $scope) ->
 			t = new DB.Obj
