@@ -4056,13 +4056,13 @@ md-dialog {
           flex-direction: column; }
   md-dialog.transition-in {
     opacity: 1;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    -webkit-transform: translate3d(0, 0, 0) scale(1);
-            transform: translate3d(0, 0, 0) scale(1); }
+    transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    -webkit-transform:none !important;
+            transform:none !important; }
   md-dialog.transition-out {
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    -webkit-transform: translate3d(0, 100%, 0) scale(0.2);
-            transform: translate3d(0, 100%, 0) scale(0.2); }
+    transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    -webkit-transform: none !important;
+            transform: none !important; }
   md-dialog md-content {
     -webkit-order: 1;
         -ms-flex-order: 1;

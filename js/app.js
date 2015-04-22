@@ -161,7 +161,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
     $('.help-screen').fadeOut(200, function() {
       return $(this).remove();
     });
-    return $(document).off('click', 'md-tab-content.md-active');
+    return $(document).off('click touchstart', 'md-tab-content.md-active');
   };
   $scope.addSens = function() {
     var toast;
@@ -170,7 +170,9 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       return $('<div class="help-screen" />').appendTo($(this)).fadeIn();
     });
     $(document).on('click', 'md-tab-content.md-active', function(e) {
-      var $plan, h, left, top, w;
+      var $plan, h, left, ofsX, ofsY, top, w;
+      ofsX = e.pageX - 25;
+      ofsY = e.pageY - 136 + $(this).scrollTop();
       if (!toast) {
         toast = true;
         $scope.showActionToast();
@@ -178,8 +180,8 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       $plan = $(this).find('.b-plan');
       w = $plan.width();
       h = $plan.height();
-      left = (e.offsetX / w * 100).toPrecision(3);
-      top = (e.offsetY / h * 100).toPrecision(3);
+      left = (ofsX / w * 100).toPrecision(3);
+      top = (ofsY / h * 100).toPrecision(3);
       return Map.addSens('sensor', top, left, $routeParams.objId, $scope.mapId, $scope);
     });
   };
@@ -502,18 +504,8 @@ moduleService.service('Map', function(DB) {
     });
   };
   this.removePlan = function(id, $scope) {
-    return DB.Maps.all().filter('id', '=', id).destroyAll(function() {
-      return $scope.tabs.forEach(function(elem, ind) {
-        var selInd;
-        if (elem.id === id) {
-          $scope.tabs.splice(ind, 1);
-          $scope.$apply();
-        }
-        selInd = $scope.tabs[$scope.selectedIndex] || {
-          id: 0
-        };
-        return $scope.mapId = selInd.id != null ? selInd.id : 0;
-      });
+    return DB.Maps.findBy(persistence, null, 'id', id, function(map) {
+      return map.sensors.destroyAll();
     });
   };
   this.update = function(id, newName, newImg, $scope) {
@@ -624,7 +616,6 @@ moduleService.service('Sens', function(DB, $window) {
           if (ind === l - 1) {
             $scope.graph = graphArr;
             $scope.$apply();
-            console.log($scope.params);
             return $scope.updatePath(Object.getOwnPropertyNames(graphArr[0].params)[0]);
           }
         });

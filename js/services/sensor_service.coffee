@@ -40,7 +40,6 @@ moduleService
 						if ind == l - 1 
 							$scope.graph = graphArr
 							do $scope.$apply
-							console.log $scope.params
 							$scope.updatePath Object.getOwnPropertyNames(graphArr[0].params)[0]
 
 

@@ -27,7 +27,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 					.remove()
 
 		$ document
-			.off 'click', 'md-tab-content.md-active'
+			.off 'click touchstart', 'md-tab-content.md-active'
 
 	$scope.addSens =  ->
 		toast = false
@@ -38,6 +38,8 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 					.fadeIn()
 		$ document
 			.on 'click','md-tab-content.md-active',(e) ->
+				ofsX = e.pageX - 25
+				ofsY = e.pageY - 136 + $(this).scrollTop()
 				if !toast
 					toast = true
 					do $scope.showActionToast
@@ -45,9 +47,11 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 					.find '.b-plan'
 				w = $plan.width()
 				h = $plan.height()
-				left = (e.offsetX/w*100).toPrecision 3
-				top = (e.offsetY/h*100).toPrecision 3
+				left = (ofsX/w*100).toPrecision 3
+				top = (ofsY/h*100).toPrecision 3
+
 				Map.addSens 'sensor',top,left,$routeParams.objId,$scope.mapId,$scope
+
 		return
 
 	$scope.deletePlan = (e, id) ->
