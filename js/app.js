@@ -744,11 +744,28 @@ moduleService.service('Sens', function(DB, $window) {
 
 moduleCtrl.controller('ListController', function($scope, $routeParams, List) {
   $scope.objId = $routeParams.objId;
-  return $scope.lazyShow = false;
+  $scope.lazyShow = false;
+  $scope.sensors = [];
+  return List.list($scope, $scope.objId);
 });
 
 moduleService.service('List', function(DB) {
-  this.list = function($scope, sensId) {
-    return DB.Obj.findBy(persistence, null, 'id', sensId, function(sens) {});
+  this.list = function($scope, objId) {
+    return DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
+      if (obj) {
+        return obj.sensors.list(function(senses) {
+          var arr;
+          arr = [];
+          return senses.forEach(function(sens) {
+            arr.push({
+              name: sens.name,
+              id: sens.id
+            });
+            $scope.sensors = arr;
+            return $scope.$apply();
+          });
+        });
+      }
+    });
   };
 });

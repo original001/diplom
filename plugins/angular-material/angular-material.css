@@ -4007,7 +4007,7 @@ md-checkbox {
 md-content {
   display: block;
   position: relative;
-  overflow: auto;
+  /*overflow: auto;*/
   -webkit-overflow-scrolling: touch; }
   md-content[md-scroll-y] {
     overflow-y: auto;
