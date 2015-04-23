@@ -28,12 +28,12 @@ angular.module 'Monitor', [
 	.constant 'DB',
         Obj: persistence.define 'Obj',  
             name: "TEXT"
-        SensCat: persistence.define 'SensCat',  
+        SensCat: persistence.define 'SensCat2',  
             name: "TEXT"
         SensMany: persistence.define 'SensMany',  
             sensor: "INT",
             GroupOfSens: "INT"
-        Sensor: persistence.define 'Sensor5',  
+        Sensor: persistence.define 'Sensor6',  
             name: "TEXT",
             top: "INT"
             left: "INT"
@@ -52,6 +52,7 @@ angular.module 'Monitor', [
         DB.Obj.hasMany('maps', DB.Maps, 'obj')
         DB.Obj.hasMany('sensors', DB.Sensor, 'obj')
         DB.Sensor.hasMany('graphs',DB.Graph, 'sens')
+        DB.Sensor.hasOne('category',DB.SensCat)
         persistence.schemaSync()
         
 

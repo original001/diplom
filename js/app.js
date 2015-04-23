@@ -23,14 +23,14 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   Obj: persistence.define('Obj', {
     name: "TEXT"
   }),
-  SensCat: persistence.define('SensCat', {
+  SensCat: persistence.define('SensCat2', {
     name: "TEXT"
   }),
   SensMany: persistence.define('SensMany', {
     sensor: "INT",
     GroupOfSens: "INT"
   }),
-  Sensor: persistence.define('Sensor5', {
+  Sensor: persistence.define('Sensor6', {
     name: "TEXT",
     top: "INT",
     left: "INT"
@@ -53,6 +53,7 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   DB.Obj.hasMany('maps', DB.Maps, 'obj');
   DB.Obj.hasMany('sensors', DB.Sensor, 'obj');
   DB.Sensor.hasMany('graphs', DB.Graph, 'sens');
+  DB.Sensor.hasOne('category', DB.SensCat);
   return persistence.schemaSync();
 });
 
@@ -231,9 +232,10 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
 });
 
 moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParams, Sens, $window, $document, $mdDialog) {
-  var $g, SensDialogController, paper, s, updatePath;
+  var $g, SensDialogController, SensEditDialogController, paper, s, updatePath;
   $scope.sensor = [];
   $scope.graph = [];
+  $scope.categories = [];
   $scope.paramInput = false;
   $g = $('#graph');
   s = Snap('#graph');
@@ -321,8 +323,21 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   $scope.updatePath = function(param) {
     return updatePath($scope.graph, param);
   };
-  $scope.removeSens = function() {
-    return Sens.removeSens($routeParams.sensId, $scope);
+  $scope.removeSens = function(e) {
+    var confirm;
+    confirm = $mdDialog.confirm().parent(angular.element(document.body)).title('Вы уверены, что хотите удалить датчик?').ariaLabel('Подтверждение удаления').ok('Да').cancel('Нет').targetEvent(e);
+    return $mdDialog.show(confirm).then(function() {
+      return Sens.removeSens($routeParams.sensId, $scope);
+    });
+  };
+  $scope.editSens = function(e) {
+    return $mdDialog.show({
+      controller: SensEditDialogController,
+      templateUrl: 'view/dialog-edit-sens.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      return Sens.editSens(answer.name, answer.category, $routeParams.sensId, $scope);
+    });
   };
   $scope.removeGraph = function() {
     return Sens.removeGraph($scope);
@@ -339,6 +354,17 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   Sens.list($scope, $routeParams.sensId);
   $scope.params = ['mu', 'eps'];
   $rootScope.params = $scope.params;
+  SensEditDialogController = function($scope, $mdDialog) {
+    $scope.cancel = function() {
+      return $mdDialog.cancel();
+    };
+    $scope.answer = function(answer) {
+      return $mdDialog.hide(answer);
+    };
+    return $scope.loadCat = function() {
+      return Sens.loadCat($scope);
+    };
+  };
   return SensDialogController = function($rootScope, $scope, $mdDialog) {
     $scope.cancel = function() {
       return $mdDialog.cancel();
@@ -504,8 +530,18 @@ moduleService.service('Map', function(DB) {
     });
   };
   this.removePlan = function(id, $scope) {
-    return DB.Maps.findBy(persistence, null, 'id', id, function(map) {
-      return map.sensors.destroyAll();
+    return DB.Maps.all().filter('id', '=', id).destroyAll(function() {
+      return $scope.tabs.forEach(function(elem, ind) {
+        var selInd;
+        if (elem.id === id) {
+          $scope.tabs.splice(ind, 1);
+          $scope.$apply();
+        }
+        selInd = $scope.tabs[$scope.selectedIndex] || {
+          id: 0
+        };
+        return $scope.mapId = selInd.id != null ? selInd.id : void 0;
+      });
     });
   };
   this.update = function(id, newName, newImg, $scope) {
@@ -635,8 +671,53 @@ moduleService.service('Sens', function(DB, $window) {
   this.removeGraph = function($scope) {
     return DB.Graph.all().destroyAll(function() {});
   };
-  this.update = function(id, newName, newImg, $scope) {
-    return DB.Sensor.all().filter('id', '=', id).one(function(obj) {});
+  this.editSens = function(newName, category, id, $scope) {
+    return DB.Sensor.findBy(persistence, null, 'id', id, function(sens) {
+      if (sens) {
+        if (newName) {
+          sens.name = newName;
+          persistence.flush(function() {
+            $scope.sensor[0].name = newName;
+            return $scope.$apply();
+          });
+        }
+        if (category) {
+          return DB.SensCat.findBy(persistence, null, 'id', category, function(cat) {
+            if (cat) {
+              sens.category = cat;
+              return persistence.flush(function() {});
+            }
+          });
+        }
+      }
+    });
+  };
+  this.addCat = function(nameCat, $scope) {
+    var c;
+    c = new DB.SensCat;
+    c.name = nameCat;
+    persistence.add(c);
+    return persistence.flush(function() {
+      return console.log("sensor " + c.name + " added!");
+    });
+  };
+  this.loadCat = function($scope) {
+    return DB.SensCat.all().list(function(cats) {
+      var arrCats;
+      if (cats) {
+        arrCats = [];
+        return cats.forEach(function(cat, ind, ar) {
+          arrCats.push({
+            id: cat.id,
+            name: cat.name
+          });
+          if (ind === ar.length - 1) {
+            $scope.categories = arrCats;
+            return $scope.$apply();
+          }
+        });
+      }
+    });
   };
   this.addGraph = function(date, params, $scope, sensId) {
     return DB.Sensor.findBy(persistence, null, 'id', sensId, function(sens) {

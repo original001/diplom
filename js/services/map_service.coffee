@@ -45,19 +45,14 @@ moduleService
 						do $scope.$apply
 
 		@removePlan = (id, $scope) ->
-			# DB.Maps.all().filter 'id','=',id
-			# 	.destroyAll ->
-			# 		$scope.tabs.forEach (elem, ind) ->	
-			# 			if elem.id == id
-			# 				$scope.tabs.splice ind, 1
-			# 				do $scope.$apply
-			# 			selInd = $scope.tabs[$scope.selectedIndex] || {id:0}
-			# 			$scope.mapId = if selInd.id? then selInd.id else 0
-
-			DB.Maps.findBy persistence, null, 'id',id,(map)->
-				map.sensors.destroyAll()
-			
-
+			DB.Maps.all().filter 'id','=',id
+				.destroyAll ->
+					$scope.tabs.forEach (elem, ind) ->	
+						if elem.id == id
+							$scope.tabs.splice ind, 1
+							do $scope.$apply
+						selInd = $scope.tabs[$scope.selectedIndex] || {id:0}
+						$scope.mapId = if selInd.id? then selInd.id else 			
 						
 
 		@update = (id, newName, newImg, $scope) ->

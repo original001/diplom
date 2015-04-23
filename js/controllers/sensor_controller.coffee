@@ -1,6 +1,7 @@
 moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens, $window, $document, $mdDialog) ->
 	$scope.sensor = []
 	$scope.graph = []
+	$scope.categories = []
 	$scope.paramInput = false
 
 	$g = $ '#graph'
@@ -92,8 +93,25 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	$scope.updatePath = (param) ->
 		updatePath $scope.graph, param
 
-	$scope.removeSens = ->
-		Sens.removeSens $routeParams.sensId, $scope
+	$scope.removeSens = (e) ->
+		confirm = $mdDialog.confirm()
+			.parent angular.element document.body
+			.title 'Вы уверены, что хотите удалить датчик?'
+			.ariaLabel 'Подтверждение удаления'
+			.ok 'Да'
+			.cancel 'Нет'
+			.targetEvent(e)
+		$mdDialog.show confirm
+			.then ->
+				Sens.removeSens $routeParams.sensId, $scope
+
+	$scope.editSens = (e) ->
+		$mdDialog.show
+			controller: SensEditDialogController
+			templateUrl: 'view/dialog-edit-sens.tpl.html'
+			targetEvent: e
+		.then (answer) ->
+			Sens.editSens answer.name, answer.category, $routeParams.sensId, $scope
 
 	$scope.removeGraph = ->
 		Sens.removeGraph $scope
@@ -111,6 +129,15 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	$scope.params = ['mu','eps']
 
 	$rootScope.params = $scope.params
+
+	SensEditDialogController = ($scope, $mdDialog) ->
+		$scope.cancel = ->
+			do $mdDialog.cancel
+		$scope.answer = (answer) ->
+			$mdDialog.hide answer
+
+		$scope.loadCat = ->
+			Sens.loadCat $scope
 
 
 	SensDialogController = ($rootScope, $scope, $mdDialog) ->

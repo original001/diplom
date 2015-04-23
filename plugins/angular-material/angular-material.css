@@ -6820,6 +6820,7 @@ md-tabs {
     border-style: solid; }
   md-tabs md-tabs-wrapper {
     display: block;
+    z-index: 1;
     position: relative; }
     md-tabs md-tabs-wrapper md-ink-bar {
       position: absolute;

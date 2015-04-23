@@ -4,14 +4,15 @@
         <div flex="90" style="padding:4px" flex-sm="80">
             <!-- ABS BUTTON GROUP -->
             <md-button ng-click="addGraph($event)" class="md-fab md-mini md-button md-default-theme button-custom button-add" aria-label="button"></md-button>
-            <md-button ng-click="removeSens()" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
+            <md-button ng-click="removeSens($event)" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
+            <md-button ng-click="editSens($event)" class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
             <!-- ABS BUTTON GROUP -->
             <!-- PARAMS BUTTON GROUP -->
             <md-button ng-repeat="param in params" class="md-raised md-primary" ng-click="updatePath(param)">{{param}}</md-button>
             <!-- PARAMS BUTTON END -->
             <input type="text" class="custom-input" placeholder="name" ng-show="paramInput" ng-model="paramName">
             <md-button class="md-fab md-mini md-primary" aria-label="add param" ng-click="addParam()">
-                <md-icon md-svg-icon="img/add.svg" ng-show="!paramInput"></md-icon>
+                <span ng-show="!paramInput">+v</span>
                 <span ng-show="paramInput">ok</span>
             </md-button>
         </div>

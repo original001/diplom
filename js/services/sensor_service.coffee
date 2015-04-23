@@ -54,9 +54,38 @@ moduleService
 		@removeGraph = ($scope) ->
 			DB.Graph.all().destroyAll ->
 
-		@update = (id, newName, newImg, $scope) ->
-			DB.Sensor.all().filter 'id','=',id
-				.one (obj) ->
+		@editSens = (newName, category, id, $scope) ->
+			DB.Sensor.findBy persistence, null,'id',id, (sens)->
+				if sens
+					if newName 
+						sens.name = newName 
+						persistence.flush ->
+							$scope.sensor[0].name = newName
+							do $scope.$apply
+					if category
+						DB.SensCat.findBy persistence, null, 'id',category, (cat)->
+							if cat
+								sens.category = cat
+								persistence.flush ->
+
+		@addCat = (nameCat, $scope) ->
+			c = new DB.SensCat
+			c.name = nameCat
+			persistence.add c
+			persistence.flush ->
+				console.log "sensor #{c.name} added!"
+
+		@loadCat = ($scope) ->		
+			DB.SensCat.all().list (cats) ->
+				if cats
+					arrCats = []
+					cats.forEach (cat, ind, ar) ->
+						arrCats.push 
+							id: cat.id
+							name: cat.name
+						if ind == ar.length-1
+							$scope.categories = arrCats
+							do $scope.$apply
 
 		@addGraph = (date, params, $scope, sensId) ->
 			DB.Sensor.findBy persistence, null, 'id',sensId,(sens)->
