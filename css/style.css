@@ -124,6 +124,15 @@
 	line-height: 1.8;
 	content: '';
 }
+.button-list {
+	font-family: 'icons';
+	top: 215px;
+}
+.button-list:after {
+	font-weight: bold;
+	line-height: 1.8;
+	content: '\e01B';
+}
 .help-screen {
 	display: none;
 	z-index: 10;

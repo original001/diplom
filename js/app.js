@@ -14,6 +14,9 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   }).when('/sensor/:sensId', {
     templateUrl: 'view/sensor.html',
     controller: 'SensController'
+  }).when('/list/:objId', {
+    templateUrl: 'view/list.html',
+    controller: 'ListController'
   });
   return $locationProvider.html5Mode({
     enable: false,
@@ -146,6 +149,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   ];
   $scope.mapId = 0;
   $scope.lazyShow = true;
+  $scope.objId = $routeParams.objId;
   $scope.onTab = function(id) {
     return $scope.mapId = id;
   };
@@ -735,5 +739,16 @@ moduleService.service('Sens', function(DB, $window) {
         return $scope.updatePath('eps');
       });
     });
+  };
+});
+
+moduleCtrl.controller('ListController', function($scope, $routeParams, List) {
+  $scope.objId = $routeParams.objId;
+  return $scope.lazyShow = false;
+});
+
+moduleService.service('List', function(DB) {
+  this.list = function($scope, sensId) {
+    return DB.Obj.findBy(persistence, null, 'id', sensId, function(sens) {});
   };
 });

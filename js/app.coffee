@@ -21,6 +21,9 @@ angular.module 'Monitor', [
         .when '/sensor/:sensId',
             templateUrl:'view/sensor.html'
             controller: 'SensController'
+        .when '/list/:objId',
+            templateUrl:'view/list.html'
+            controller: 'ListController'
         $locationProvider.html5Mode
             enable: false
             requireBase: false

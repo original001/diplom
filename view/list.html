@@ -1,4 +1,4 @@
-<div class="sample" layout="column" style="height:100%">
+<div class="sample" layout="column">
     <md-select ng-model="someVal" class="md-fab md-mini md-button md-default-theme button-custom">
         <md-option ng-click="showModalAdd($event)" value="1">Добавить план</md-option>
         <md-option ng-click="addSens()" value="2">Добавить датчик</md-option>
@@ -6,16 +6,7 @@
     <md-button ng-click="deletePlan($event, mapId)" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
     <md-button ng-click="editPlan($event, mapId)"  class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
     <md-button ng-href="#/list/{{objId}}" class="md-fab md-mini md-button md-default-theme button-custom button-list" aria-label="button"></md-button>
-    <md-tabs md-selected="selectedIndex" md-border-bottom class="height100">
-        <md-tab label="{{tab.name}}" ng-repeat="tab in tabs" md-on-select="onTab(tab.id)">
-            <div class="demo-tab tab" style="padding: 25px 60px 25px 25px; text-align: center;">
-                <div class="b-plan">
-                    <img ng-src="{{tab.img}}" alt="" class="img-plan">
-                    <a ng-repeat="sensor in tab.sensors" ng-href="#/sensor/{{sensor.id}}" class="sensor" style="top:{{sensor.top}}%;left:{{sensor.left}}%"></a>
-                </div>
-            </div>
-        </md-tab>
-    </md-tabs>
+    <!-- LAZY LOAD -->
     <div class="lazy-cloud" ng-show="lazyShow">
         <md-progress-circular md-mode="indeterminate" class="lazy-circle"></md-progress-circular>
     </div>

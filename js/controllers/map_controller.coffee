@@ -6,6 +6,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	]
 	$scope.mapId = 0
 	$scope.lazyShow = true
+	$scope.objId = $routeParams.objId
 
 	$scope.onTab = (id)->	
 		$scope.mapId = id
