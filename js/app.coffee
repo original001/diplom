@@ -58,6 +58,8 @@ angular.module 'Monitor', [
         DB.Sensor.hasOne('category',DB.SensCat)
         persistence.schemaSync()
         
+moduleCtrl = angular.module 'Diplom.controllers.Main', []
+moduleService = angular.module 'Diplom.services.Main', []
 
 angular.module 'mobile-angular-ui', [
     'mobile-angular-ui.core.activeLinks',

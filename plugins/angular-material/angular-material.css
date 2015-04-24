@@ -3827,7 +3827,7 @@ md-card {
 md-checkbox {
   box-sizing: border-box;
   display: block;
-  margin: 15px;
+  margin: 13px 0;
   white-space: nowrap;
   cursor: pointer;
   outline: none;

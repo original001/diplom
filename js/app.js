@@ -60,6 +60,10 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   return persistence.schemaSync();
 });
 
+moduleCtrl = angular.module('Diplom.controllers.Main', []);
+
+moduleService = angular.module('Diplom.services.Main', []);
+
 angular.module('mobile-angular-ui', ['mobile-angular-ui.core.activeLinks', 'mobile-angular-ui.core.fastclick', 'mobile-angular-ui.core.sharedState', 'mobile-angular-ui.core.outerClick', 'mobile-angular-ui.components.modals', 'mobile-angular-ui.components.switch', 'mobile-angular-ui.components.sidebars', 'mobile-angular-ui.components.scrollable', 'mobile-angular-ui.components.navbars']);
 
 cordovaApp = {
@@ -76,7 +80,25 @@ cordovaApp = {
 
 cordovaApp.initialize();
 
-moduleCtrl = angular.module('Diplom.controllers.Main', []).controller('MainController', function($scope, $routeParams, Main, $mdDialog) {
+moduleCtrl.controller('ListController', function($scope, $routeParams, List) {
+  $scope.objId = $routeParams.objId;
+  $scope.lazyShow = false;
+  $scope.sensors = [];
+  $scope.checkboxMode = true;
+  $scope.selected = [];
+  $scope.check = function() {
+    return $scope.checkboxMode = $scope.checkboxMode ? false : true;
+  };
+  $scope.build = function(data) {
+    return console.log(data);
+  };
+  $scope.getData = function(item, list) {
+    return console.log(item, list);
+  };
+  return List.list($scope, $scope.objId);
+});
+
+moduleCtrl.controller('MainController', function($scope, $routeParams, Main, $mdDialog) {
   $scope.lists = [];
   $scope.lazyShow = false;
   $(function() {
@@ -386,7 +408,28 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   };
 });
 
-moduleService = angular.module('Diplom.services.Main', []).service('Main', function(DB) {
+moduleService.service('List', function(DB) {
+  this.list = function($scope, objId) {
+    return DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
+      if (obj) {
+        return obj.sensors.list(function(senses) {
+          var arr;
+          arr = [];
+          return senses.forEach(function(sens) {
+            arr.push({
+              name: sens.name,
+              id: sens.id
+            });
+            $scope.sensors = arr;
+            return $scope.$apply();
+          });
+        });
+      }
+    });
+  };
+});
+
+moduleService.service('Main', function(DB) {
   this.list = function($scope) {
     return DB.Obj.all().list(function(items) {
       var arr;
@@ -738,34 +781,6 @@ moduleService.service('Sens', function(DB, $window) {
         $scope.$apply();
         return $scope.updatePath('eps');
       });
-    });
-  };
-});
-
-moduleCtrl.controller('ListController', function($scope, $routeParams, List) {
-  $scope.objId = $routeParams.objId;
-  $scope.lazyShow = false;
-  $scope.sensors = [];
-  return List.list($scope, $scope.objId);
-});
-
-moduleService.service('List', function(DB) {
-  this.list = function($scope, objId) {
-    return DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
-      if (obj) {
-        return obj.sensors.list(function(senses) {
-          var arr;
-          arr = [];
-          return senses.forEach(function(sens) {
-            arr.push({
-              name: sens.name,
-              id: sens.id
-            });
-            $scope.sensors = arr;
-            return $scope.$apply();
-          });
-        });
-      }
     });
   };
 });

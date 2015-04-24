@@ -1,5 +1,4 @@
-moduleCtrl = angular.module 'Diplom.controllers.Main', []
-	.controller 'MainController', ($scope, $routeParams ,Main, $mdDialog) ->
+moduleCtrl.controller 'MainController', ($scope, $routeParams ,Main, $mdDialog) ->
 		$scope.lists = []
 		$scope.lazyShow = false
 

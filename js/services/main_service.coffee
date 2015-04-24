@@ -1,5 +1,4 @@
-moduleService = angular.module 'Diplom.services.Main', []
-	.service 'Main', (DB) ->
+moduleService.service 'Main', (DB) ->
 		@list = ($scope) ->
 			DB.Obj.all().list (items) ->
 				if items.length
