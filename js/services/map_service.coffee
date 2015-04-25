@@ -19,6 +19,7 @@ moduleService
 										sensors.push
 											id: sen.id
 											top: sen.top
+											name: sen.name
 											left: sen.left
 											color: colors[cat.color]
 								persistence.flush ->
@@ -98,6 +99,7 @@ moduleService
 								$scope.tabs[ind].sensors.push
 									id: s.id	
 									type: sensTypeId
+									name:sensName
 									top: top	
 									left: left
 									color: colors[exp.type.color]
@@ -111,6 +113,7 @@ moduleService
 						arrCats.push 
 							id: cat.id
 							name: cat.name
+							color: cat.color
 						if ind == ar.length-1
 							$scope.categories = arrCats
 							do $scope.$apply

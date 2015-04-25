@@ -169,7 +169,6 @@ DialogController = function($scope, $mdDialog) {
 };
 
 moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) {
-  var colors;
   $scope.tabs = [
     {
       name: 'tab',
@@ -181,14 +180,14 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   $scope.lazyShow = true;
   $scope.objId = $routeParams.objId;
   $scope.categories = [];
-  colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075'];
+  $scope.colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075'];
   $scope.listCat = function() {
     return Map.listCat($scope);
   };
   $scope.onTab = function(id) {
     return $scope.mapId = id;
   };
-  Map.list($scope, $routeParams.objId, colors);
+  Map.list($scope, $routeParams.objId, $scope.colors);
   $(function() {
     var w;
     w = $(window);
@@ -205,6 +204,10 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
     return $(document).off('click touchstart', 'md-tab-content.md-active');
   };
   $scope.addSens = function(cat) {
+    $('.help-screen').fadeOut(200, function() {
+      return $(this).remove();
+    });
+    $(document).off('click touchstart', 'md-tab-content.md-active');
     $scope.showActionToast();
     $(".b-plan").each(function() {
       return $('<div class="help-screen" />').appendTo($(this)).fadeIn();
@@ -218,7 +221,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       h = $plan.height();
       left = (ofsX / w * 100).toPrecision(3);
       top = (ofsY / h * 100).toPrecision(3);
-      return Map.addSens('sensor', cat.id, colors, top, left, $routeParams.objId, $scope.mapId, $scope);
+      return Map.addSens('sensor', cat.id, $scope.colors, top, left, $routeParams.objId, $scope.mapId, $scope);
     });
   };
   $scope.deletePlan = function(e, id) {
@@ -548,6 +551,7 @@ moduleService.service('Map', function(DB) {
                   return sensors.push({
                     id: sen.id,
                     top: sen.top,
+                    name: sen.name,
                     left: sen.left,
                     color: colors[cat.color]
                   });
@@ -668,6 +672,7 @@ moduleService.service('Map', function(DB) {
               $scope.tabs[ind].sensors.push({
                 id: s.id,
                 type: sensTypeId,
+                name: sensName,
                 top: top,
                 left: left,
                 color: colors[exp.type.color]
@@ -687,7 +692,8 @@ moduleService.service('Map', function(DB) {
         return cats.forEach(function(cat, ind, ar) {
           arrCats.push({
             id: cat.id,
-            name: cat.name
+            name: cat.name,
+            color: cat.color
           });
           if (ind === ar.length - 1) {
             $scope.categories = arrCats;

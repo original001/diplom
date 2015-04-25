@@ -10,7 +10,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 
 	$scope.categories = []
 
-	colors = ['#d11d05',"#05A3D1","#051FD1","#FF528D",'#60061E','#1d1075']
+	$scope.colors = ['#d11d05',"#05A3D1","#051FD1","#FF528D",'#60061E','#1d1075']
 
 	$scope.listCat = ->
 		Map.listCat $scope 
@@ -18,7 +18,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	$scope.onTab = (id)->	
 		$scope.mapId = id
 
-	Map.list $scope, $routeParams.objId, colors
+	Map.list $scope, $routeParams.objId, $scope.colors
 
 	$ ->
 		w = $ window
@@ -38,6 +38,12 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 			.off 'click touchstart', 'md-tab-content.md-active'
 
 	$scope.addSens = (cat)  ->
+		$ '.help-screen'
+			.fadeOut 200, ->
+				$ this
+					.remove()
+		$ document
+			.off 'click touchstart', 'md-tab-content.md-active'
 		do $scope.showActionToast
 		$ ".b-plan"
 			.each ->
@@ -55,7 +61,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 				left = (ofsX/w*100).toPrecision 3
 				top = (ofsY/h*100).toPrecision 3
 
-				Map.addSens 'sensor',cat.id, colors,top,left,$routeParams.objId,$scope.mapId,$scope
+				Map.addSens 'sensor',cat.id, $scope.colors,top,left,$routeParams.objId,$scope.mapId,$scope
 
 		return
 
