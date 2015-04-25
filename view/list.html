@@ -1,6 +1,8 @@
 <div class="sample" layout="column" style="height:100%">
     <form>
+        <md-subheader>Список датчиков</md-subheader>
         <md-list>
+            <md-list-item style="background:rgba(0, 188, 212, .5);color:#fff;height:36px"><p>Тензометры</p></md-list-item>
             <md-list-item ng-repeat="sens in sensors">
                 <p>
                     <a ng-show="!checkboxMode" href="#/sensor/{{sens.id}}" class="linkblock">{{sens.name}}</a>
