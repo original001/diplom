@@ -1,10 +1,10 @@
 <div class="sample" layout="column" style="height:100%">
-    <md-select ng-model="someVal" class="md-fab md-mini md-button md-default-theme button-custom">
-        <md-option ng-click="showModalAdd($event)" value="1">Добавить план</md-option>
-        <md-option ng-click="addSens()" value="2">Добавить датчик</md-option>
+    <md-select ng-model="sens.type" md-on-open="listCat()" class="md-button md-raised button-add-sensor" placeholder="Добавить датчик">
+        <md-option ng-repeat="cat in categories" ng-click="addSens(cat.name)" ng-value="$index">{{cat.name}}</md-option>
     </md-select>
+    <md-button ng-click="showModalAdd($event)" class="md-fab md-mini md-button md-default-theme button-custom button-add" aria-label="button"></md-button>
     <md-button ng-click="deletePlan($event, mapId)" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
-    <md-button ng-click="editPlan($event, mapId)"  class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
+    <md-button ng-click="editPlan($event, mapId)" class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
     <md-button ng-href="#/list/{{objId}}" class="md-fab md-mini md-button md-default-theme button-custom button-list" aria-label="button"></md-button>
     <md-tabs md-selected="selectedIndex" md-border-bottom class="height100">
         <md-tab label="{{tab.name}}" ng-repeat="tab in tabs" md-on-select="onTab(tab.id)">

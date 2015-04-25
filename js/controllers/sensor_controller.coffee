@@ -8,6 +8,8 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	s = Snap '#graph'
 	paper = s.paper
 
+	# Sens.renameCat 'D2C869923A0B4E5B871860FAE4FF03A2','Деформационная марка'
+
 	updatePath =  (arr,paramY) ->
 		do paper.clear
 

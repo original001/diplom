@@ -8,6 +8,11 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	$scope.lazyShow = true
 	$scope.objId = $routeParams.objId
 
+	$scope.categories = []
+
+	$scope.listCat = ->
+		Map.listCat $scope
+
 	$scope.onTab = (id)->	
 		$scope.mapId = id
 
@@ -26,12 +31,13 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 			.fadeOut 200, ->
 				$ this
 					.remove()
-
+		$scope.sens.type = undefined			
 		$ document
 			.off 'click touchstart', 'md-tab-content.md-active'
 
-	$scope.addSens =  ->
-		toast = false
+	$scope.addSens = (log)  ->
+		console.log log
+		do $scope.showActionToast
 		$ ".b-plan"
 			.each ->
 				$ '<div class="help-screen" />'
@@ -41,9 +47,6 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 			.on 'click','md-tab-content.md-active',(e) ->
 				ofsX = e.pageX - 25
 				ofsY = e.pageY - 136 + $(this).scrollTop()
-				if !toast
-					toast = true
-					do $scope.showActionToast
 				$plan = $ this
 					.find '.b-plan'
 				w = $plan.width()
@@ -99,8 +102,8 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 
 	$scope.showActionToast = ->
 	    toast = $mdToast.simple()
-	        .content('Датчик добавлен')
-	        .action('Сохранить')
+	        .content('Режим добавления датчиков')
+	        .action('Выключить')
 	        .highlightAction(false)
 	        .position($scope.getToastPosition());
 	    $mdToast.show(toast).then ->

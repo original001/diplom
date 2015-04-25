@@ -5,6 +5,7 @@ moduleService
 				arr = []
 				sens.fetch 'obj',(obj)->
 					objName = obj.name
+					objId = obj.id
 					sens.fetch 'map',(map)->
 						mapName = map.name
 						arr.push
@@ -13,6 +14,7 @@ moduleService
 							name: sens.name
 							left: sens.left
 							obj:objName
+							objId: objId
 							map:mapName
 						$scope.sensor = arr
 						do $scope.$apply
@@ -68,12 +70,16 @@ moduleService
 								sens.category = cat
 								persistence.flush ->
 
-		@addCat = (nameCat, $scope) ->
+		@addCat = (nameCat) ->
 			c = new DB.SensCat
 			c.name = nameCat
 			persistence.add c
 			persistence.flush ->
 				console.log "sensor #{c.name} added!"
+
+		@renameCat = (id, newname) ->
+			DB.SensCat.findBy persistence, null, 'id',id,(cat)->
+				cat.name = newname
 
 		@loadCat = ($scope) ->		
 			DB.SensCat.all().list (cats) ->

@@ -82,6 +82,15 @@
 .sensor:hover {
 	background-color: rgba(203, 0, 0, 0.16);
 }
+.button-add-sensor {
+	position: absolute;
+	z-index: 10;
+	top: 50px;
+	padding: 5px 8px;
+}
+.button-add-sensor .md-select-label {
+	border-bottom: none !important;
+}
 .button-custom {
 	top: 65px;
 	right: 15px;
@@ -132,6 +141,15 @@
 	font-weight: bold;
 	line-height: 1.8;
 	content: '\e01B';
+}
+.button-map {
+	font-family: 'icons';
+	top: 215px;
+}
+.button-map:after {
+	font-weight: bold;
+	line-height: 1.8;
+	content: '\e04E';
 }
 .help-screen {
 	display: none;

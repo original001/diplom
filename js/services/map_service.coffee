@@ -88,4 +88,15 @@ moduleService
 											left: left
 										do $scope.$apply
 
+		@listCat = ($scope) ->
+			DB.SensCat.all().list (cats) ->
+				if cats
+					arrCats = []
+					cats.forEach (cat, ind, ar) ->
+						arrCats.push 
+							id: cat.id
+							name: cat.name
+						if ind == ar.length-1
+							$scope.categories = arrCats
+							do $scope.$apply
 		return

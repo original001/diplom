@@ -89,11 +89,17 @@ moduleCtrl.controller('ListController', function($scope, $routeParams, List) {
   $scope.check = function() {
     return $scope.checkboxMode = $scope.checkboxMode ? false : true;
   };
-  $scope.build = function(data) {
-    return console.log(data);
+  $scope.build = function() {
+    return console.log($scope.selected);
   };
   $scope.getData = function(item, list) {
-    return console.log(item, list);
+    var ind;
+    ind = list.indexOf(item.id);
+    if (ind > -1) {
+      return $scope.selected.splice(ind, 1);
+    } else {
+      return $scope.selected.push(item.id);
+    }
   };
   return List.list($scope, $scope.objId);
 });
@@ -172,6 +178,10 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   $scope.mapId = 0;
   $scope.lazyShow = true;
   $scope.objId = $routeParams.objId;
+  $scope.categories = [];
+  $scope.listCat = function() {
+    return Map.listCat($scope);
+  };
   $scope.onTab = function(id) {
     return $scope.mapId = id;
   };
@@ -188,11 +198,12 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
     $('.help-screen').fadeOut(200, function() {
       return $(this).remove();
     });
+    $scope.sens.type = void 0;
     return $(document).off('click touchstart', 'md-tab-content.md-active');
   };
-  $scope.addSens = function() {
-    var toast;
-    toast = false;
+  $scope.addSens = function(log) {
+    console.log(log);
+    $scope.showActionToast();
     $(".b-plan").each(function() {
       return $('<div class="help-screen" />').appendTo($(this)).fadeIn();
     });
@@ -200,10 +211,6 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       var $plan, h, left, ofsX, ofsY, top, w;
       ofsX = e.pageX - 25;
       ofsY = e.pageY - 136 + $(this).scrollTop();
-      if (!toast) {
-        toast = true;
-        $scope.showActionToast();
-      }
       $plan = $(this).find('.b-plan');
       w = $plan.width();
       h = $plan.height();
@@ -250,7 +257,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   };
   return $scope.showActionToast = function() {
     var toast;
-    toast = $mdToast.simple().content('Датчик добавлен').action('Сохранить').highlightAction(false).position($scope.getToastPosition());
+    toast = $mdToast.simple().content('Режим добавления датчиков').action('Выключить').highlightAction(false).position($scope.getToastPosition());
     return $mdToast.show(toast).then(function() {
       return $scope.cancelAddPlan();
     });
@@ -644,6 +651,24 @@ moduleService.service('Map', function(DB) {
       }
     });
   };
+  this.listCat = function($scope) {
+    return DB.SensCat.all().list(function(cats) {
+      var arrCats;
+      if (cats) {
+        arrCats = [];
+        return cats.forEach(function(cat, ind, ar) {
+          arrCats.push({
+            id: cat.id,
+            name: cat.name
+          });
+          if (ind === ar.length - 1) {
+            $scope.categories = arrCats;
+            return $scope.$apply();
+          }
+        });
+      }
+    });
+  };
 });
 
 moduleService.service('Sens', function(DB, $window) {
@@ -652,8 +677,9 @@ moduleService.service('Sens', function(DB, $window) {
       var arr;
       arr = [];
       sens.fetch('obj', function(obj) {
-        var objName;
+        var objId, objName;
         objName = obj.name;
+        objId = obj.id;
         return sens.fetch('map', function(map) {
           var mapName;
           mapName = map.name;
@@ -663,6 +689,7 @@ moduleService.service('Sens', function(DB, $window) {
             name: sens.name,
             left: sens.left,
             obj: objName,
+            objId: objId,
             map: mapName
           });
           $scope.sensor = arr;
@@ -739,13 +766,18 @@ moduleService.service('Sens', function(DB, $window) {
       }
     });
   };
-  this.addCat = function(nameCat, $scope) {
+  this.addCat = function(nameCat) {
     var c;
     c = new DB.SensCat;
     c.name = nameCat;
     persistence.add(c);
     return persistence.flush(function() {
       return console.log("sensor " + c.name + " added!");
+    });
+  };
+  this.renameCat = function(id, newname) {
+    return DB.SensCat.findBy(persistence, null, 'id', id, function(cat) {
+      return cat.name = newname;
     });
   };
   this.loadCat = function($scope) {
