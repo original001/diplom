@@ -31,8 +31,9 @@ angular.module 'Monitor', [
 	.constant 'DB',
         Obj: persistence.define 'Obj',  
             name: "TEXT"
-        SensCat: persistence.define 'SensCat2',  
+        SensCat: persistence.define 'SensCat3',  
             name: "TEXT"
+            color: "INT"
         SensMany: persistence.define 'SensMany',  
             sensor: "INT",
             GroupOfSens: "INT"

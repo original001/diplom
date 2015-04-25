@@ -1,6 +1,6 @@
 <div class="sample" layout="column" style="height:100%">
     <md-select ng-model="sens.type" md-on-open="listCat()" class="md-button md-raised button-add-sensor" placeholder="Добавить датчик">
-        <md-option ng-repeat="cat in categories" ng-click="addSens(cat.name)" ng-value="$index">{{cat.name}}</md-option>
+        <md-option ng-repeat="cat in categories" ng-click="addSens(cat)" ng-value="$index">{{cat.name}}</md-option>
     </md-select>
     <md-button ng-click="showModalAdd($event)" class="md-fab md-mini md-button md-default-theme button-custom button-add" aria-label="button"></md-button>
     <md-button ng-click="deletePlan($event, mapId)" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
@@ -11,7 +11,7 @@
             <div class="demo-tab tab" style="padding: 25px 60px 25px 25px; text-align: center;">
                 <div class="b-plan">
                     <img ng-src="{{tab.img}}" alt="" class="img-plan">
-                    <a ng-repeat="sensor in tab.sensors" ng-href="#/sensor/{{sensor.id}}" class="sensor" style="top:{{sensor.top}}%;left:{{sensor.left}}%"></a>
+                    <a ng-repeat="sensor in tab.sensors" ng-href="#/sensor/{{sensor.id}}" class="sensor" style="top:{{sensor.top}}%;left:{{sensor.left}}%;background-color:{{sensor.color}}"></a>
                 </div>
             </div>
         </md-tab>

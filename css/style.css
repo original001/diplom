@@ -61,26 +61,33 @@
 	position: relative;
 }
 .sensor {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 	display: block;
 	position: absolute;
 	width: 35px;
 	height: 35px;
 	margin-left: -20px;
 	margin-top: -20px;
-	background: url(../img/sensor.png) 50% 50% no-repeat;
-	border: 1px solid #363636;
+	background: #d11d05 50% 50% no-repeat;
+	border: 12px solid transparent;
+	background-clip: padding-box;
+	-webkit-box-shadow: 0px 0px 0px 1px #363636;
+	-moz-box-shadow: 0px 0px 0px 1px #363636;
+	box-shadow: 0px 0px 0px 1px #363636;
 	-webkit-border-radius: 20px;
 	-moz-border-radius: 20px;
 	border-radius: 20px;
-	-webkit-transition:background .174s;
-	-ms-transition:background .174s;
-	-o-transition:background .174s;
-	transition:background .174s;
-	-moz-transition:background .174s;
+	-webkit-transition:border-color .174s;
+	-ms-transition:border-color .174s;
+	-o-transition:border-color .174s;
+	transition:border-color .174s;
+	-moz-transition:border-color .174s;
 	cursor: pointer;
 }
 .sensor:hover {
-	background-color: rgba(203, 0, 0, 0.16);
+	border-color: #eee;
 }
 .button-add-sensor {
 	position: absolute;

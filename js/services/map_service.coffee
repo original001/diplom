@@ -1,6 +1,6 @@
 moduleService
 	.service 'Map', (DB) ->
-		@list = ($scope, objId) ->
+		@list = ($scope, objId, colors) ->
 			DB.Obj.findBy persistence, null, 'id',objId,(obj)->
 				if obj
 					obj.maps.list (items) ->
@@ -14,19 +14,23 @@ moduleService
 							sensors = []
 							item.sensors.list null, (sens)->
 								sens.forEach (sen)->
-									sensors.push
-										id: sen.id
-										top: sen.top
-										left: sen.left
-								arr.push
-									name: item.name
-									id: item.id
-									img: item.img
-									sensors: sensors
-								$scope.mapId = arr[0].id
-								$scope.tabs = arr
-								$scope.lazyShow = false
-								do $scope.$apply
+									sen.fetch 'category', (cat) ->
+										cat = if cat then cat else 4
+										sensors.push
+											id: sen.id
+											top: sen.top
+											left: sen.left
+											color: colors[cat.color]
+								persistence.flush ->
+									arr.push
+										name: item.name
+										id: item.id
+										img: item.img
+										sensors: sensors
+									$scope.mapId = arr[0].id
+									$scope.tabs = arr
+									$scope.lazyShow = false
+									do $scope.$apply
 
 		@addPlan = (name, img, $scope, objId) ->
 			DB.Obj.findBy persistence, null, 'id',objId,(obj)->
@@ -67,26 +71,37 @@ moduleService
 								item.img = newImg if newImg
 								do $scope.$apply
 
-		@addSens = (sensName,top,left, objId,mapId, $scope) ->
+		@addSens = (sensName,sensTypeId,colors,top,left, objId,mapId, $scope) ->
+			exp =
+				obj: false
+				map: false
+				type: false
 			DB.Obj.findBy persistence, null, 'id',objId,(obj)->
-				if obj
-					DB.Maps.findBy persistence, null, 'id',mapId,(map)->
-						if map
-							s = new DB.Sensor
-								name: sensName
-								top: top
-								left: left
-							obj.sensors.add(s)
-							map.sensors.add(s)
-							persistence.flush ->
-								$scope.tabs.forEach (tabs, ind) ->
-									if tabs.id == map.id
-										$scope.tabs[ind].sensors ?= []
-										$scope.tabs[ind].sensors.push
-											id: s.id	
-											top: top	
-											left: left
-										do $scope.$apply
+				exp.obj = obj if obj
+			DB.Maps.findBy persistence, null, 'id',mapId,(map)->
+				exp.map = map if map
+			DB.SensCat.findBy persistence, null, 'id',sensTypeId,(type)->
+				exp.type = type if type
+			s = new DB.Sensor
+				name: sensName
+				top: top
+				left: left
+			persistence.flush ->
+				if  exp.obj && exp.map && exp.type
+					s.category = exp.type
+					exp.obj.sensors.add(s)
+					exp.map.sensors.add(s)
+					persistence.flush ->
+						$scope.tabs.forEach (tabs, ind) ->
+							if tabs.id == exp.map.id
+								$scope.tabs[ind].sensors ?= []
+								$scope.tabs[ind].sensors.push
+									id: s.id	
+									type: sensTypeId
+									top: top	
+									left: left
+									color: colors[exp.type.color]
+								do $scope.$apply
 
 		@listCat = ($scope) ->
 			DB.SensCat.all().list (cats) ->

@@ -70,16 +70,18 @@ moduleService
 								sens.category = cat
 								persistence.flush ->
 
-		@addCat = (nameCat) ->
+		@addCat = (nameCat, color) ->
 			c = new DB.SensCat
 			c.name = nameCat
+			c.color = color
 			persistence.add c
 			persistence.flush ->
-				console.log "sensor #{c.name} added!"
+				console.log "sensor #{c.name} added with color #{color}!"
 
-		@renameCat = (id, newname) ->
+		@renameCat = (id, newcolor) ->
 			DB.SensCat.findBy persistence, null, 'id',id,(cat)->
-				cat.name = newname
+				# cat.name = newname
+				cat.color = newcolor
 
 		@loadCat = ($scope) ->		
 			DB.SensCat.all().list (cats) ->

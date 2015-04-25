@@ -10,13 +10,15 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 
 	$scope.categories = []
 
+	colors = ['#d11d05',"#05A3D1","#051FD1","#FF528D",'#60061E','#1d1075']
+
 	$scope.listCat = ->
-		Map.listCat $scope
+		Map.listCat $scope 
 
 	$scope.onTab = (id)->	
 		$scope.mapId = id
 
-	Map.list $scope, $routeParams.objId
+	Map.list $scope, $routeParams.objId, colors
 
 	$ ->
 		w = $ window
@@ -35,8 +37,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 		$ document
 			.off 'click touchstart', 'md-tab-content.md-active'
 
-	$scope.addSens = (log)  ->
-		console.log log
+	$scope.addSens = (cat)  ->
 		do $scope.showActionToast
 		$ ".b-plan"
 			.each ->
@@ -54,7 +55,7 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 				left = (ofsX/w*100).toPrecision 3
 				top = (ofsY/h*100).toPrecision 3
 
-				Map.addSens 'sensor',top,left,$routeParams.objId,$scope.mapId,$scope
+				Map.addSens 'sensor',cat.id, colors,top,left,$routeParams.objId,$scope.mapId,$scope
 
 		return
 

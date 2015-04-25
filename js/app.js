@@ -26,8 +26,9 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   Obj: persistence.define('Obj', {
     name: "TEXT"
   }),
-  SensCat: persistence.define('SensCat2', {
-    name: "TEXT"
+  SensCat: persistence.define('SensCat3', {
+    name: "TEXT",
+    color: "INT"
   }),
   SensMany: persistence.define('SensMany', {
     sensor: "INT",
@@ -168,6 +169,7 @@ DialogController = function($scope, $mdDialog) {
 };
 
 moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) {
+  var colors;
   $scope.tabs = [
     {
       name: 'tab',
@@ -179,13 +181,14 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   $scope.lazyShow = true;
   $scope.objId = $routeParams.objId;
   $scope.categories = [];
+  colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075'];
   $scope.listCat = function() {
     return Map.listCat($scope);
   };
   $scope.onTab = function(id) {
     return $scope.mapId = id;
   };
-  Map.list($scope, $routeParams.objId);
+  Map.list($scope, $routeParams.objId, colors);
   $(function() {
     var w;
     w = $(window);
@@ -201,8 +204,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
     $scope.sens.type = void 0;
     return $(document).off('click touchstart', 'md-tab-content.md-active');
   };
-  $scope.addSens = function(log) {
-    console.log(log);
+  $scope.addSens = function(cat) {
     $scope.showActionToast();
     $(".b-plan").each(function() {
       return $('<div class="help-screen" />').appendTo($(this)).fadeIn();
@@ -216,7 +218,7 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       h = $plan.height();
       left = (ofsX / w * 100).toPrecision(3);
       top = (ofsY / h * 100).toPrecision(3);
-      return Map.addSens('sensor', top, left, $routeParams.objId, $scope.mapId, $scope);
+      return Map.addSens('sensor', cat.id, colors, top, left, $routeParams.objId, $scope.mapId, $scope);
     });
   };
   $scope.deletePlan = function(e, id) {
@@ -273,6 +275,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   $g = $('#graph');
   s = Snap('#graph');
   paper = s.paper;
+  Sens.renameCat('430AE9AA56DC4DB3AE7664401BE0EB87', '3');
   updatePath = function(arr, paramY) {
     var el, getx, gety, h, i, ind, kx, ky, maxy, minx, miny, num, paramArr, style, time, w, _i, _j, _len, _len1, _results;
     paper.clear();
@@ -523,7 +526,7 @@ moduleService.service('Main', function(DB) {
 });
 
 moduleService.service('Map', function(DB) {
-  this.list = function($scope, objId) {
+  this.list = function($scope, objId, colors) {
     return DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
       if (obj) {
         return obj.maps.list(function(items) {
@@ -540,22 +543,28 @@ moduleService.service('Map', function(DB) {
             sensors = [];
             return item.sensors.list(null, function(sens) {
               sens.forEach(function(sen) {
-                return sensors.push({
-                  id: sen.id,
-                  top: sen.top,
-                  left: sen.left
+                return sen.fetch('category', function(cat) {
+                  cat = cat ? cat : 4;
+                  return sensors.push({
+                    id: sen.id,
+                    top: sen.top,
+                    left: sen.left,
+                    color: colors[cat.color]
+                  });
                 });
               });
-              arr.push({
-                name: item.name,
-                id: item.id,
-                img: item.img,
-                sensors: sensors
+              return persistence.flush(function() {
+                arr.push({
+                  name: item.name,
+                  id: item.id,
+                  img: item.img,
+                  sensors: sensors
+                });
+                $scope.mapId = arr[0].id;
+                $scope.tabs = arr;
+                $scope.lazyShow = false;
+                return $scope.$apply();
               });
-              $scope.mapId = arr[0].id;
-              $scope.tabs = arr;
-              $scope.lazyShow = false;
-              return $scope.$apply();
             });
           });
         });
@@ -617,36 +626,55 @@ moduleService.service('Map', function(DB) {
       });
     });
   };
-  this.addSens = function(sensName, top, left, objId, mapId, $scope) {
-    return DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
+  this.addSens = function(sensName, sensTypeId, colors, top, left, objId, mapId, $scope) {
+    var exp, s;
+    exp = {
+      obj: false,
+      map: false,
+      type: false
+    };
+    DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
       if (obj) {
-        return DB.Maps.findBy(persistence, null, 'id', mapId, function(map) {
-          var s;
-          if (map) {
-            s = new DB.Sensor({
-              name: sensName,
-              top: top,
-              left: left
-            });
-            obj.sensors.add(s);
-            map.sensors.add(s);
-            return persistence.flush(function() {
-              return $scope.tabs.forEach(function(tabs, ind) {
-                var _base;
-                if (tabs.id === map.id) {
-                  if ((_base = $scope.tabs[ind]).sensors == null) {
-                    _base.sensors = [];
-                  }
-                  $scope.tabs[ind].sensors.push({
-                    id: s.id,
-                    top: top,
-                    left: left
-                  });
-                  return $scope.$apply();
-                }
+        return exp.obj = obj;
+      }
+    });
+    DB.Maps.findBy(persistence, null, 'id', mapId, function(map) {
+      if (map) {
+        return exp.map = map;
+      }
+    });
+    DB.SensCat.findBy(persistence, null, 'id', sensTypeId, function(type) {
+      if (type) {
+        return exp.type = type;
+      }
+    });
+    s = new DB.Sensor({
+      name: sensName,
+      top: top,
+      left: left
+    });
+    return persistence.flush(function() {
+      if (exp.obj && exp.map && exp.type) {
+        s.category = exp.type;
+        exp.obj.sensors.add(s);
+        exp.map.sensors.add(s);
+        return persistence.flush(function() {
+          return $scope.tabs.forEach(function(tabs, ind) {
+            var _base;
+            if (tabs.id === exp.map.id) {
+              if ((_base = $scope.tabs[ind]).sensors == null) {
+                _base.sensors = [];
+              }
+              $scope.tabs[ind].sensors.push({
+                id: s.id,
+                type: sensTypeId,
+                top: top,
+                left: left,
+                color: colors[exp.type.color]
               });
-            });
-          }
+              return $scope.$apply();
+            }
+          });
         });
       }
     });
@@ -766,18 +794,19 @@ moduleService.service('Sens', function(DB, $window) {
       }
     });
   };
-  this.addCat = function(nameCat) {
+  this.addCat = function(nameCat, color) {
     var c;
     c = new DB.SensCat;
     c.name = nameCat;
+    c.color = color;
     persistence.add(c);
     return persistence.flush(function() {
-      return console.log("sensor " + c.name + " added!");
+      return console.log("sensor " + c.name + " added with color " + color + "!");
     });
   };
-  this.renameCat = function(id, newname) {
+  this.renameCat = function(id, newcolor) {
     return DB.SensCat.findBy(persistence, null, 'id', id, function(cat) {
-      return cat.name = newname;
+      return cat.color = newcolor;
     });
   };
   this.loadCat = function($scope) {
