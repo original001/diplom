@@ -11,7 +11,7 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   }).when('/map/:objId', {
     templateUrl: 'view/map.html',
     controller: 'MapController'
-  }).when('/sensor/:sensId', {
+  }).when('/sensor/:ui/:sensId', {
     templateUrl: 'view/sensor.html',
     controller: 'SensController'
   }).when('/list/:objId', {
@@ -205,8 +205,8 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
       name: 'Деформационная марка',
       id: 4
     }, {
-      name: 'Другой',
-      id: 5
+      name: 'Стандартная',
+      id: 0
     }
   ];
   $rootScope.colors = $scope.colors;
@@ -330,7 +330,6 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   $g = $('#graph');
   s = Snap('#graph');
   paper = s.paper;
-  Sens.renameCat('430AE9AA56DC4DB3AE7664401BE0EB87', '3');
   updatePath = function(arr, paramY) {
     var el, getx, gety, h, i, ind, kx, ky, maxy, minx, miny, num, paramArr, style, time, w, _i, _j, _len, _len1, _results;
     paper.clear();
@@ -408,6 +407,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       return $scope.paramInput = false;
     } else {
       $scope.paramInput = false;
+      $scope.addingParams.push($scope.paramName);
       return $scope.params.push($scope.paramName);
     }
   };
@@ -439,12 +439,101 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       templateUrl: 'view/dialog-add-graph.tpl.html',
       targetEvent: e
     }).then(function(answer) {
-      return Sens.addGraph(answer.date, answer.params, $scope, $routeParams.sensId);
+      var k, params, v, _ref, _ref1, _ref2, _ref3;
+      switch ($routeParams.ui) {
+        case '1':
+          params = {};
+          if (answer.params.f != null) {
+            params.f = answer.params.f;
+            params.me = params.f * 5;
+            params.g = params.f * 10;
+          }
+          _ref = answer.params;
+          for (k in _ref) {
+            v = _ref[k];
+            if (k !== 'f') {
+              params[k] = v;
+            }
+          }
+          break;
+        case '2':
+          params = {};
+          if (answer.params.f != null) {
+            params.f = answer.params.f;
+            params.me = params.f * 5;
+            params.g = params.f * 10;
+          }
+          _ref1 = answer.params;
+          for (k in _ref1) {
+            v = _ref1[k];
+            if (k !== 'f') {
+              params[k] = v;
+            }
+          }
+          break;
+        case '3':
+          params = answer.params;
+          break;
+        case '4':
+          params = {};
+          if (answer.params.x) {
+            params.dx = answer.params.x;
+          }
+          if (answer.params.y) {
+            params.dy = answer.params.y;
+          }
+          if (answer.params.z) {
+            params.dz = answer.params.z;
+          }
+          _ref2 = answer.params;
+          for (k in _ref2) {
+            v = _ref2[k];
+            if (k !== 'x' && k !== 'y' && k !== 'z') {
+              params[k] = v;
+            }
+          }
+          break;
+        default:
+          params = {};
+          if (answer.params.f != null) {
+            params.f = answer.params.f;
+            params.me = params.f * 5;
+          }
+          _ref3 = answer.params;
+          for (k in _ref3) {
+            v = _ref3[k];
+            if (k !== 'f') {
+              params[k] = v;
+            }
+          }
+      }
+      return Sens.addGraph(answer.date, params, $scope, $routeParams.sensId);
     });
   };
   Sens.list($scope, $routeParams.sensId);
-  $scope.params = ['mu', 'eps'];
+  switch ($routeParams.ui) {
+    case '1':
+      $scope.params = ['f', 'me', 'g'];
+      $scope.addingParams = ['f'];
+      break;
+    case '2':
+      $scope.params = ['f', 'me', 'g'];
+      $scope.addingParams = ['f'];
+      break;
+    case '3':
+      $scope.params = [];
+      $scope.addingParams = [];
+      break;
+    case '4':
+      $scope.params = ['dx', 'dy', 'dz'];
+      $scope.addingParams = ['x', 'y', 'z'];
+      break;
+    default:
+      $scope.params = ['f', 'me'];
+      $scope.addingParams = ['f'];
+  }
   $rootScope.params = $scope.params;
+  $rootScope.addingParams = $scope.addingParams;
   SensEditDialogController = function($scope, $mdDialog) {
     $scope.cancel = function() {
       return $mdDialog.cancel();
@@ -467,6 +556,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       });
     };
     $scope.params = $rootScope.params;
+    $scope.addingParams = $rootScope.addingParams;
     return $scope.graph = {
       val: {}
     };
@@ -509,6 +599,7 @@ moduleService.service('List', function(DB) {
                     if (i.id === cat.id) {
                       _results.push(i.sensors.push({
                         name: sens.name,
+                        ui: cat.ui,
                         id: sens.id
                       }));
                     } else {
@@ -635,12 +726,18 @@ moduleService.service('Map', function(DB) {
             return item.sensors.list(null, function(sens) {
               sens.forEach(function(sen) {
                 return sen.fetch('category', function(cat) {
-                  cat = cat ? cat : 4;
+                  if (!cat) {
+                    cat = {
+                      ui: 0,
+                      color: 0
+                    };
+                  }
                   return sensors.push({
                     id: sen.id,
                     top: sen.top,
                     name: sen.name,
                     left: sen.left,
+                    ui: cat.ui,
                     color: colors[cat.color]
                   });
                 });
@@ -763,6 +860,7 @@ moduleService.service('Map', function(DB) {
                 name: sensName,
                 top: top,
                 left: left,
+                ui: exp.type.ui,
                 color: colors[exp.type.color]
               });
               return $scope.$apply();
@@ -818,9 +916,7 @@ moduleService.service('Sens', function(DB, $window) {
           mapName = map.name;
           arr.push({
             id: sens.id,
-            top: sens.top,
             name: sens.name,
-            left: sens.left,
             obj: objName,
             objId: objId,
             map: mapName
@@ -855,6 +951,7 @@ moduleService.service('Sens', function(DB, $window) {
           for (_k = 0, _len2 = ar2.length; _k < _len2; _k++) {
             i = ar2[_k];
             $scope.params.push(i);
+            $scope.addingParams.push(i);
           }
           if (ind === l - 1) {
             $scope.graph = graphArr;
@@ -909,11 +1006,6 @@ moduleService.service('Sens', function(DB, $window) {
       return console.log("sensor " + c.name + " added with color " + color + "!");
     });
   };
-  this.renameCat = function(id, newcolor) {
-    return DB.SensCat.findBy(persistence, null, 'id', id, function(cat) {
-      return cat.color = newcolor;
-    });
-  };
   this.loadCat = function($scope) {
     return DB.SensCat.all().list(function(cats) {
       var arrCats;
@@ -945,7 +1037,7 @@ moduleService.service('Sens', function(DB, $window) {
           params: params
         });
         $scope.$apply();
-        return $scope.updatePath('eps');
+        return $scope.updatePath(Object.keys(params)[0]);
       });
     });
   };

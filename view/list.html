@@ -5,7 +5,7 @@
             <md-list-item style="background:rgba(0, 188, 212, .75);color:#fff;height:36px"><p>{{cat.name}}</p></md-list-item>
             <md-list-item ng-repeat="sens in cat.sensors">
                 <p>
-                    <a ng-show="!checkboxMode" href="#/sensor/{{sens.id}}" class="linkblock">{{sens.name}}</a>
+                    <a ng-show="!checkboxMode" href="#/sensor/{{sens.ui}}/{{sens.id}}" class="linkblock">{{sens.name}}</a>
                     <span ng-show="checkboxMode">{{sens.name}}</span>
                 </p>
                 <md-checkbox ng-show="checkboxMode" ng-click="getData(sens, selected)"></md-checkbox>

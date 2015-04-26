@@ -24,8 +24,8 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 		name:'Деформационная марка'
 		id:4
 	,
-		name:'Другой'
-		id:5
+		name:'Стандартная'
+		id:0
 	]
 
 	$rootScope.colors = $scope.colors

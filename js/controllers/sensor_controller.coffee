@@ -8,13 +8,6 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	s = Snap '#graph'
 	paper = s.paper
 
-	# Sens.addCat 'Транзистор СИТИС','0'
-	# Sens.addCat 'Транзистор C-Sensor','1'
-	# Sens.addCat 'Датчик давления','2'
-	# Sens.addCat 'Деформационная марка','2'
-	# Sens.addCat 'Другой','4'
-	Sens.renameCat '430AE9AA56DC4DB3AE7664401BE0EB87','3'
-
 	updatePath =  (arr,paramY) ->
 		do paper.clear
 
@@ -95,6 +88,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			$scope.paramInput  = false
 		else
 			$scope.paramInput  = false
+			$scope.addingParams.push $scope.paramName
 			$scope.params.push $scope.paramName
 
 	$scope.updatePath = (param) ->
@@ -129,13 +123,63 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			templateUrl: 'view/dialog-add-graph.tpl.html'
 			targetEvent: e
 		.then (answer) ->
-			Sens.addGraph answer.date, answer.params, $scope, $routeParams.sensId
+			switch $routeParams.ui
+				when '1' 
+					params = {}
+					if answer.params.f?
+						params.f = answer.params.f
+						params.me = params.f * 5
+						params.g = params.f * 10
+					for k, v of answer.params when k != 'f'
+						params[k] = v	
+				when '2' 
+					params = {}
+					if answer.params.f?
+						params.f = answer.params.f
+						params.me = params.f * 5
+						params.g = params.f * 10
+					for k, v of answer.params when k != 'f'
+						params[k] = v	
+				when '3' 
+					params = answer.params
+				when '4' 
+					params = {}
+					params.dx = answer.params.x if answer.params.x 
+					params.dy = answer.params.y if answer.params.y 
+					params.dz = answer.params.z if answer.params.z 
+					for k, v of answer.params when k != 'x' && k != 'y' && k != 'z'
+						params[k] = v	
+					
+				else 
+					params = {}
+					if answer.params.f?
+						params.f = answer.params.f
+						params.me = params.f * 5
+					for k, v of answer.params when k != 'f'
+						params[k] = v	
+			Sens.addGraph answer.date, params, $scope, $routeParams.sensId
 
 	Sens.list $scope, $routeParams.sensId
 
-	$scope.params = ['mu','eps']
+	switch $routeParams.ui
+		when '1' 
+			$scope.params = ['f','me','g']
+			$scope.addingParams = ['f']
+		when '2' 
+			$scope.params = ['f','me','g']
+			$scope.addingParams = ['f']
+		when '3' 
+			$scope.params = []
+			$scope.addingParams = []
+		when '4' 
+			$scope.params = ['dx','dy','dz']
+			$scope.addingParams = ['x','y','z']
+		else 
+			$scope.params = ['f','me']
+			$scope.addingParams = ['f']
 
 	$rootScope.params = $scope.params
+	$rootScope.addingParams = $scope.addingParams
 
 	SensEditDialogController = ($scope, $mdDialog) ->
 		$scope.cancel = ->
@@ -145,7 +189,6 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 
 		$scope.loadCat = ->
 			Sens.loadCat $scope
-
 
 	SensDialogController = ($rootScope, $scope, $mdDialog) ->
 		$scope.cancel = ->
@@ -157,6 +200,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				date: answer
 
 		$scope.params = $rootScope.params
+		$scope.addingParams = $rootScope.addingParams
 
 		$scope.graph = 
 			val: {}

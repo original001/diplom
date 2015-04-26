@@ -2,7 +2,7 @@
     <form name="nameFormObj">
         <md-content>
             <div layout="row">
-                <md-input-container ng-repeat="param in params">
+                <md-input-container ng-repeat="param in addingParams">
                     <label>{{param}}</label>
                     <input type="number" ng-model="graph.val[param]">
                 </md-input-container>

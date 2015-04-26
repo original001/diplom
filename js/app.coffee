@@ -18,7 +18,7 @@ angular.module 'Monitor', [
         .when '/map/:objId',
             templateUrl:'view/map.html'
             controller: 'MapController'
-        .when '/sensor/:sensId',
+        .when '/sensor/:ui/:sensId',
             templateUrl:'view/sensor.html'
             controller: 'SensController'
         .when '/list/:objId',

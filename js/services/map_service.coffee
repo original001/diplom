@@ -15,12 +15,16 @@ moduleService
 							item.sensors.list null, (sens)->
 								sens.forEach (sen)->
 									sen.fetch 'category', (cat) ->
-										cat = if cat then cat else 4
+										unless cat
+											cat =
+												ui: 0
+												color: 0
 										sensors.push
 											id: sen.id
 											top: sen.top
 											name: sen.name
 											left: sen.left
+											ui: cat.ui
 											color: colors[cat.color]
 								persistence.flush ->
 									arr.push
@@ -102,6 +106,7 @@ moduleService
 									name:sensName
 									top: top	
 									left: left
+									ui: exp.type.ui
 									color: colors[exp.type.color]
 								do $scope.$apply
 

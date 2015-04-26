@@ -10,9 +10,7 @@ moduleService
 						mapName = map.name
 						arr.push
 							id: sens.id
-							top: sens.top
 							name: sens.name
-							left: sens.left
 							obj:objName
 							objId: objId
 							map:mapName
@@ -38,6 +36,7 @@ moduleService
 								ar2.splice j,1
 						for i in ar2		
 							$scope.params.push i
+							$scope.addingParams.push i
 
 						if ind == l - 1 
 							$scope.graph = graphArr
@@ -78,10 +77,10 @@ moduleService
 			persistence.flush ->
 				console.log "sensor #{c.name} added with color #{color}!"
 
-		@renameCat = (id, newcolor) ->
-			DB.SensCat.findBy persistence, null, 'id',id,(cat)->
-				# cat.name = newname
-				cat.color = newcolor
+		# @renameCat = (id, newcolor) ->
+		# 	DB.SensCat.findBy persistence, null, 'id',id,(cat)->
+		# 		cat.name = newname
+		# 		cat.color = newcolor
 
 		@loadCat = ($scope) ->		
 			DB.SensCat.all().list (cats) ->
@@ -106,5 +105,5 @@ moduleService
 						date: date
 						params: params
 					do $scope.$apply
-					$scope.updatePath 'eps'
+					$scope.updatePath Object.keys(params)[0]
 		return

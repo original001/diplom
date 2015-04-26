@@ -21,6 +21,7 @@ moduleService
 									if i.id == cat.id
 										i.sensors.push
 											name: sens.name
+											ui: cat.ui
 											id: sens.id
 						persistence.flush ->
 							$scope.lazyShow = false
