@@ -1,6 +1,6 @@
 moduleCtrl.controller 'ListController', ($scope, $routeParams, List) ->
 	$scope.objId = $routeParams.objId
-	$scope.lazyShow = true
+	$scope.lazyShow = false
 	$scope.categories = []
 	$scope.checkboxMode = false
 	$scope.selected = []

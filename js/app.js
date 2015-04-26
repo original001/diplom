@@ -26,8 +26,9 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   Obj: persistence.define('Obj', {
     name: "TEXT"
   }),
-  SensCat: persistence.define('SensCat3', {
+  SensCat: persistence.define('SensCat4', {
     name: "TEXT",
+    ui: "INT",
     color: "INT"
   }),
   SensMany: persistence.define('SensMany', {
@@ -83,7 +84,7 @@ cordovaApp.initialize();
 
 moduleCtrl.controller('ListController', function($scope, $routeParams, List) {
   $scope.objId = $routeParams.objId;
-  $scope.lazyShow = true;
+  $scope.lazyShow = false;
   $scope.categories = [];
   $scope.checkboxMode = false;
   $scope.selected = [];
@@ -176,7 +177,8 @@ DialogController = function($scope, $mdDialog) {
   };
 };
 
-moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) {
+moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) {
+  var CatDialogController;
   $scope.tabs = [
     {
       name: 'tab',
@@ -189,6 +191,26 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
   $scope.objId = $routeParams.objId;
   $scope.categories = [];
   $scope.colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075'];
+  $scope.UI = [
+    {
+      name: 'Транзистор СИТИС',
+      id: 1
+    }, {
+      name: 'Транзистор C-Sensor',
+      id: 2
+    }, {
+      name: 'Датчик давления',
+      id: 3
+    }, {
+      name: 'Деформационная марка',
+      id: 4
+    }, {
+      name: 'Другой',
+      id: 5
+    }
+  ];
+  $rootScope.colors = $scope.colors;
+  $rootScope.UI = $scope.UI;
   $scope.listCat = function() {
     return Map.listCat($scope);
   };
@@ -268,12 +290,34 @@ moduleCtrl.controller('MapController', function($scope, $routeParams, Map, $mdDi
       return $scope.toastPosition[pos];
     }).join(' ');
   };
-  return $scope.showActionToast = function() {
+  $scope.showActionToast = function() {
     var toast;
     toast = $mdToast.simple().content('Режим добавления датчиков').action('Выключить').highlightAction(false).position($scope.getToastPosition());
     return $mdToast.show(toast).then(function() {
       return $scope.cancelAddPlan();
     });
+  };
+  $scope.addCat = function(e) {
+    return $mdDialog.show({
+      controller: CatDialogController,
+      templateUrl: 'view/dialog-add-category.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      return Map.addCat(answer.name, answer.color, answer.ui);
+    });
+  };
+  return CatDialogController = function($scope, $mdDialog) {
+    $scope.cancel = function() {
+      return $mdDialog.cancel();
+    };
+    $scope.answer = function(answer) {
+      return $mdDialog.hide(answer);
+    };
+    $scope.colors = $rootScope.colors;
+    $scope.UI = $rootScope.UI;
+    return $scope.listColor = function() {
+      return Map.listColor($scope);
+    };
   };
 });
 
@@ -452,31 +496,34 @@ moduleService.service('List', function(DB) {
     return persistence.flush(function() {
       if (exp.obj) {
         return exp.obj.sensors.list(function(senses) {
-          senses.forEach(function(sens, ind, ar) {
-            return sens.fetch('category', function(cat) {
-              var i, _i, _len, _ref, _results;
-              if (cat != null) {
-                _ref = $scope.categories;
-                _results = [];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  i = _ref[_i];
-                  if (i.id === cat.id) {
-                    _results.push(i.sensors.push({
-                      name: sens.name,
-                      id: sens.id
-                    }));
-                  } else {
-                    _results.push(void 0);
+          if (senses.length) {
+            $scope.lazyShow = true;
+            senses.forEach(function(sens, ind, ar) {
+              return sens.fetch('category', function(cat) {
+                var i, _i, _len, _ref, _results;
+                if (cat != null) {
+                  _ref = $scope.categories;
+                  _results = [];
+                  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                    i = _ref[_i];
+                    if (i.id === cat.id) {
+                      _results.push(i.sensors.push({
+                        name: sens.name,
+                        id: sens.id
+                      }));
+                    } else {
+                      _results.push(void 0);
+                    }
                   }
+                  return _results;
                 }
-                return _results;
-              }
+              });
             });
-          });
-          return persistence.flush(function() {
-            $scope.lazyShow = false;
-            return $scope.$apply();
-          });
+            return persistence.flush(function() {
+              $scope.lazyShow = false;
+              return $scope.$apply();
+            });
+          }
         });
       }
     });
@@ -723,6 +770,17 @@ moduleService.service('Map', function(DB) {
           });
         });
       }
+    });
+  };
+  this.addCat = function(nameCat, color, ui) {
+    var c;
+    c = new DB.SensCat;
+    c.name = nameCat;
+    c.color = color;
+    c.ui = ui;
+    persistence.add(c);
+    return persistence.flush(function() {
+      return console.log("sensor " + c.name + " added with color " + color + " and ui number " + ui + "!");
     });
   };
   this.listCat = function($scope) {

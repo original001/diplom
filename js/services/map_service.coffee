@@ -105,6 +105,20 @@ moduleService
 									color: colors[exp.type.color]
 								do $scope.$apply
 
+		@addCat = (nameCat, color, ui) ->
+			c = new DB.SensCat
+			c.name = nameCat
+			c.color = color
+			c.ui = ui
+			persistence.add c
+			persistence.flush ->
+				console.log "sensor #{c.name} added with color #{color} and ui number #{ui}!"
+
+		# @renameCat = (id, newcolor) ->
+		# 	DB.SensCat.findBy persistence, null, 'id',id,(cat)->
+		# 		cat.name = newname
+		# 		cat.color = newcolor
+
 		@listCat = ($scope) ->
 			DB.SensCat.all().list (cats) ->
 				if cats
@@ -117,4 +131,5 @@ moduleService
 						if ind == ar.length-1
 							$scope.categories = arrCats
 							do $scope.$apply
+
 		return

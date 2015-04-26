@@ -1,0 +1,29 @@
+<md-dialog aria-label="Переименовать">
+    <form name="formCat">
+        <md-content>
+            <md-input-container>
+                <label>Новое имя</label>
+                <input name="renameObj" ng-model="cat.name" ng-required="true">
+            </md-input-container>
+            <md-input-container>
+                <md-select placeholder="Выберите цвет" ng-model="cat.color">
+                    <md-option ng-repeat="color in colors" ng-value="$index">{{color}}<i class="sensor-mark" style="background:{{color}}"></i></md-option>
+                </md-select>
+            </md-input-container>
+            <md-input-container>
+                <md-select placeholder="Выберите логику работы" ng-model="cat.ui">
+                    <md-option ng-repeat="num in UI" ng-value="num.id">{{num.name}}</md-option>
+                </md-select>
+            </md-input-container>
+        </md-content>
+        </form>
+        <div class="md-actions">
+            <md-button ng-click="cancel()">Отмена</md-button>
+            <md-button class="md-raised" ng-disabled="formCat.$invalid" ng-click="answer({
+                name: cat.name,
+                color:cat.color,
+                ui:cat.ui
+            })">Изменить</md-button>
+        </div>
+    </form>
+</md-dialog>

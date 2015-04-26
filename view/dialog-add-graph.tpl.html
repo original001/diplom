@@ -1,23 +1,22 @@
 <md-dialog aria-label="Добавить показания">
     <form name="nameFormObj">
         <md-content>
-            <form name="nameFormObj">
-                <div layout="row">
-                    <md-input-container ng-repeat="param in params">
-                        <label>{{param}}</label>
-                        <input type="number" ng-model="graph.val[param]">
-                    </md-input-container>
-                </div>
-                <div layout="row">
-                    <md-input-container>
-                        <label>Дата</label>
-                        <input type="date" ng-model="graph.date" ng-required="true"> 
-                    </md-input-container>
-                    <md-input-container>
-                        <label>Время</label>
-                        <input type="time" ng-model="graph.date">
-                    </md-input-container>
-                </div>
+            <div layout="row">
+                <md-input-container ng-repeat="param in params">
+                    <label>{{param}}</label>
+                    <input type="number" ng-model="graph.val[param]">
+                </md-input-container>
+            </div>
+            <div layout="row">
+                <md-input-container>
+                    <label>Дата</label>
+                    <input type="date" ng-model="graph.date" ng-required="true"> 
+                </md-input-container>
+                <md-input-container>
+                    <label>Время</label>
+                    <input type="time" ng-model="graph.date">
+                </md-input-container>
+            </div>
         </md-content>
         </form>
         <div class="md-actions">

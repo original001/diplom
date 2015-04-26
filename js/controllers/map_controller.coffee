@@ -1,4 +1,4 @@
-moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) ->
+moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) ->
 	$scope.tabs = [
 		name: 'tab'
 		img: ''
@@ -11,6 +11,25 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	$scope.categories = []
 
 	$scope.colors = ['#d11d05',"#05A3D1","#051FD1","#FF528D",'#60061E','#1d1075']
+	$scope.UI = [
+		name:'Транзистор СИТИС'
+		id:1
+	,
+		name:'Транзистор C-Sensor'
+		id:2
+	,
+		name:'Датчик давления'
+		id:3
+	,
+		name:'Деформационная марка'
+		id:4
+	,
+		name:'Другой'
+		id:5
+	]
+
+	$rootScope.colors = $scope.colors
+	$rootScope.UI = $scope.UI
 
 	$scope.listCat = ->
 		Map.listCat $scope 
@@ -116,3 +135,22 @@ moduleCtrl.controller 'MapController', ($scope, $routeParams, Map, $mdDialog, $w
 	    $mdToast.show(toast).then ->
 	    	do $scope.cancelAddPlan
 
+	$scope.addCat = (e) ->
+		$mdDialog.show
+			controller: CatDialogController
+			templateUrl: 'view/dialog-add-category.tpl.html'
+			targetEvent: e
+		.then (answer) ->
+			Map.addCat answer.name, answer.color, answer.ui
+
+	CatDialogController = ($scope, $mdDialog) ->
+		$scope.cancel = ->
+			do $mdDialog.cancel
+		$scope.answer = (answer) ->
+			$mdDialog.hide answer
+
+		$scope.colors = $rootScope.colors
+		$scope.UI = $rootScope.UI
+
+		$scope.listColor = ->
+			Map.listColor $scope
