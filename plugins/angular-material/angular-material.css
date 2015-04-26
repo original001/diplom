@@ -6269,7 +6269,7 @@ md-select-menu {
           transform-origin: 0 0;
   -webkit-transform: scale(1);
           transform: scale(1);
-  max-height: 256px;
+  max-height: 350px;
   overflow-y: hidden; }
   md-select-menu.md-reverse {
     -webkit-flex-direction: column-reverse;
@@ -6280,7 +6280,7 @@ md-select-menu {
     padding-bottom: 8px; }
   md-select-menu md-content {
     min-width: 136px;
-    max-height: 256px;
+    max-height: 350px;
     overflow-y: auto; }
   md-select-menu > * {
     opacity: 0; }
