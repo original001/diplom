@@ -1,9 +1,18 @@
 moduleCtrl.controller 'ListController', ($scope, $routeParams, List) ->
 	$scope.objId = $routeParams.objId
-	$scope.lazyShow = false
-	$scope.sensors = []
-	$scope.checkboxMode = true
+	$scope.lazyShow = true
+	$scope.categories = []
+	$scope.checkboxMode = false
 	$scope.selected = []
+	
+	$ ->
+		w = $ window
+		$ '.index-md-content'
+			.height w.height() - 64
+		w.resize ->
+			$ '.index-md-content'
+				.height w.height() - 64
+
 
 	$scope.check = ->
 		$scope.checkboxMode = if $scope.checkboxMode then false else true

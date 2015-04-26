@@ -83,10 +83,18 @@ cordovaApp.initialize();
 
 moduleCtrl.controller('ListController', function($scope, $routeParams, List) {
   $scope.objId = $routeParams.objId;
-  $scope.lazyShow = false;
-  $scope.sensors = [];
-  $scope.checkboxMode = true;
+  $scope.lazyShow = true;
+  $scope.categories = [];
+  $scope.checkboxMode = false;
   $scope.selected = [];
+  $(function() {
+    var w;
+    w = $(window);
+    $('.index-md-content').height(w.height() - 64);
+    return w.resize(function() {
+      return $('.index-md-content').height(w.height() - 64);
+    });
+  });
   $scope.check = function() {
     return $scope.checkboxMode = $scope.checkboxMode ? false : true;
   };
@@ -107,7 +115,7 @@ moduleCtrl.controller('ListController', function($scope, $routeParams, List) {
 
 moduleCtrl.controller('MainController', function($scope, $routeParams, Main, $mdDialog) {
   $scope.lists = [];
-  $scope.lazyShow = false;
+  $scope.lazyShow = true;
   $(function() {
     var w;
     w = $(window);
@@ -423,17 +431,50 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
 
 moduleService.service('List', function(DB) {
   this.list = function($scope, objId) {
-    return DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
-      if (obj) {
-        return obj.sensors.list(function(senses) {
-          var arr;
-          arr = [];
-          return senses.forEach(function(sens) {
-            arr.push({
-              name: sens.name,
-              id: sens.id
+    var exp;
+    exp = {
+      obj: false
+    };
+    DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
+      return exp.obj = obj ? obj : false;
+    });
+    DB.SensCat.all().list(function(cats) {
+      if (cats.length) {
+        return cats.forEach(function(cat, ind, ar) {
+          return $scope.categories.push({
+            name: cat.name,
+            id: cat.id,
+            sensors: []
+          });
+        });
+      }
+    });
+    return persistence.flush(function() {
+      if (exp.obj) {
+        return exp.obj.sensors.list(function(senses) {
+          senses.forEach(function(sens, ind, ar) {
+            return sens.fetch('category', function(cat) {
+              var i, _i, _len, _ref, _results;
+              if (cat != null) {
+                _ref = $scope.categories;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  i = _ref[_i];
+                  if (i.id === cat.id) {
+                    _results.push(i.sensors.push({
+                      name: sens.name,
+                      id: sens.id
+                    }));
+                  } else {
+                    _results.push(void 0);
+                  }
+                }
+                return _results;
+              }
             });
-            $scope.sensors = arr;
+          });
+          return persistence.flush(function() {
+            $scope.lazyShow = false;
             return $scope.$apply();
           });
         });

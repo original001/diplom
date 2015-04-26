@@ -1,6 +1,6 @@
 moduleCtrl.controller 'MainController', ($scope, $routeParams ,Main, $mdDialog) ->
 		$scope.lists = []
-		$scope.lazyShow = false
+		$scope.lazyShow = true
 
 		$ ->
 			w = $ window

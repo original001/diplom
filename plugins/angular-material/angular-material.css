@@ -3827,7 +3827,7 @@ md-card {
 md-checkbox {
   box-sizing: border-box;
   display: block;
-  margin: 13px 0;
+  margin: 9px 0;
   white-space: nowrap;
   cursor: pointer;
   outline: none;
@@ -4310,7 +4310,7 @@ md-input-container {
 
 md-list {
   display: block;
-  padding: 8px 0px 8px 0px; }
+  padding: 0; }
   md-list .md-subheader {
     font-weight: 500;
     font-size: 0.875em; }
