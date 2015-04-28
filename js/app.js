@@ -1141,7 +1141,7 @@ moduleService.service('MultiSens', function(DB, $window) {
         return sens.graphs.list(function(graphs) {
           var graphArr, l;
           graphArr = [];
-          l = graphs.lenght;
+          l = graphs.length;
           return graphs.forEach(function(graph, ind) {
             var ar1, ar2, el1, el2, i, j, params, _i, _j, _k, _len, _len1, _len2;
             params = JSON.parse(graph.params);

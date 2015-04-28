@@ -5,7 +5,7 @@ moduleService
 				DB.Sensor.findBy persistence, null, 'id',id, (sens)->
 					sens.graphs.list (graphs)->
 						graphArr = []
-						l = graphs.lenght
+						l = graphs.length
 						graphs.forEach (graph, ind)->
 							params = JSON.parse graph.params
 
