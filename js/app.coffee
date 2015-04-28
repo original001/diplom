@@ -21,6 +21,9 @@ angular.module 'Monitor', [
         .when '/sensor/:ui/:sensId',
             templateUrl:'view/sensor.html'
             controller: 'SensController'
+        .when '/multisensors/:objId',
+            templateUrl:'view/multisensor.html'
+            controller: 'MultiSensController'
         .when '/list/:objId',
             templateUrl:'view/list.html'
             controller: 'ListController'

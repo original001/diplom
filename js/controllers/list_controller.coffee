@@ -1,4 +1,4 @@
-moduleCtrl.controller 'ListController', ($scope, $routeParams, List) ->
+moduleCtrl.controller 'ListController', ($rootScope, $scope, $routeParams, List, $window) ->
 	$scope.objId = $routeParams.objId
 	$scope.lazyShow = false
 	$scope.categories = []
@@ -18,7 +18,8 @@ moduleCtrl.controller 'ListController', ($scope, $routeParams, List) ->
 		$scope.checkboxMode = if $scope.checkboxMode then false else true
 
 	$scope.build =  ->
-		console.log $scope.selected
+		$rootScope.multisensors = $scope.selected
+		$window.location.href = "#/multisensors/#{$scope.objId}"	
 
 	$scope.getData = (item, list) ->
 		ind = list.indexOf(item.id)

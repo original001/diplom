@@ -188,6 +188,9 @@
 	font-family: 'icons';
 	top: 215px;
 }
+.button-list_print {
+	top: 115px;
+}
 .button-list:after {
 	font-weight: bold;
 	line-height: 1.8;
@@ -201,6 +204,18 @@
 	font-weight: bold;
 	line-height: 1.8;
 	content: '\e04E';
+}
+.button-map_print {
+	top: 165px;
+} 
+.button-print {
+	font-family: 'icons';
+	top: 65px;
+}
+.button-print:after {
+	font-weight: bold;
+	line-height: 1.8;
+	content: '\e010';
 }
 .help-screen {
 	display: none;

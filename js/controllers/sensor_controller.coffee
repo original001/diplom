@@ -8,7 +8,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	s = Snap '#graph'
 	paper = s.paper
 
-	updatePath =  (arr,paramY) ->
+	updatePath =  (arr,paramY,multi) ->
 		do paper.clear
 
 		arr = arr.filter (el, i, a) -> 
