@@ -2,7 +2,7 @@ moduleCtrl.controller 'ListController', ($rootScope, $scope, $routeParams, List,
 	$scope.objId = $routeParams.objId
 	$scope.lazyShow = false
 	$scope.categories = []
-	$scope.checkboxMode = false
+	$scope.checkboxMode = true
 	$scope.selected = []
 	
 	$ ->
@@ -26,7 +26,9 @@ moduleCtrl.controller 'ListController', ($rootScope, $scope, $routeParams, List,
 		if ind > -1
 			$scope.selected.splice ind, 1
 		else
-			$scope.selected.push item.id
+			$scope.selected.push
+				id: item.id
+				name: item.name
 			
 	List.list($scope, $scope.objId)
 
