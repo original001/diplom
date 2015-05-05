@@ -46,11 +46,14 @@ moduleService
 
 
 		@removeSens = (id, $scope) ->
-			DB.Sensor.findBy persistence, null, 'id',id, (sens)->
-				sens.fetch 'obj', (obj)->
-					persistence.remove sens
-					persistence.flush -> 
-						$window.location.href = "#/map/#{obj.id}"	
+			DB.Sensor.findBy persistence, null, 'id',id,(sens) ->
+				sens.graphs.destroyAll()
+			persistence.flush ->
+				DB.Sensor.findBy persistence, null, 'id',id, (sens)->
+					sens.fetch 'obj', (obj)->
+						persistence.remove sens
+						persistence.flush -> 
+							$window.location.href = "#/map/#{obj.id}"	
 
 		@removeGraph = ($scope) ->
 			DB.Graph.all().destroyAll ->

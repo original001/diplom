@@ -4,7 +4,9 @@
             <md-button class="md-primary" style="float:right;margin:-10px 0 0" ng-click="check()">Построение нескольких графиков</md-button>
         </md-subheader>
         <md-list ng-repeat="cat in categories">
-            <md-list-item style="background:rgba(0, 0, 0, .075);color:#000;font-weight:bold;height:36px"><p>{{cat.name}}</p></md-list-item>
+            <md-list-item style="background:rgba(0, 0, 0, .075);color:#000;font-weight:bold;height:36px">
+                <p>{{cat.name}}</p>
+            </md-list-item>
             <md-list-item ng-repeat="sens in cat.sensors">
                 <p>
                     <a ng-show="!checkboxMode" href="#/sensor/{{sens.ui}}/{{sens.id}}" class="linkblock">{{sens.name}}</a>

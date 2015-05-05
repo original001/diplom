@@ -1,6 +1,7 @@
 moduleCtrl.controller 'MainController', ($scope, $routeParams ,Main, $mdDialog) ->
 		$scope.lists = []
 		$scope.lazyShow = true
+		$scope.colors = ['#d11d05',"#05A3D1","#051FD1","#FF528D",'#60061E','#1d1075']
 
 		$ ->
 			w = $ window

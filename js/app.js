@@ -134,6 +134,7 @@ moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParam
 moduleCtrl.controller('MainController', function($scope, $routeParams, Main, $mdDialog) {
   $scope.lists = [];
   $scope.lazyShow = true;
+  $scope.colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075'];
   $(function() {
     var w;
     w = $(window);
@@ -792,19 +793,44 @@ moduleService.service('Main', function(DB) {
         return items.forEach(function(item, ind, itemsArray) {
           var indLast;
           indLast = itemsArray.length - 1;
-          return item.sensors.list(function(res) {
-            var count;
-            count = res.length;
-            arr.push({
-              name: item.name,
-              id: item.id,
-              count: count
+          return item.sensors.list(function(senses) {
+            var categories;
+            categories = [];
+            senses.forEach(function(sens) {
+              return sens.fetch('category', function(cat) {
+                var i, _i, _len;
+                if (!cat) {
+                  return false;
+                } else {
+                  for (_i = 0, _len = categories.length; _i < _len; _i++) {
+                    i = categories[_i];
+                    if (!(i.id === cat.id)) {
+                      continue;
+                    }
+                    i.count += 1;
+                    return false;
+                  }
+                }
+                return categories.push({
+                  name: cat.name,
+                  id: cat.id,
+                  count: 1,
+                  color: cat.color
+                });
+              });
             });
-            $scope.lists = arr;
-            if (ind === indLast) {
-              $scope.lazyShow = false;
-            }
-            return $scope.$apply();
+            return persistence.flush(function() {
+              arr.push({
+                name: item.name,
+                id: item.id,
+                categories: categories
+              });
+              $scope.lists = arr;
+              if (ind === indLast) {
+                $scope.lazyShow = false;
+              }
+              return $scope.$apply();
+            });
           });
         });
       }
@@ -823,12 +849,23 @@ moduleService.service('Main', function(DB) {
     });
   };
   this.remove = function(id, $scope) {
-    return DB.Obj.all().filter('id', '=', id).destroyAll(function() {
-      return $scope.lists.forEach(function(elem, ind) {
-        if (elem.id === id) {
-          $scope.lists.splice(ind, 1);
-          return $scope.$apply();
-        }
+    DB.Obj.findBy(persistence, null, 'id', id, function(obj) {
+      obj.maps.destroyAll();
+      obj.sensors.list(function(senses) {
+        return senses.forEach(function(sens) {
+          return sens.graphs.destroyAll();
+        });
+      });
+      return obj.sensors.destroyAll();
+    });
+    return persistence.flush(function() {
+      return DB.Obj.all().filter('id', '=', id).destroyAll(function() {
+        return $scope.lists.forEach(function(elem, ind) {
+          if (elem.id === id) {
+            $scope.lists.splice(ind, 1);
+            return $scope.$apply();
+          }
+        });
       });
     });
   };
@@ -943,17 +980,27 @@ moduleService.service('Map', function(DB) {
     });
   };
   this.removePlan = function(id, $scope) {
-    return DB.Maps.all().filter('id', '=', id).destroyAll(function() {
-      return $scope.tabs.forEach(function(elem, ind) {
-        var selInd;
-        if (elem.id === id) {
-          $scope.tabs.splice(ind, 1);
-          $scope.$apply();
-        }
-        selInd = $scope.tabs[$scope.selectedIndex] || {
-          id: 0
-        };
-        return $scope.mapId = selInd.id != null ? selInd.id : void 0;
+    DB.Maps.findBy(persistence, null, 'id', id, function(map) {
+      map.sensors.list(function(senses) {
+        return senses.forEach(function(sens) {
+          return sens.graphs.destroyAll();
+        });
+      });
+      return map.sensors.destroyAll();
+    });
+    return persistence.flush(function() {
+      return DB.Maps.all().filter('id', '=', id).destroyAll(function() {
+        return $scope.tabs.forEach(function(elem, ind) {
+          var selInd;
+          if (elem.id === id) {
+            $scope.tabs.splice(ind, 1);
+            $scope.$apply();
+          }
+          selInd = $scope.tabs[$scope.selectedIndex] || {
+            id: 0
+          };
+          return $scope.mapId = selInd.id != null ? selInd.id : void 0;
+        });
       });
     });
   };
@@ -1180,11 +1227,16 @@ moduleService.service('Sens', function(DB, $window) {
     });
   };
   this.removeSens = function(id, $scope) {
-    return DB.Sensor.findBy(persistence, null, 'id', id, function(sens) {
-      return sens.fetch('obj', function(obj) {
-        persistence.remove(sens);
-        return persistence.flush(function() {
-          return $window.location.href = "#/map/" + obj.id;
+    DB.Sensor.findBy(persistence, null, 'id', id, function(sens) {
+      return sens.graphs.destroyAll();
+    });
+    return persistence.flush(function() {
+      return DB.Sensor.findBy(persistence, null, 'id', id, function(sens) {
+        return sens.fetch('obj', function(obj) {
+          persistence.remove(sens);
+          return persistence.flush(function() {
+            return $window.location.href = "#/map/" + obj.id;
+          });
         });
       });
     });
