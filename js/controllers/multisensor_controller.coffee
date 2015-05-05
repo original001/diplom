@@ -1,19 +1,22 @@
 moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,MultiSens, $window) ->
-	# $scope.sensors = [
-	# 	id: "9024951B3FCE4B718A8420ABC9F9BEE7"
-	# 	name: "sensor1"
-	# ,
-	# 	id: "AD381C763FD842D289D0237FA6D34577"
-	# 	name: "sensor2"
-	# ,
-	# 	id: "162D9D16B0B54750813097443EE66A31"
-	# 	name: "sensor3"
-	# ,
-	# 	id: "3801AE65A9A0462C8B446726B64F993F"
-	# 	name: "sensor4"
-	# ]
+	$scope.sensors = [
+		id: "9024951B3FCE4B718A8420ABC9F9BEE7"
+		name: "sensor1"
+	,
+		id: "AD381C763FD842D289D0237FA6D34577"
+		name: "sensor2"
+	,
+		id: "162D9D16B0B54750813097443EE66A31"
+		name: "sensor3"
+	,
+		id: "2E0B77BC69D84D0A8D8CFD130248DF89"
+		name: "sensor4"
+	,
+		id: "FA45173B82C146EFB8271484166021B9"
+		name: "monitor"
+	]
 
-	$scope.sensors = $rootScope.multisensors
+	# $scope.sensors = $rootScope.multisensors
 	$scope.objId = $routeParams.objId
 	$scope.params = []
 	$scope.graph = []
@@ -67,6 +70,20 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 
 		ky = (maxy - miny)/(h+50)
 
+		if maxy == miny then paper.text 8, h - 5, maxy else for i in [0..10]
+			dl = (h + 50)/10 
+			val = maxy - (maxy-miny)*i/10
+			val *= 100
+			paper
+				.text 8, 68+i*dl, Math.round(val)/100
+				.attr
+					'font-size':'12px'
+			paper
+				.path "M 0,#{70+i*dl}L #{w+10},#{70+i*dl}"
+				.attr 
+					stroke: 'rgba(0,0,0,.3)'
+					strokeWidth: 1
+
 		paper
 			.path "M 5,#{h*2-5}L #{w+10},#{h*2-5},#{w},#{h*2-10},#{w},#{h*2},#{w+10},#{h*2-5},"
 			.attr style
@@ -80,33 +97,31 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 
 		# CREATE COORDS END
 
-		for sens, ind in sensors
+		sensInd = 0
+		for sens in sensors when sens.graph.length > 0
 
 			arr = sens.graph
 
-			console.log arr
-
 			style =
-				stroke: $scope.colors[ind] 
+				stroke: $scope.colors[sensInd] 
 				strokeWidth: 2
-
-			paper
-				.path "M 0,#{h*2+70+20*(ind+1)}L 50,#{h*2+70+20*(ind+1)}"
-				.attr style
-			paper
-				.text 60,h*2+74+20*(ind+1), sens.name
-
-			$g.height 380+20*(ind+1)
 
 			arr = arr.filter (el, i, a) -> 
 				if el.params.hasOwnProperty paramY then return true else false
-			return false unless arr.length
+			continue unless arr.length
+
+			paper
+				.path "M 0,#{h*2+70+20*(sensInd+1)}L 50,#{h*2+70+20*(sensInd+1)}"
+				.attr style
+			paper
+				.text 60,h*2+74+20*(sensInd+1), sens.name
+
+			$g.height 380+20*(sensInd+2)
+
 
 			arr = arr.sort (a,b) -> 
 				a.date.getTime() - b.date.getTime()
 
-			console.log arr
-			
 			getx = (x) ->
 				return 5 unless kx
 				(x.date.getTime() - minx)/kx + 5
@@ -114,12 +129,14 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 				return h unless ky
 				h + 120 - (y.params[paramY] - miny)/ky
 
+			sensInd+=1
+
 			for el,ind in arr
 				paper
 					.circle getx(el), gety(el), 4
 					.attr
 						fill: '#000'
-				paper.text getx(el) - 3 , gety(el) - 10, el.params[paramY]
+				# paper.text getx(el) - 3 , gety(el) - 10, el.params[paramY]
 				paper
 					.text getx(el) - 3 , h*2, el.time
 					.transform 'r90,'+(getx(el)-5)+','+h*2

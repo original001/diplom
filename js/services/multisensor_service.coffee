@@ -6,7 +6,7 @@ moduleService
 					sens.graphs.list (graphs)->
 						graphArr = []
 						l = graphs.length
-						graphs.forEach (graph, ind)->
+						if l > 0 then graphs.forEach (graph, ind)->
 							params = JSON.parse graph.params
 
 							graphArr.push
@@ -25,6 +25,7 @@ moduleService
 
 							if ind == l - 1 
 								$scope.graph = graphArr
+						else $scope.graph = []
 
 					persistence.flush ->
 						$scope.sensors[sensInd].graph = $scope.graph	

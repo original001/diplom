@@ -1,5 +1,5 @@
 <md-list>
-    <md-subheader class="md-no-sticky"><b>header</b></md-subheader>
+    <md-subheader class="md-no-sticky"><b ng-repeat="sensor in sensors">{{sensor.name}}<span ng-if="!$last"> , </span></b></md-subheader>
     <div layout="row" layout-padding>
         <div flex="90" style="padding:4px" flex-sm="80">
             <!-- ABS BUTTON GROUP -->

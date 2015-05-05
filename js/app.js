@@ -330,7 +330,24 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
 
 moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $routeParams, MultiSens, $window) {
   var $g, paper, s, updatePath;
-  $scope.sensors = $rootScope.multisensors;
+  $scope.sensors = [
+    {
+      id: "9024951B3FCE4B718A8420ABC9F9BEE7",
+      name: "sensor1"
+    }, {
+      id: "AD381C763FD842D289D0237FA6D34577",
+      name: "sensor2"
+    }, {
+      id: "162D9D16B0B54750813097443EE66A31",
+      name: "sensor3"
+    }, {
+      id: "2E0B77BC69D84D0A8D8CFD130248DF89",
+      name: "sensor4"
+    }, {
+      id: "FA45173B82C146EFB8271484166021B9",
+      name: "monitor"
+    }
+  ];
   $scope.objId = $routeParams.objId;
   $scope.params = [];
   $scope.graph = [];
@@ -340,7 +357,7 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
   MultiSens.list($scope, $scope.sensors, $scope.objId);
   $scope.colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075', '#7183FF', '#B8C1FF', '#FF7967', '#83E3FF'];
   updatePath = function(sensors, paramY) {
-    var arr, el, getx, gety, h, i, ind, j, kx, ky, maxDate, maxy, minDate, minx, miny, num, sens, style, times, w, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
+    var arr, dl, el, getx, gety, h, i, ind, j, kx, ky, maxDate, maxy, minDate, minx, miny, num, sens, sensInd, style, times, val, w, _i, _j, _k, _l, _len, _len1, _len2, _ref, _results;
     paper.clear();
     style = {
       stroke: '#000'
@@ -387,21 +404,38 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
     kx = (maxDate - minDate) / w;
     minx = minDate;
     ky = (maxy - miny) / (h + 50);
+    if (maxy === miny) {
+      paper.text(8, h - 5, maxy);
+    } else {
+      for (i = _k = 0; _k <= 10; i = ++_k) {
+        dl = (h + 50) / 10;
+        val = maxy - (maxy - miny) * i / 10;
+        val *= 100;
+        paper.text(8, 68 + i * dl, Math.round(val) / 100).attr({
+          'font-size': '12px'
+        });
+        paper.path("M 0," + (70 + i * dl) + "L " + (w + 10) + "," + (70 + i * dl)).attr({
+          stroke: 'rgba(0,0,0,.3)',
+          strokeWidth: 1
+        });
+      }
+    }
     paper.path("M 5," + (h * 2 - 5) + "L " + (w + 10) + "," + (h * 2 - 5) + "," + w + "," + (h * 2 - 10) + "," + w + "," + (h * 2) + "," + (w + 10) + "," + (h * 2 - 5) + ",").attr(style);
     paper.path("M 5," + (h * 2 - 5) + "L 5,0,10,10,0,10,5,0").attr(style);
     paper.text(10, 20, paramY);
     paper.text(w + 15, h * 2, 't');
-    for (ind = _k = 0, _len2 = sensors.length; _k < _len2; ind = ++_k) {
-      sens = sensors[ind];
+    sensInd = 0;
+    _results = [];
+    for (_l = 0, _len2 = sensors.length; _l < _len2; _l++) {
+      sens = sensors[_l];
+      if (!(sens.graph.length > 0)) {
+        continue;
+      }
       arr = sens.graph;
-      console.log(arr);
       style = {
-        stroke: $scope.colors[ind],
+        stroke: $scope.colors[sensInd],
         strokeWidth: 2
       };
-      paper.path("M 0," + (h * 2 + 70 + 20 * (ind + 1)) + "L 50," + (h * 2 + 70 + 20 * (ind + 1))).attr(style);
-      paper.text(60, h * 2 + 74 + 20 * (ind + 1), sens.name);
-      $g.height(380 + 20 * (ind + 1));
       arr = arr.filter(function(el, i, a) {
         if (el.params.hasOwnProperty(paramY)) {
           return true;
@@ -410,12 +444,14 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
         }
       });
       if (!arr.length) {
-        return false;
+        continue;
       }
+      paper.path("M 0," + (h * 2 + 70 + 20 * (sensInd + 1)) + "L 50," + (h * 2 + 70 + 20 * (sensInd + 1))).attr(style);
+      paper.text(60, h * 2 + 74 + 20 * (sensInd + 1), sens.name);
+      $g.height(380 + 20 * (sensInd + 2));
       arr = arr.sort(function(a, b) {
         return a.date.getTime() - b.date.getTime();
       });
-      console.log(arr);
       getx = function(x) {
         if (!kx) {
           return 5;
@@ -428,19 +464,25 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
         }
         return h + 120 - (y.params[paramY] - miny) / ky;
       };
-      for (ind = _l = 0, _len3 = arr.length; _l < _len3; ind = ++_l) {
-        el = arr[ind];
-        paper.circle(getx(el), gety(el), 4).attr({
-          fill: '#000'
-        });
-        paper.text(getx(el) - 3, gety(el) - 10, el.params[paramY]);
-        paper.text(getx(el) - 3, h * 2, el.time).transform('r90,' + (getx(el) - 5) + ',' + h * 2);
-        if (ind === 0) {
-          continue;
+      sensInd += 1;
+      _results.push((function() {
+        var _len3, _m, _results1;
+        _results1 = [];
+        for (ind = _m = 0, _len3 = arr.length; _m < _len3; ind = ++_m) {
+          el = arr[ind];
+          paper.circle(getx(el), gety(el), 4).attr({
+            fill: '#000'
+          });
+          paper.text(getx(el) - 3, h * 2, el.time).transform('r90,' + (getx(el) - 5) + ',' + h * 2);
+          if (ind === 0) {
+            continue;
+          }
+          _results1.push(paper.path('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)).attr(style));
         }
-        paper.path('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)).attr(style);
-      }
+        return _results1;
+      })());
     }
+    return _results;
   };
   return $scope.updatePath = function(param) {
     return updatePath($scope.sensors, param);
@@ -1037,33 +1079,37 @@ moduleService.service('MultiSens', function(DB, $window) {
             var graphArr, l;
             graphArr = [];
             l = graphs.length;
-            return graphs.forEach(function(graph, ind) {
-              var ar1, ar2, el1, el2, i, j, params, _i, _j, _k, _len, _len1, _len2;
-              params = JSON.parse(graph.params);
-              graphArr.push({
-                date: new Date(graph.date),
-                params: params
-              });
-              ar2 = Object.keys(params);
-              ar1 = $scope.params;
-              for (i = _i = 0, _len = ar1.length; _i < _len; i = ++_i) {
-                el1 = ar1[i];
-                for (j = _j = 0, _len1 = ar2.length; _j < _len1; j = ++_j) {
-                  el2 = ar2[j];
-                  if (el1 !== el2) {
-                    continue;
+            if (l > 0) {
+              return graphs.forEach(function(graph, ind) {
+                var ar1, ar2, el1, el2, i, j, params, _i, _j, _k, _len, _len1, _len2;
+                params = JSON.parse(graph.params);
+                graphArr.push({
+                  date: new Date(graph.date),
+                  params: params
+                });
+                ar2 = Object.keys(params);
+                ar1 = $scope.params;
+                for (i = _i = 0, _len = ar1.length; _i < _len; i = ++_i) {
+                  el1 = ar1[i];
+                  for (j = _j = 0, _len1 = ar2.length; _j < _len1; j = ++_j) {
+                    el2 = ar2[j];
+                    if (el1 !== el2) {
+                      continue;
+                    }
+                    ar2.splice(j, 1);
                   }
-                  ar2.splice(j, 1);
                 }
-              }
-              for (_k = 0, _len2 = ar2.length; _k < _len2; _k++) {
-                i = ar2[_k];
-                $scope.params.push(i);
-              }
-              if (ind === l - 1) {
-                return $scope.graph = graphArr;
-              }
-            });
+                for (_k = 0, _len2 = ar2.length; _k < _len2; _k++) {
+                  i = ar2[_k];
+                  $scope.params.push(i);
+                }
+                if (ind === l - 1) {
+                  return $scope.graph = graphArr;
+                }
+              });
+            } else {
+              return $scope.graph = [];
+            }
           });
           return persistence.flush(function() {
             var firstVar;
