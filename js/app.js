@@ -85,12 +85,13 @@ cordovaApp = {
 
 cordovaApp.initialize();
 
-moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParams, List, $window) {
+moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParams, List, $window, $mdDialog) {
   $scope.objId = $routeParams.objId;
   $scope.lazyShow = false;
   $scope.categories = [];
-  $scope.checkboxMode = true;
+  $scope.checkboxMode = false;
   $scope.selected = [];
+  $scope.disable = false;
   $(function() {
     var w;
     w = $(window);
@@ -106,17 +107,26 @@ moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParam
     $rootScope.multisensors = $scope.selected;
     return $window.location.href = "#/multisensors/" + $scope.objId;
   };
-  $scope.getData = function(item, list) {
-    var ind;
-    ind = list.indexOf(item.id);
-    if (ind > -1) {
-      return $scope.selected.splice(ind, 1);
-    } else {
-      return $scope.selected.push({
-        id: item.id,
-        name: item.name
-      });
+  $scope.getData = function(item, list, ev) {
+    var i, ind, _i, _len;
+    for (ind = _i = 0, _len = list.length; _i < _len; ind = ++_i) {
+      i = list[ind];
+      if (!(i.id === item.id)) {
+        continue;
+      }
+      $scope.selected.splice(ind, 1);
+      return false;
     }
+    if ($scope.selected.length > 9) {
+      $mdDialog.show($mdDialog.alert().parent(angular.element(document.body)).title('Не более 10 графиков за раз').ariaLabel('count of sensor').ok('Окей').targetEvent(ev), $scope.disable = true).then(function() {
+        return $scope.disable = false;
+      });
+      return false;
+    }
+    return $scope.selected.push({
+      id: item.id,
+      name: item.name
+    });
   };
   return List.list($scope, $scope.objId);
 });
@@ -330,24 +340,7 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
 
 moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $routeParams, MultiSens, $window) {
   var $g, paper, s, updatePath;
-  $scope.sensors = [
-    {
-      id: "9024951B3FCE4B718A8420ABC9F9BEE7",
-      name: "sensor1"
-    }, {
-      id: "AD381C763FD842D289D0237FA6D34577",
-      name: "sensor2"
-    }, {
-      id: "162D9D16B0B54750813097443EE66A31",
-      name: "sensor3"
-    }, {
-      id: "2E0B77BC69D84D0A8D8CFD130248DF89",
-      name: "sensor4"
-    }, {
-      id: "FA45173B82C146EFB8271484166021B9",
-      name: "monitor"
-    }
-  ];
+  $scope.sensors = $rootScope.multisensors;
   $scope.objId = $routeParams.objId;
   $scope.params = [];
   $scope.graph = [];
@@ -471,7 +464,7 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
         for (ind = _m = 0, _len3 = arr.length; _m < _len3; ind = ++_m) {
           el = arr[ind];
           paper.circle(getx(el), gety(el), 4).attr({
-            fill: '#000'
+            fill: $scope.colors[sensInd - 1]
           });
           paper.text(getx(el) - 3, h * 2, el.time).transform('r90,' + (getx(el) - 5) + ',' + h * 2);
           if (ind === 0) {

@@ -1,22 +1,22 @@
 moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,MultiSens, $window) ->
-	$scope.sensors = [
-		id: "9024951B3FCE4B718A8420ABC9F9BEE7"
-		name: "sensor1"
-	,
-		id: "AD381C763FD842D289D0237FA6D34577"
-		name: "sensor2"
-	,
-		id: "162D9D16B0B54750813097443EE66A31"
-		name: "sensor3"
-	,
-		id: "2E0B77BC69D84D0A8D8CFD130248DF89"
-		name: "sensor4"
-	,
-		id: "FA45173B82C146EFB8271484166021B9"
-		name: "monitor"
-	]
+	# $scope.sensors = [
+	# 	id: "9024951B3FCE4B718A8420ABC9F9BEE7"
+	# 	name: "sensor1"
+	# ,
+	# 	id: "AD381C763FD842D289D0237FA6D34577"
+	# 	name: "sensor2"
+	# ,
+	# 	id: "162D9D16B0B54750813097443EE66A31"
+	# 	name: "sensor3"
+	# ,
+	# 	id: "2E0B77BC69D84D0A8D8CFD130248DF89"
+	# 	name: "sensor4"
+	# ,
+	# 	id: "FA45173B82C146EFB8271484166021B9"
+	# 	name: "monitor"
+	# ]
 
-	# $scope.sensors = $rootScope.multisensors
+	$scope.sensors = $rootScope.multisensors
 	$scope.objId = $routeParams.objId
 	$scope.params = []
 	$scope.graph = []
@@ -135,7 +135,7 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 				paper
 					.circle getx(el), gety(el), 4
 					.attr
-						fill: '#000'
+						fill: $scope.colors[sensInd-1]
 				# paper.text getx(el) - 3 , gety(el) - 10, el.params[paramY]
 				paper
 					.text getx(el) - 3 , h*2, el.time

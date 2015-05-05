@@ -1,19 +1,21 @@
 <div class="sample" layout="column" style="height:100%">
     <form  ng-show="!lazyShow">
-        <md-subheader>Список датчиков</md-subheader>
+        <md-subheader>Список датчиков
+            <md-button class="md-primary" style="float:right;margin:-10px 0 0" ng-click="check()">Построение нескольких графиков</md-button>
+        </md-subheader>
         <md-list ng-repeat="cat in categories">
-            <md-list-item style="background:rgba(0, 188, 212, .75);color:#fff;height:36px"><p>{{cat.name}}</p></md-list-item>
+            <md-list-item style="background:rgba(0, 0, 0, .075);color:#000;font-weight:bold;height:36px"><p>{{cat.name}}</p></md-list-item>
             <md-list-item ng-repeat="sens in cat.sensors">
                 <p>
                     <a ng-show="!checkboxMode" href="#/sensor/{{sens.ui}}/{{sens.id}}" class="linkblock">{{sens.name}}</a>
                     <span ng-show="checkboxMode">{{sens.name}}</span>
                 </p>
-                <md-checkbox ng-show="checkboxMode" ng-click="getData(sens, selected)"></md-checkbox>
+                <md-checkbox ng-disabled="disable" ng-show="checkboxMode" ng-click="getData(sens, selected, $event)"></md-checkbox>
                 <md-divider></md-divider>
             </md-list-item>
         </md-list>
-        <md-button ng-click="check()">Построение нескольких графиков</md-button>
-        <md-button ng-show="checkboxMode" ng-click="build()" style="float:right">Построить</md-button>
+        
+        <md-button ng-disabled="!checkboxMode" ng-click="build()" style="float:right">Построить</md-button>
     </form>
     <!-- LAZY LOAD -->
     <div class="lazy-cloud" ng-show="lazyShow">
