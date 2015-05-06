@@ -4,6 +4,9 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	$scope.categories = []
 	$scope.paramInput = false
 
+	$scope.keys = []
+	Sens.loadKeySens $routeParams.sensId, $scope
+
 	$g = $ '#graph'
 	s = Snap '#graph'
 	paper = s.paper
@@ -65,7 +68,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				.circle getx(el), gety(el), 3
 				.attr
 					fill: '#CB0000'
-			paper.text getx(el) - 3 , gety(el) - 10, el.params[paramY]
+			paper.text getx(el) - 3 , gety(el) - 10, Math.round(el.params[paramY]*1000)/1000
 			paper
 				.text getx(el) - 3 , h*2, time
 				.transform 'r90,'+(getx(el)-5)+','+h*2
@@ -112,7 +115,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			templateUrl: 'view/dialog-edit-sens.tpl.html'
 			targetEvent: e
 		.then (answer) ->
-			Sens.editSens answer.name, answer.category, $routeParams.sensId, $scope
+			Sens.editSens answer.name, answer.category, answer.keys , $routeParams.sensId, $scope
 
 	$scope.removeGraph = ->
 		Sens.removeGraph $scope
@@ -124,14 +127,20 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			targetEvent: e
 		.then (answer) ->
 			switch $routeParams.ui
+
+				# логика работы для сенсора СИТИС
 				when '1' 
+					for i in $scope.keys when i.name == 'K'
+						k = i.val
+					console.log k
 					params = {}
 					if answer.params.f?
 						params.f = answer.params.f
-						params.me = params.f * 5
-						params.g = params.f * 10
+						params.me = params.f * params.f * 0.001 * k * 4.479 # K & G
+						params.g = params.me * 210 * 0.001
 					for k, v of answer.params when k != 'f'
 						params[k] = v	
+
 				when '2' 
 					params = {}
 					if answer.params.f?
@@ -189,6 +198,12 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 
 		$scope.loadCat = ->
 			Sens.loadCat $scope
+
+		$scope.keys = []
+		Sens.loadKeySens $routeParams.sensId, $scope
+
+		$scope.sensor = 
+			key: {}
 
 	SensDialogController = ($rootScope, $scope, $mdDialog) ->
 		$scope.cancel = ->

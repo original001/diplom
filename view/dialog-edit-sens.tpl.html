@@ -2,6 +2,7 @@
     <form name="renameFormObj">
         <md-content>
             <form name="renameFormObj">
+            <div layout="row">
                 <md-input-container>
                     <label>Новое имя</label>
                     <input name="renameObj" ng-model="edit.name">
@@ -11,11 +12,18 @@
                         <md-option ng-repeat="category in categories" ng-value="category.id">{{category.name}}</md-option>
                     </md-select>
                 </md-input-container>
+            </div>
+            <div layout="row">
+                <md-input-container ng-repeat="key in keys">
+                    <label>{{key.name}}<span ng-if="key.eval">, {{key.eval}}</span></label>
+                    <input type="number" ng-model="sensor.key[key.name]">
+                </md-input-container>
+            </div>
         </md-content>
         </form>
         <div class="md-actions">
             <md-button ng-click="cancel()">Отмена</md-button>
-            <md-button class="md-raised" ng-click="answer({name: edit.name,category: edit.category})">Изменить</md-button>
+            <md-button class="md-raised" ng-click="answer({name: edit.name,category: edit.category, keys: sensor.key})">Изменить</md-button>
         </div>
     </form>
 </md-dialog>

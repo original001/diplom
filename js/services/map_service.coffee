@@ -102,6 +102,25 @@ moduleService
 					s.category = exp.type
 					exp.obj.sensors.add(s)
 					exp.map.sensors.add(s)
+
+					# логика работы для сенсора СИТИС
+
+					if exp.type.ui == 1 
+						s.key = 
+							JSON.stringify [
+								name: 'K'
+								val: 1
+								eval: ''
+							,
+								name: 'a'
+								val: 12
+								eval: 'микрострейн'
+							,
+								name: 'b'
+								val: 10.5
+								eval: 'микрострейн'
+							]
+							
 					persistence.flush ->
 						$scope.tabs.forEach (tabs, ind) ->
 							if tabs.id == exp.map.id

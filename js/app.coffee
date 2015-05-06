@@ -41,10 +41,11 @@ angular.module 'Monitor', [
         SensMany: persistence.define 'SensMany',  
             sensor: "INT",
             GroupOfSens: "INT"
-        Sensor: persistence.define 'Sensor6',  
+        Sensor: persistence.define 'Sensor7',  
             name: "TEXT",
             top: "INT"
             left: "INT"
+            key: 'JSON'
         Graph: persistence.define 'Graph3',  
             date: "DATE",
             params: 'JSON'

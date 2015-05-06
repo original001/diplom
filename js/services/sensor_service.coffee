@@ -58,7 +58,7 @@ moduleService
 		@removeGraph = ($scope) ->
 			DB.Graph.all().destroyAll ->
 
-		@editSens = (newName, category, id, $scope) ->
+		@editSens = (newName, category, keys, id, $scope) ->
 			DB.Sensor.findBy persistence, null,'id',id, (sens)->
 				if sens
 					if newName 
@@ -71,6 +71,13 @@ moduleService
 							if cat
 								sens.category = cat
 								persistence.flush ->
+					if Object.keys(keys).length > 0
+						sensKey = JSON.parse sens.key
+						for k,v of keys
+							for i, ind in sensKey when k == i.name
+								sensKey[ind].val = v
+								sens.key = JSON.stringify sensKey
+								persistence.flush ->
 
 		@addCat = (nameCat, color) ->
 			c = new DB.SensCat
@@ -79,11 +86,6 @@ moduleService
 			persistence.add c
 			persistence.flush ->
 				console.log "sensor #{c.name} added with color #{color}!"
-
-		# @renameCat = (id, newcolor) ->
-		# 	DB.SensCat.findBy persistence, null, 'id',id,(cat)->
-		# 		cat.name = newname
-		# 		cat.color = newcolor
 
 		@loadCat = ($scope) ->		
 			DB.SensCat.all().list (cats) ->
@@ -109,4 +111,9 @@ moduleService
 						params: params
 					do $scope.$apply
 					$scope.updatePath Object.keys(params)[0]
+
+		@loadKeySens = (sensId, $scope) ->
+			DB.Sensor.findBy persistence, null, 'id',sensId,(sens)->
+				$scope.keys = JSON.parse sens.key if sens
+
 		return
