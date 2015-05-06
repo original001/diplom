@@ -392,7 +392,7 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
       }
     }
     h = 320 / 2;
-    w = 40 * num;
+    w = 20 * num;
     if (w > $g.width()) {
       $g.width(w + 40);
     }
@@ -614,7 +614,6 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
               k = i.val;
             }
           }
-          console.log(k);
           params = {};
           if (answer.params.f != null) {
             params.f = answer.params.f;

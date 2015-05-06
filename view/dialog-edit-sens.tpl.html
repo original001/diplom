@@ -15,7 +15,7 @@
             </div>
             <div layout="row">
                 <md-input-container ng-repeat="key in keys">
-                    <label>{{key.name}}<span ng-if="key.eval">, {{key.eval}}</span></label>
+                    <label>{{key.name}}<b> ({{key.val}}) </b><span ng-if="key.eval">{{key.eval}}</span></label>
                     <input type="number" ng-model="sensor.key[key.name]">
                 </md-input-container>
             </div>

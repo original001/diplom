@@ -7,6 +7,22 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	$scope.keys = []
 	Sens.loadKeySens $routeParams.sensId, $scope
 
+	# autoloader
+	# random = Math.random() + 1.1
+	# random = random*5
+	# for i in $scope.keys when i.name == 'K'
+	# 	paramK = i.val
+	# for i in [3..20]
+	# 	paramF = Math.cos(i)*random 
+	# 	paramMe = paramF * paramF * 0.001 * paramK * 4.479 # K & G
+	# 	Sens.addGraph new Date("Wed May #{i} 2015 23:57:36 GMT+0600 (YEKT)"), 
+	# 		f: paramF
+	# 		me: paramMe
+	# 		g: paramMe * 210 * 0.001
+	# 	, $scope, $routeParams.sensId
+
+	# autoloader end
+
 	$g = $ '#graph'
 	s = Snap '#graph'
 	paper = s.paper
@@ -132,7 +148,6 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				when '1' 
 					for i in $scope.keys when i.name == 'K'
 						k = i.val
-					console.log k
 					params = {}
 					if answer.params.f?
 						params.f = answer.params.f

@@ -61,7 +61,7 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 					if times.indexOf(j.time) > -1 then j.time = '' else times.push j.time
 
 		h = 320/2
-		w = 40*num
+		w = 20*num
 		if w > $g.width()
 			$g.width w + 40
 
