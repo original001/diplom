@@ -150,3 +150,25 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 	$scope.updatePath = (param) ->
 		updatePath $scope.sensors, param
 
+	$scope.render = ->
+		svg = document.getElementById 'graph'
+
+		serializer = new XMLSerializer()
+		svgStr = serializer.serializeToString(svg)
+		encodedSvgStr = unescape(encodeURIComponent(svgStr))
+		svgData = btoa(encodedSvgStr)
+		canvas = document.createElement("canvas")
+		ctx = canvas.getContext("2d")
+		img = new Image()
+
+		canvas.setAttribute("width", svg.width.baseVal.value)
+		canvas.setAttribute("height", svg.height.baseVal.value)
+
+		img.onload = ->
+			ctx.drawImage(img, 0, 0)
+			dataURL = canvas.toDataURL("image/png")
+
+		link = document.createElement 'a'
+		link.href = "data:image/svg+xml;base64," + svgData
+		link.download = 'graph.svg'
+		link.click()

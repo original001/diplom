@@ -479,8 +479,30 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
     }
     return _results;
   };
-  return $scope.updatePath = function(param) {
+  $scope.updatePath = function(param) {
     return updatePath($scope.sensors, param);
+  };
+  return $scope.render = function() {
+    var canvas, ctx, encodedSvgStr, img, link, serializer, svg, svgData, svgStr;
+    svg = document.getElementById('graph');
+    serializer = new XMLSerializer();
+    svgStr = serializer.serializeToString(svg);
+    encodedSvgStr = unescape(encodeURIComponent(svgStr));
+    svgData = btoa(encodedSvgStr);
+    canvas = document.createElement("canvas");
+    ctx = canvas.getContext("2d");
+    img = new Image();
+    canvas.setAttribute("width", svg.width.baseVal.value);
+    canvas.setAttribute("height", svg.height.baseVal.value);
+    img.onload = function() {
+      var dataURL;
+      ctx.drawImage(img, 0, 0);
+      return dataURL = canvas.toDataURL("image/png");
+    };
+    link = document.createElement('a');
+    link.href = "data:image/svg+xml;base64," + svgData;
+    link.download = 'graph.svg';
+    return link.click();
   };
 });
 
