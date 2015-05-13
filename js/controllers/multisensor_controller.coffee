@@ -1,4 +1,4 @@
-moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,MultiSens, $window) ->
+moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,MultiSens, $window, $mdDialog) ->
 	# $scope.sensors = [
 	# 	id: "9024951B3FCE4B718A8420ABC9F9BEE7"
 	# 	name: "sensor1"
@@ -150,9 +150,26 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 	$scope.updatePath = (param) ->
 		updatePath $scope.sensors, param
 
-	$scope.render = ->
-		console.log 'click'
+	$scope.alert = (e, title = '', content = '') ->
+		$mdDialog.show(
+			$mdDialog.alert()
+			.parent(angular.element(document.body))
+			.title(title)
+			.content(content)
+			.ariaLabel('Alert Dialog')
+			.ok('ОК')
+			.targetEvent(e)
+		)
 
+	$scope.setName = (e) ->
+		$mdDialog.show
+			controller: DialogController
+			templateUrl: 'view/dialog-add.tpl.html'
+			targetEvent: e
+		.then (answer) ->
+			$scope.render answer
+
+	$scope.render = (name) ->
 		svg = document.getElementById 'graph'
 
 		serializer = new XMLSerializer()
@@ -184,13 +201,11 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
             
             fileTransfer.download(
                 "data:image/svg+xml;base64," + svgData,
-                path + 'svg.svg',
+                path + "#{name}.svg",
                 (file) ->
-                    console.log('download complete')
+                    $scope.alert null, 'График успешно загружен', "Файл находится в папке Download \n Имя файла - #{name}.svg"
                 (error) ->
-                    console.log('download error source ' + error.source)
-                    console.log('download error target ' + error.target)
-                    console.log('upload error code: ' + error.code))
+                    $scope.alert null, 'При загрузке возникла ошибка', "Код ошибки – #{error.code}, объект загрузки – #{error.target}")
         
         showLink = (url) ->
             alert(url)
@@ -207,5 +222,12 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 		if cordovaApp.isReady 
 			console.log 'ready and fire function'
 			do downloadFile
+		else 
+			console.log 'error'
 
+	# MultiSensDialogController = ($scope, $mdDialog) ->
+	# 	$scope.cancel = ->
+	# 		do $mdDialog.cancel
+	# 	$scope.answer = (answer) ->
+	# 		$mdDialog.hide answer
 

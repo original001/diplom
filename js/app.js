@@ -342,7 +342,7 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
   };
 });
 
-moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $routeParams, MultiSens, $window) {
+moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $routeParams, MultiSens, $window, $mdDialog) {
   var $g, paper, s, updatePath;
   $scope.sensors = $rootScope.multisensors;
   $scope.objId = $routeParams.objId;
@@ -484,9 +484,26 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
   $scope.updatePath = function(param) {
     return updatePath($scope.sensors, param);
   };
-  return $scope.render = function() {
+  $scope.alert = function(e, title, content) {
+    if (title == null) {
+      title = '';
+    }
+    if (content == null) {
+      content = '';
+    }
+    return $mdDialog.show($mdDialog.alert().parent(angular.element(document.body)).title(title).content(content).ariaLabel('Alert Dialog').ok('ОК').targetEvent(e));
+  };
+  $scope.setName = function(e) {
+    return $mdDialog.show({
+      controller: DialogController,
+      templateUrl: 'view/dialog-add.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      return $scope.render(answer);
+    });
+  };
+  return $scope.render = function(name) {
     var downloadFile, encodedSvgStr, fail, onGetFileSuccess, onRequestFileSystemSuccess, serializer, showLink, svg, svgData, svgStr;
-    console.log('click');
     svg = document.getElementById('graph');
     serializer = new XMLSerializer();
     svgStr = serializer.serializeToString(svg);
@@ -509,12 +526,10 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
       path = fileEntry.toURL().replace('svg.svg', '');
       fileTransfer = new FileTransfer();
       fileEntry.remove();
-      return fileTransfer.download("data:image/svg+xml;base64," + svgData, path + 'svg.svg', function(file) {
-        return console.log('download complete');
+      return fileTransfer.download("data:image/svg+xml;base64," + svgData, path + ("" + name + ".svg"), function(file) {
+        return $scope.alert(null, 'График успешно загружен', "Файл находится в папке Download \n Имя файла - " + name + ".svg");
       }, function(error) {
-        console.log('download error source ' + error.source);
-        console.log('download error target ' + error.target);
-        return console.log('upload error code: ' + error.code);
+        return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + error.code + ", объект загрузки – " + error.target);
       });
     };
     showLink = function(url) {
@@ -533,6 +548,8 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
     if (cordovaApp.isReady) {
       console.log('ready and fire function');
       return downloadFile();
+    } else {
+      return console.log('error');
     }
   };
 });
