@@ -188,6 +188,24 @@ module.exports = [
         "clobbers": [
             "window.FileTransfer"
         ]
+    },
+    {
+        "file": "plugins/org.chromium.zip/zip.js",
+        "id": "org.chromium.zip.Zip",
+        "clobbers": [
+            "zip"
+        ]
+    },
+    {
+        "file": "plugins/org.chromium.zip/tests/tests.js",
+        "id": "org.chromium.zip.tests"
+    },
+    {
+        "file": "plugins/de.fastr.phonegap.plugins.md5chksum/www/md5chksum.js",
+        "id": "de.fastr.phonegap.plugins.md5chksum.md5chksum",
+        "clobbers": [
+            "md5chksum"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -198,7 +216,9 @@ module.exports.metadata =
     "org.apache.cordova.network-information": "0.2.15",
     "org.apache.cordova.file": "1.3.3",
     "org.apache.cordova.file-transfer": "0.5.0",
-    "org.apache.cordova.console": "0.2.13"
+    "org.apache.cordova.console": "0.2.13",
+    "org.chromium.zip": "2.1.0",
+    "de.fastr.phonegap.plugins.md5chksum": "0.1.3"
 }
 // BOTTOM OF METADATA
 });

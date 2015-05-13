@@ -80,8 +80,10 @@ cordovaApp = {
     return document.addEventListener('deviceready', this.onDeviceReady, false);
   },
   onDeviceReady: function() {
-    return console.log('deviceready');
-  }
+    console.log('deviceready fired!');
+    return cordovaApp.isReady = true;
+  },
+  isReady: false
 };
 
 cordovaApp.initialize();
@@ -483,26 +485,55 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
     return updatePath($scope.sensors, param);
   };
   return $scope.render = function() {
-    var canvas, ctx, encodedSvgStr, img, link, serializer, svg, svgData, svgStr;
+    var downloadFile, encodedSvgStr, fail, onGetFileSuccess, onRequestFileSystemSuccess, serializer, showLink, svg, svgData, svgStr;
+    console.log('click');
     svg = document.getElementById('graph');
     serializer = new XMLSerializer();
     svgStr = serializer.serializeToString(svg);
     encodedSvgStr = unescape(encodeURIComponent(svgStr));
     svgData = btoa(encodedSvgStr);
-    canvas = document.createElement("canvas");
-    ctx = canvas.getContext("2d");
-    img = new Image();
-    canvas.setAttribute("width", svg.width.baseVal.value);
-    canvas.setAttribute("height", svg.height.baseVal.value);
-    img.onload = function() {
-      var dataURL;
-      ctx.drawImage(img, 0, 0);
-      return dataURL = canvas.toDataURL("image/png");
+    downloadFile = function() {
+      console.log('downloadFile');
+      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onRequestFileSystemSuccess, fail);
     };
-    link = document.createElement('a');
-    link.href = "data:image/svg+xml;base64," + svgData;
-    link.download = 'graph.svg';
-    return link.click();
+    onRequestFileSystemSuccess = function(fileSystem) {
+      console.log('onRequestFileSystemSuccess');
+      return fileSystem.root.getFile('/storage/emulated/0/Download/svg.svg', {
+        create: true,
+        exclusive: false
+      }, onGetFileSuccess, fail);
+    };
+    onGetFileSuccess = function(fileEntry) {
+      var fileTransfer, path;
+      console.log('onGetFileSuccess!');
+      path = fileEntry.toURL().replace('svg.svg', '');
+      fileTransfer = new FileTransfer();
+      fileEntry.remove();
+      return fileTransfer.download("data:image/svg+xml;base64," + svgData, path + 'svg.svg', function(file) {
+        return console.log('download complete');
+      }, function(error) {
+        console.log('download error source ' + error.source);
+        console.log('download error target ' + error.target);
+        return console.log('upload error code: ' + error.code);
+      });
+    };
+    showLink = function(url) {
+      var aElem, divEl;
+      alert(url);
+      divEl = document.getElementById('deviceready');
+      aElem = document.createElement('a');
+      aElem.setAttribute('target', '_blank');
+      aElem.setAttribute('href', url);
+      aElem.appendChild(document.createTextNode('Ready! Click To Open.'));
+      return divEl.appendChild(aElem);
+    };
+    fail = function(evt) {
+      return console.log(evt.target.error.code);
+    };
+    if (cordovaApp.isReady) {
+      console.log('ready and fire function');
+      return downloadFile();
+    }
   };
 });
 

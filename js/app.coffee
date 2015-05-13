@@ -83,8 +83,10 @@ cordovaApp =
     initialize: ()-> 
         @bindEvents()
     bindEvents: ()->
-        document.addEventListener('deviceready', this.onDeviceReady, false)
+        document.addEventListener('deviceready', @onDeviceReady, false)
     onDeviceReady: ()->
-        console.log 'deviceready'
+        console.log 'deviceready fired!'
+        cordovaApp.isReady = true
+    isReady: false
 
 do cordovaApp.initialize

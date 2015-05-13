@@ -151,24 +151,61 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 		updatePath $scope.sensors, param
 
 	$scope.render = ->
+		console.log 'click'
+
 		svg = document.getElementById 'graph'
 
 		serializer = new XMLSerializer()
 		svgStr = serializer.serializeToString(svg)
 		encodedSvgStr = unescape(encodeURIComponent(svgStr))
 		svgData = btoa(encodedSvgStr)
-		canvas = document.createElement("canvas")
-		ctx = canvas.getContext("2d")
-		img = new Image()
 
-		canvas.setAttribute("width", svg.width.baseVal.value)
-		canvas.setAttribute("height", svg.height.baseVal.value)
+		downloadFile = () ->
+            console.log('downloadFile')
+            window.requestFileSystem(
+                LocalFileSystem.PERSISTENT,
+                0,
+                onRequestFileSystemSuccess,
+                fail)
+        
+        onRequestFileSystemSuccess = (fileSystem) ->
+            console.log('onRequestFileSystemSuccess')
+            fileSystem.root.getFile(
+                '/storage/emulated/0/Download/svg.svg',
+                {create: true, exclusive: false},
+                onGetFileSuccess,
+                fail)
+        
+        onGetFileSuccess = (fileEntry) ->
+            console.log('onGetFileSuccess!')
+            path = fileEntry.toURL().replace('svg.svg', '')
+            fileTransfer = new FileTransfer()
+            fileEntry.remove()
+            
+            fileTransfer.download(
+                "data:image/svg+xml;base64," + svgData,
+                path + 'svg.svg',
+                (file) ->
+                    console.log('download complete')
+                (error) ->
+                    console.log('download error source ' + error.source)
+                    console.log('download error target ' + error.target)
+                    console.log('upload error code: ' + error.code))
+        
+        showLink = (url) ->
+            alert(url)
+            divEl = document.getElementById('deviceready')
+            aElem = document.createElement('a')
+            aElem.setAttribute('target', '_blank')
+            aElem.setAttribute('href', url)
+            aElem.appendChild(document.createTextNode('Ready! Click To Open.'))
+            divEl.appendChild(aElem)
+        
+        fail = (evt) ->
+            console.log(evt.target.error.code)
 
-		img.onload = ->
-			ctx.drawImage(img, 0, 0)
-			dataURL = canvas.toDataURL("image/png")
+		if cordovaApp.isReady 
+			console.log 'ready and fire function'
+			do downloadFile
 
-		link = document.createElement 'a'
-		link.href = "data:image/svg+xml;base64," + svgData
-		link.download = 'graph.svg'
-		link.click()
+
