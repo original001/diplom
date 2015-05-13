@@ -27,6 +27,9 @@ angular.module 'Monitor', [
         .when '/list/:objId',
             templateUrl:'view/list.html'
             controller: 'ListController'
+        .when '/table/:sensId',
+            templateUrl:'view/table.html'
+            controller: 'TableController'
         $locationProvider.html5Mode
             enable: false
             requireBase: false

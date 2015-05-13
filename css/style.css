@@ -218,6 +218,15 @@
 	line-height: 1.8;
 	content: '\e010';
 }
+.button-table {
+	font-family: 'icons';
+	top: 265px;
+}
+.button-table:after {
+	font-weight: bold;
+	line-height: 1.8;
+	content: '\e027';
+}
 .help-screen {
 	display: none;
 	z-index: 10;

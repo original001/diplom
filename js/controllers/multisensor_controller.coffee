@@ -32,7 +32,7 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 	updatePath =  (sensors,paramY) ->
 		do paper.clear
 
-		# CREATE COORDS
+		# CREATE COORDS >>>
 
 		style =
 			stroke: '#000'
@@ -95,7 +95,7 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 		paper.text 10,20, paramY
 		paper.text w+15,h*2, 't'
 
-		# CREATE COORDS END
+		# CREATE COORDS END <<<
 
 		sensInd = 0
 		for sens in sensors when sens.graph.length > 0
@@ -203,27 +203,19 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
                 "data:image/svg+xml;base64," + svgData,
                 path + "#{name}.svg",
                 (file) ->
-                    $scope.alert null, 'График успешно загружен', "Файл находится в папке Download \n Имя файла - #{name}.svg"
+                    $scope.alert null, 'График успешно загружен', "Файл находится в папке Download, имя файла - #{name}.svg"
                 (error) ->
                     $scope.alert null, 'При загрузке возникла ошибка', "Код ошибки – #{error.code}, объект загрузки – #{error.target}")
         
-        showLink = (url) ->
-            alert(url)
-            divEl = document.getElementById('deviceready')
-            aElem = document.createElement('a')
-            aElem.setAttribute('target', '_blank')
-            aElem.setAttribute('href', url)
-            aElem.appendChild(document.createTextNode('Ready! Click To Open.'))
-            divEl.appendChild(aElem)
         
         fail = (evt) ->
-            console.log(evt.target.error.code)
+            $scope.alert null, 'При загрузке возникла ошибка', "Код ошибки – #{evt.target.error.code}"
 
 		if cordovaApp.isReady 
 			console.log 'ready and fire function'
 			do downloadFile
 		else 
-			console.log 'error'
+            $scope.alert null, 'Oшибка!', "cordova.js не загружен"
 
 	# MultiSensDialogController = ($scope, $mdDialog) ->
 	# 	$scope.cancel = ->

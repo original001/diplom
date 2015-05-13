@@ -20,6 +20,9 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   }).when('/list/:objId', {
     templateUrl: 'view/list.html',
     controller: 'ListController'
+  }).when('/table/:sensId', {
+    templateUrl: 'view/table.html',
+    controller: 'TableController'
   });
   return $locationProvider.html5Mode({
     enable: false,
@@ -503,7 +506,7 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
     });
   };
   return $scope.render = function(name) {
-    var downloadFile, encodedSvgStr, fail, onGetFileSuccess, onRequestFileSystemSuccess, serializer, showLink, svg, svgData, svgStr;
+    var downloadFile, encodedSvgStr, fail, onGetFileSuccess, onRequestFileSystemSuccess, serializer, svg, svgData, svgStr;
     svg = document.getElementById('graph');
     serializer = new XMLSerializer();
     svgStr = serializer.serializeToString(svg);
@@ -527,29 +530,19 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
       fileTransfer = new FileTransfer();
       fileEntry.remove();
       return fileTransfer.download("data:image/svg+xml;base64," + svgData, path + ("" + name + ".svg"), function(file) {
-        return $scope.alert(null, 'График успешно загружен', "Файл находится в папке Download \n Имя файла - " + name + ".svg");
+        return $scope.alert(null, 'График успешно загружен', "Файл находится в папке Download, имя файла - " + name + ".svg");
       }, function(error) {
         return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + error.code + ", объект загрузки – " + error.target);
       });
     };
-    showLink = function(url) {
-      var aElem, divEl;
-      alert(url);
-      divEl = document.getElementById('deviceready');
-      aElem = document.createElement('a');
-      aElem.setAttribute('target', '_blank');
-      aElem.setAttribute('href', url);
-      aElem.appendChild(document.createTextNode('Ready! Click To Open.'));
-      return divEl.appendChild(aElem);
-    };
     fail = function(evt) {
-      return console.log(evt.target.error.code);
+      return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + evt.target.error.code);
     };
     if (cordovaApp.isReady) {
       console.log('ready and fire function');
       return downloadFile();
     } else {
-      return console.log('error');
+      return $scope.alert(null, 'Oшибка!', "cordova.js не загружен");
     }
   };
 });
@@ -1442,4 +1435,20 @@ moduleService.service('Sens', function(DB, $window) {
       }
     });
   };
+});
+
+moduleCtrl.controller('TableController', function($scope, $routeParams, Table) {
+  $scope.lazyShow = false;
+  return $(function() {
+    var w;
+    w = $(window);
+    $('.index-md-content').height(w.height() - 64);
+    return w.resize(function() {
+      return $('.index-md-content').height(w.height() - 64);
+    });
+  });
+});
+
+moduleService.service('Table', function(DB) {
+  this.list = function($scope) {};
 });
