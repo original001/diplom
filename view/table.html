@@ -1,10 +1,23 @@
 <md-list>
-    <md-subheader class="md-no-sticky"><b>sensor number 1</b></md-subheader>
+    <div layout="column" layout-padding>
+        <div><b>Объект: </b><span>{{sensor.obj.name}}</span></div>
+        <div><b>Карта: </b><span>{{sensor.map.name}}</span></div>
+        <div><b>Датчик: </b><span>{{sensor.name}}</span></div>
+        <div style="padding-right:60px"><b>Параметры: </b><span ng-repeat="key in sensor.key">{{key.name}} = {{key.val}} {{key.eval}}<span ng-if="!$last">, </span></span></div>
+    </div>
     <div layout="row" layout-padding>
-        <div flex="90" style="padding:4px" flex-sm="80">
-            <!-- ABS BUTTON GROUP -->
-            <md-button ng-click="addGraph($event)" class="md-fab md-mini md-button md-default-theme button-custom button-print" aria-label="button"></md-button>
-            <!-- ABS BUTTON GROUP -->
-        </div>
+        <!-- ABS BUTTON GROUP -->
+        <md-button class="md-fab md-mini md-button md-default-theme button-custom button-print" aria-label="button"></md-button>
+        <!-- ABS BUTTON GROUP -->
+    </div>
+    <div layout="row" layout-padding style="text-align:center;background: #eee;text-transform:uppercase">
+        <b flex="20" style="text-transform:none">Дата</b>
+        <b flex ng-repeat="name in nameOfParams">{{name}}</b>
+        <b flex="10"></b>
+    </div>
+    <div layout="row" layout-padding ng-repeat="row in params | orderBy:'date'" style="text-align:center;border-bottom:1px solid #ddd">
+        <div flex="20">{{row.date | date:'HH:mm:ss/dd-MM-yy'}}</div>
+        <div flex ng-repeat="name in nameOfParams">{{row[name] | number:3 }}<span ng-if="row[name]==null">–</span></div>
+        <div flex="10"></div>
     </div>
 </md-list>

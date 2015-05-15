@@ -803,6 +803,24 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   };
 });
 
+moduleCtrl.controller('TableController', function($scope, $routeParams, Table) {
+  $scope.lazyShow = false;
+  $scope.sensor = {
+    name: ''
+  };
+  $scope.params = [];
+  $scope.nameOfParams = [];
+  Table.list($scope, $routeParams.sensId);
+  return $(function() {
+    var w;
+    w = $(window);
+    $('.index-md-content').height(w.height() - 64);
+    return w.resize(function() {
+      return $('.index-md-content').height(w.height() - 64);
+    });
+  });
+});
+
 moduleService.service('List', function(DB) {
   this.list = function($scope, objId) {
     var exp;
@@ -1437,18 +1455,65 @@ moduleService.service('Sens', function(DB, $window) {
   };
 });
 
-moduleCtrl.controller('TableController', function($scope, $routeParams, Table) {
-  $scope.lazyShow = false;
-  return $(function() {
-    var w;
-    w = $(window);
-    $('.index-md-content').height(w.height() - 64);
-    return w.resize(function() {
-      return $('.index-md-content').height(w.height() - 64);
-    });
-  });
-});
-
 moduleService.service('Table', function(DB) {
-  this.list = function($scope) {};
+  this.list = function($scope, sensorId) {
+    return DB.Sensor.findBy(persistence, null, 'id', sensorId, function(sens) {
+      var arr;
+      arr = {
+        name: sens.name,
+        key: JSON.parse(sens.key)
+      };
+      sens.fetch('map', function(map) {
+        return arr.map = map;
+      });
+      sens.fetch('obj', function(obj) {
+        return arr.obj = obj;
+      });
+      sens.fetch('category', function(cat) {
+        return arr.cat = cat;
+      });
+      sens.graphs.list(function(graphs) {
+        if (graphs.length) {
+          graphs.forEach(function(graph, ind) {
+            var ar1, ar2, arrParams, el1, el2, i, j, k, params, v, _i, _j, _k, _len, _len1, _len2;
+            params = JSON.parse(graph.params);
+            arrParams = [];
+            for (k in params) {
+              v = params[k];
+              arrParams.push({
+                name: k,
+                val: v,
+                "eval": ''
+              });
+            }
+            ar2 = Object.keys(params);
+            ar1 = $scope.nameOfParams;
+            for (i = _i = 0, _len = ar1.length; _i < _len; i = ++_i) {
+              el1 = ar1[i];
+              for (j = _j = 0, _len1 = ar2.length; _j < _len1; j = ++_j) {
+                el2 = ar2[j];
+                if (el1 !== el2) {
+                  continue;
+                }
+                ar2.splice(j, 1);
+              }
+            }
+            for (_k = 0, _len2 = ar2.length; _k < _len2; _k++) {
+              i = ar2[_k];
+              $scope.nameOfParams.push(i);
+            }
+            params.date = graph.date;
+            return $scope.params.push(params);
+          });
+        }
+        return persistence.flush(function() {
+          return $scope.$apply();
+        });
+      });
+      return persistence.flush(function() {
+        $scope.sensor = arr;
+        return $scope.$apply();
+      });
+    });
+  };
 });

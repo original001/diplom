@@ -1,5 +1,12 @@
 moduleCtrl.controller 'TableController', ($scope, $routeParams, Table) ->
 		$scope.lazyShow = false
+		$scope.sensor =
+			name: ''
+
+		$scope.params = []
+		$scope.nameOfParams = []
+
+		Table.list $scope, $routeParams.sensId
 
 		$ ->
 			w = $ window
