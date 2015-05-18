@@ -803,7 +803,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   };
 });
 
-moduleCtrl.controller('TableController', function($scope, $routeParams, Table) {
+moduleCtrl.controller('TableController', function($scope, $routeParams, Table, $mdDialog) {
   $scope.lazyShow = false;
   $scope.sensor = {
     name: ''
@@ -811,7 +811,7 @@ moduleCtrl.controller('TableController', function($scope, $routeParams, Table) {
   $scope.params = [];
   $scope.nameOfParams = [];
   Table.list($scope, $routeParams.sensId);
-  return $(function() {
+  $(function() {
     var w;
     w = $(window);
     $('.index-md-content').height(w.height() - 64);
@@ -819,6 +819,66 @@ moduleCtrl.controller('TableController', function($scope, $routeParams, Table) {
       return $('.index-md-content').height(w.height() - 64);
     });
   });
+  $scope.setName = function(e) {
+    return $mdDialog.show({
+      controller: DialogController,
+      templateUrl: 'view/dialog-add.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      console.log(answer);
+      return $scope.exportTable(answer);
+    });
+  };
+  $scope.alert = function(e, title, content) {
+    if (title == null) {
+      title = '';
+    }
+    if (content == null) {
+      content = '';
+    }
+    return $mdDialog.show($mdDialog.alert().parent(angular.element(document.body)).title(title).content(content).ariaLabel('Alert Dialog').ok('ОК').targetEvent(e));
+  };
+  return $scope.exportTable = function(name) {
+    var downloadFile, encodedHtmlStr, fail, html, htmlData, htmlStr, onGetFileSuccess, onRequestFileSystemSuccess, serializer;
+    html = document.getElementById('table');
+    serializer = new XMLSerializer();
+    htmlStr = serializer.serializeToString(html);
+    encodedHtmlStr = unescape(encodeURIComponent(htmlStr));
+    htmlData = btoa(encodedHtmlStr);
+    console.log(htmlData);
+    downloadFile = function() {
+      console.log('downloadFile');
+      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onRequestFileSystemSuccess, fail);
+    };
+    onRequestFileSystemSuccess = function(fileSystem) {
+      console.log('onRequestFileSystemSuccess');
+      return fileSystem.root.getFile('/storage/emulated/0/Download/table.html', {
+        create: true,
+        exclusive: false
+      }, onGetFileSuccess, fail);
+    };
+    onGetFileSuccess = function(fileEntry) {
+      var fileTransfer, path;
+      console.log('onGetFileSuccess!');
+      path = fileEntry.toURL().replace('table.html', '');
+      fileTransfer = new FileTransfer();
+      fileEntry.remove();
+      return fileTransfer.download("data:text/html;base64," + htmlData, path + ("" + name + ".html"), function(file) {
+        return $scope.alert(null, 'График успешно загружен', "Файл находится в папке Download, имя файла - " + name + ".html");
+      }, function(error) {
+        return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + error.code + ", объект загрузки – " + error.target);
+      });
+    };
+    fail = function(evt) {
+      return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + evt.target.error.code);
+    };
+    if (cordovaApp.isReady) {
+      console.log('ready and fire function');
+      return downloadFile();
+    } else {
+      return $scope.alert(null, 'Oшибка!', "cordova.js не загружен");
+    }
+  };
 });
 
 moduleService.service('List', function(DB) {

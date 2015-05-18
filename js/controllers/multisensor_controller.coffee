@@ -217,9 +217,3 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 		else 
             $scope.alert null, 'Oшибка!', "cordova.js не загружен"
 
-	# MultiSensDialogController = ($scope, $mdDialog) ->
-	# 	$scope.cancel = ->
-	# 		do $mdDialog.cancel
-	# 	$scope.answer = (answer) ->
-	# 		$mdDialog.hide answer
-

@@ -1,23 +1,56 @@
-<md-list>
-    <div layout="column" layout-padding>
-        <div><b>Объект: </b><span>{{sensor.obj.name}}</span></div>
-        <div><b>Карта: </b><span>{{sensor.map.name}}</span></div>
-        <div><b>Датчик: </b><span>{{sensor.name}}</span></div>
-        <div style="padding-right:60px"><b>Параметры: </b><span ng-repeat="key in sensor.key">{{key.name}} = {{key.val}} {{key.eval}}<span ng-if="!$last">, </span></span></div>
-    </div>
+<div id="table">
+<style type="text/css">
+    #table {
+    padding: 10px;
+    }
+    .export-table th {
+        background: #ddd;
+        padding: 10px;
+    }
+    .export-table {
+        border-collapse: collapse;
+        margin-top: 20px;
+        width: 100%;
+        text-align: center;
+    }
+    .export-table td {
+        padding: 10px 10px 10px 0;
+    }
+    .export-table th:first-child {
+        text-align: left;
+    }
+    .export-table tr {
+        border-bottom: 1px solid #ddd;
+    }
+    .export-table th {
+        text-transform: uppercase;
+    }
+    .export-table td:first-child {
+        text-align: left;
+        width: 150px;
+    }
+</style>
+    <div><b>Объект: </b><span>{{sensor.obj.name}}</span></div>
+    <div><b>Карта: </b><span>{{sensor.map.name}}</span></div>
+    <div><b>Датчик: </b><span>{{sensor.name}}</span></div>
+    <div style="padding-right:60px"><b>Параметры: </b><span ng-repeat="key in sensor.key">{{key.name}} = {{key.val}} {{key.eval}}<span ng-if="!$last">, </span></span></div>
+    <table class="export-table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th ng-repeat="name in nameOfParams">{{name}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="row in params | orderBy:'date'">
+                <td>{{row.date | date:'HH:mm:ss/dd-MM-yy'}}</td>
+                <td ng-repeat="name in nameOfParams">{{row[name] | number:3 }}<span ng-if="row[name]==null">–</span></td>
+            </tr>
+        </tbody>
+    </table>
     <div layout="row" layout-padding>
         <!-- ABS BUTTON GROUP -->
-        <md-button class="md-fab md-mini md-button md-default-theme button-custom button-print" aria-label="button"></md-button>
+        <md-button ng-click="setName($event)" class="md-fab md-mini md-button md-default-theme button-custom button-print" aria-label="button"></md-button>
         <!-- ABS BUTTON GROUP -->
     </div>
-    <div layout="row" layout-padding style="text-align:center;background: #eee;text-transform:uppercase">
-        <b flex="20" style="text-transform:none">Дата</b>
-        <b flex ng-repeat="name in nameOfParams">{{name}}</b>
-        <b flex="10"></b>
-    </div>
-    <div layout="row" layout-padding ng-repeat="row in params | orderBy:'date'" style="text-align:center;border-bottom:1px solid #ddd">
-        <div flex="20">{{row.date | date:'HH:mm:ss/dd-MM-yy'}}</div>
-        <div flex ng-repeat="name in nameOfParams">{{row[name] | number:3 }}<span ng-if="row[name]==null">–</span></div>
-        <div flex="10"></div>
-    </div>
-</md-list>
+</div>
