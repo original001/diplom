@@ -38,13 +38,14 @@ moduleCtrl.controller 'TableController', ($scope, $routeParams, Table, $mdDialog
 
 	$scope.exportTable = (name) ->
 		html = document.getElementById 'table'
-
-		serializer = new XMLSerializer()
-		htmlStr = serializer.serializeToString(html)
-		encodedHtmlStr = unescape(encodeURIComponent(htmlStr))
-		htmlData = btoa(encodedHtmlStr)
-
-		console.log htmlData
+			.innerHTML
+		html = html.replace(/\s{2,}/g, '')
+           .replace(/%/g, '%25')  
+           .replace(/&/g, '%26')  
+           .replace(/#/g, '%23')  
+           .replace(/"/g, '%22')  
+           .replace(/'/g, '%27') 
+		html = '<!DOCTYPE html><html><head><meta charset="utf-8" /></head><body>' + html + '</body></html>'
 
 		downloadFile = () ->
             console.log('downloadFile')
@@ -69,7 +70,7 @@ moduleCtrl.controller 'TableController', ($scope, $routeParams, Table, $mdDialog
             fileEntry.remove()
             
             fileTransfer.download(
-                "data:text/html;base64," + htmlData,
+                "data:text/html," + html,
                 path + "#{name}.html",
                 (file) ->
                     $scope.alert null, 'График успешно загружен', "Файл находится в папке Download, имя файла - #{name}.html"

@@ -139,7 +139,7 @@ moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParam
 
 moduleCtrl.controller('MainController', function($scope, $routeParams, Main, $mdDialog) {
   $scope.lists = [];
-  $scope.lazyShow = true;
+  $scope.lazyShow = false;
   $scope.colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075'];
   $(function() {
     var w;
@@ -839,13 +839,10 @@ moduleCtrl.controller('TableController', function($scope, $routeParams, Table, $
     return $mdDialog.show($mdDialog.alert().parent(angular.element(document.body)).title(title).content(content).ariaLabel('Alert Dialog').ok('ОК').targetEvent(e));
   };
   return $scope.exportTable = function(name) {
-    var downloadFile, encodedHtmlStr, fail, html, htmlData, htmlStr, onGetFileSuccess, onRequestFileSystemSuccess, serializer;
-    html = document.getElementById('table');
-    serializer = new XMLSerializer();
-    htmlStr = serializer.serializeToString(html);
-    encodedHtmlStr = unescape(encodeURIComponent(htmlStr));
-    htmlData = btoa(encodedHtmlStr);
-    console.log(htmlData);
+    var downloadFile, fail, html, onGetFileSuccess, onRequestFileSystemSuccess;
+    html = document.getElementById('table').innerHTML;
+    html = html.replace(/\s{2,}/g, '').replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g, '%23').replace(/"/g, '%22').replace(/'/g, '%27');
+    html = '<!DOCTYPE html><html><head><meta charset="utf-8" /></head><body>' + html + '</body></html>';
     downloadFile = function() {
       console.log('downloadFile');
       return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onRequestFileSystemSuccess, fail);
@@ -863,7 +860,7 @@ moduleCtrl.controller('TableController', function($scope, $routeParams, Table, $
       path = fileEntry.toURL().replace('table.html', '');
       fileTransfer = new FileTransfer();
       fileEntry.remove();
-      return fileTransfer.download("data:text/html;base64," + htmlData, path + ("" + name + ".html"), function(file) {
+      return fileTransfer.download("data:text/html," + html, path + ("" + name + ".html"), function(file) {
         return $scope.alert(null, 'График успешно загружен', "Файл находится в папке Download, имя файла - " + name + ".html");
       }, function(error) {
         return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + error.code + ", объект загрузки – " + error.target);
