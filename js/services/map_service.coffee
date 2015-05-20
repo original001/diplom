@@ -103,8 +103,7 @@ moduleService
 					exp.obj.sensors.add(s)
 					exp.map.sensors.add(s)
 
-					# логика работы для сенсора СИТИС
-
+					# логика работы для тензометра СИТИС
 					if exp.type.ui == 1 
 						s.key = 
 							JSON.stringify [
@@ -112,13 +111,108 @@ moduleService
 								val: 1
 								eval: ''
 							,
-								name: 'a'
+								name: 'α'
 								val: 12
 								eval: 'микрострейн'
 							,
-								name: 'b'
+								name: 'ß'
 								val: 10.5
 								eval: 'микрострейн'
+							,
+								name: 'T0'
+								val: 1
+								eval: '˚C'
+							]
+
+				# логика работы для тензометра C-Sensor
+					if exp.type.ui == 2 
+						s.key = 
+							JSON.stringify [
+								name: 'ТСк'
+								val: 12.2
+								eval: 'με/˚С'
+							,
+								name: 'TCд'
+								val: 12.2
+								eval: 'με/˚С'
+							,
+								name: 'F0'
+								val: 1
+								eval: 'Гц'
+							,
+								name: 'T0'
+								val: 1
+								eval: '˚C'
+							]
+
+					# Струнный датчик давления CS-05 (C-Sensor)
+					if exp.type.ui == 3 
+						s.key = 
+							JSON.stringify [
+								name: 'A'
+								val: 3.65 * Math.pow 10, -12
+								eval: ''
+							,
+								name: 'B'
+								val: 8.67 * Math.pow 10, -8
+								eval: ''
+							,
+								name: 'C'
+								val:  -2.78563 * Math.pow 10, -4
+								eval: ''
+							,
+								name: 'D'
+								val: 6.22362
+								eval: ''
+							,
+								name: 'k'
+								val: -0.002 
+								eval: 'кг·˚С/см2'
+							,
+								name: 'S0'
+								val: 1.020 
+								eval: 'кг/см2'
+							,
+								name: 'S1'
+								val: 1.001 
+								eval: 'кг/см2'
+							,
+								name: 'T0'
+								val: 1 
+								eval: '˚C'
+							,
+								name: 'P0'
+								val: 1 
+								eval: 'кг/см2'
+							]
+
+					# Струнный датчик давления Спрут 1.06 (СИТИС)		
+					if exp.type.ui == 4 
+						s.key = 
+							JSON.stringify [
+								name: 'A'
+								val: 1
+								eval: ''
+							,
+								name: 'B'
+								val: 1
+								eval: ''
+							,
+								name: 'α'
+								val: 1
+								eval: ''
+							,
+								name: 'B0'
+								val: 1
+								eval: ''
+							,
+								name: 'B1'
+								val: 1
+								eval: ''
+							,
+								name: 'T0'
+								val: 1
+								eval: ''
 							]
 							
 					persistence.flush ->
@@ -135,11 +229,11 @@ moduleService
 									color: colors[exp.type.color]
 								do $scope.$apply
 
-		@addCat = (nameCat, color, ui) ->
+		@addCat = (nameCat = ui.name, color, ui) ->
 			c = new DB.SensCat
 			c.name = nameCat
 			c.color = color
-			c.ui = ui
+			c.ui = ui.id
 			persistence.add c
 			persistence.flush ->
 				console.log "sensor #{c.name} added with color #{color} and ui number #{ui}!"

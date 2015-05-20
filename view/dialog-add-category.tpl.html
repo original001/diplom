@@ -3,16 +3,16 @@
         <md-content>
             <md-input-container>
                 <label>Новое имя</label>
-                <input name="renameObj" ng-model="cat.name" ng-required="true">
+                <input name="renameObj" ng-model="cat.name">
             </md-input-container>
             <md-input-container>
-                <md-select placeholder="Выберите цвет" ng-model="cat.color">
+                <md-select placeholder="Выберите цвет" ng-model="cat.color" ng-required="true">
                     <md-option ng-repeat="color in colors" ng-value="$index">{{color}}<i class="sensor-mark" style="background:{{color}}"></i></md-option>
                 </md-select>
             </md-input-container>
             <md-input-container>
-                <md-select placeholder="Выберите логику работы" ng-model="cat.ui">
-                    <md-option ng-repeat="num in UI" ng-value="num.id">{{num.name}}</md-option>
+                <md-select placeholder="Выберите логику работы" ng-model="cat.ui" ng-required="true">
+                    <md-option ng-repeat="num in UI" ng-value="num">{{num.name}}</md-option>
                 </md-select>
             </md-input-container>
         </md-content>
@@ -23,7 +23,7 @@
                 name: cat.name,
                 color:cat.color,
                 ui:cat.ui
-            })">Изменить</md-button>
+            })">Добавить</md-button>
         </div>
     </form>
 </md-dialog>

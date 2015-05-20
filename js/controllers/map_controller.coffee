@@ -18,10 +18,10 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 		name:'Транзистор C-Sensor'
 		id:2
 	,
-		name:'Датчик давления'
+		name:'Датчик давления C-Sensor'
 		id:3
 	,
-		name:'Деформационная марка'
+		name:'Датчик давления СИТИС'
 		id:4
 	,
 		name:'Стандартная'

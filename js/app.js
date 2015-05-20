@@ -32,7 +32,7 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   Obj: persistence.define('Obj', {
     name: "TEXT"
   }),
-  SensCat: persistence.define('SensCat4', {
+  SensCat: persistence.define('SensCat5', {
     name: "TEXT",
     ui: "INT",
     color: "INT"
@@ -223,10 +223,10 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
       name: 'Транзистор C-Sensor',
       id: 2
     }, {
-      name: 'Датчик давления',
+      name: 'Датчик давления C-Sensor',
       id: 3
     }, {
-      name: 'Деформационная марка',
+      name: 'Датчик давления СИТИС',
       id: 4
     }, {
       name: 'Стандартная',
@@ -667,21 +667,34 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       templateUrl: 'view/dialog-add-graph.tpl.html',
       targetEvent: e
     }).then(function(answer) {
-      var i, k, params, v, _i, _len, _ref, _ref1, _ref2, _ref3, _ref4;
+      var A, B, B0, B1, C, D, F, F0, P, P0, Pb, Pt, R1, S0, S1, T, T0, T1, TCd, TCk, a, b, dme, i, k, me, params, v, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
       switch ($routeParams.ui) {
         case '1':
           _ref = $scope.keys;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             i = _ref[_i];
-            if (i.name === 'K') {
-              k = i.val;
+            switch (i.name) {
+              case 'K':
+                k = i.val;
+                break;
+              case 'α':
+                a = i.val;
+                break;
+              case 'ß':
+                b = i.val;
+                break;
+              case 'T0':
+                T0 = i.val;
             }
           }
           params = {};
           if (answer.params.f != null) {
-            params.f = answer.params.f;
-            params.me = params.f * params.f * 0.001 * k * 4.479;
-            params.g = params.me * 210 * 0.001;
+            F = params.f = answer.params.f;
+            T = params.t = answer.params.t;
+            me = params.me = Math.pow(F, 2) * 0.001 * k * 4.479;
+            dme = params.dme = me + (T - T0) * (a - b);
+            params.g = me * 210 * 0.001;
+            params.dg = dme * 210 * 0.001;
           }
           _ref1 = answer.params;
           for (k in _ref1) {
@@ -692,38 +705,125 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
           }
           break;
         case '2':
+          _ref2 = $scope.keys;
+          for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+            i = _ref2[_j];
+            switch (i.name) {
+              case 'ТСк':
+                TCk = i.val;
+                break;
+              case 'TCд':
+                TCd = i.val;
+                break;
+              case 'F0':
+                F0 = i.val;
+                break;
+              case 'T0':
+                T0 = i.val;
+            }
+          }
           params = {};
           if (answer.params.f != null) {
-            params.f = answer.params.f;
-            params.me = params.f * 5;
-            params.g = params.f * 10;
+            F = params.f = answer.params.f;
+            T = params.t = answer.params.t;
+            me = params.me = Math.pow(F, 2) * 0.001 * 4.062;
+            dme = params.dme = Math.pow(F - F0, 2) * 4.062 / 1000 - (TCk - TCd) * (T - T0);
+            params.g = me * 210 * 0.001;
+            params.dg = dme * 210 * 0.001;
           }
-          _ref2 = answer.params;
-          for (k in _ref2) {
-            v = _ref2[k];
+          _ref3 = answer.params;
+          for (k in _ref3) {
+            v = _ref3[k];
             if (k !== 'f') {
               params[k] = v;
             }
           }
           break;
         case '3':
-          params = answer.params;
+          _ref4 = $scope.keys;
+          for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
+            i = _ref4[_k];
+            switch (i.name) {
+              case 'A':
+                A = i.val;
+                break;
+              case 'B':
+                B = i.val;
+                break;
+              case 'C':
+                C = i.val;
+                break;
+              case 'D':
+                D = i.val;
+                break;
+              case 'S0':
+                S0 = i.val;
+                break;
+              case 'S1':
+                S1 = i.val;
+                break;
+              case 'T0':
+                T0 = i.val;
+                break;
+              case 'P0':
+                P0 = i.val;
+                break;
+              case 'k':
+                k = i.val;
+            }
+          }
+          params = {};
+          if (answer.params.f != null) {
+            T1 = params.t = answer.params.t;
+            params.f = answer.params.f;
+            R1 = Math.pow(params.f, 2) / 1000;
+            P = A * Math.pow(R1, 3) + B * Math.pow(R1, 2) + C * R1 + D + k * (T1 - T0) - (S1 - S0);
+            params.dP = P0 - P;
+          }
+          _ref5 = answer.params;
+          for (k in _ref5) {
+            v = _ref5[k];
+            if (k !== 'f') {
+              params[k] = v;
+            }
+          }
           break;
         case '4':
+          _ref6 = $scope.keys;
+          for (_l = 0, _len3 = _ref6.length; _l < _len3; _l++) {
+            i = _ref6[_l];
+            switch (i.name) {
+              case 'A':
+                A = i.val;
+                break;
+              case 'B':
+                B = i.val;
+                break;
+              case 'α':
+                a = i.val;
+                break;
+              case 'B0':
+                B0 = i.val;
+                break;
+              case 'B1':
+                B1 = i.val;
+                break;
+              case 'T0':
+                T0 = i.val;
+            }
+          }
           params = {};
-          if (answer.params.x) {
-            params.dx = answer.params.x;
+          if (answer.params.f != null) {
+            T1 = params.t = answer.params.t;
+            Pt = a * (T1 - T0);
+            Pb = B - B0;
+            params.f = answer.params.f;
+            params.dP = P - P0 + Pt - (Pb = (A * Math.pow(F, 4) * 10 - 6 + B * F * F / 1000) - (A * Math.pow(F0, 4) * Math.pow(10, -6) + B * Math.pow(F0, 2) / 1000) + a * (T - T0) - (B - B0) * 0.133322);
           }
-          if (answer.params.y) {
-            params.dy = answer.params.y;
-          }
-          if (answer.params.z) {
-            params.dz = answer.params.z;
-          }
-          _ref3 = answer.params;
-          for (k in _ref3) {
-            v = _ref3[k];
-            if (k !== 'x' && k !== 'y' && k !== 'z') {
+          _ref7 = answer.params;
+          for (k in _ref7) {
+            v = _ref7[k];
+            if (k !== 'f') {
               params[k] = v;
             }
           }
@@ -734,9 +834,9 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
             params.f = answer.params.f;
             params.me = params.f * 5;
           }
-          _ref4 = answer.params;
-          for (k in _ref4) {
-            v = _ref4[k];
+          _ref8 = answer.params;
+          for (k in _ref8) {
+            v = _ref8[k];
             if (k !== 'f') {
               params[k] = v;
             }
@@ -748,20 +848,20 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   Sens.list($scope, $routeParams.sensId);
   switch ($routeParams.ui) {
     case '1':
-      $scope.params = ['f', 'me', 'g'];
-      $scope.addingParams = ['f'];
+      $scope.params = ['f', 'me', 'dme', 'g', 'dg', 't'];
+      $scope.addingParams = ['f', 't'];
       break;
     case '2':
-      $scope.params = ['f', 'me', 'g'];
-      $scope.addingParams = ['f'];
+      $scope.params = ['f', 'me', 'dme', 'g', 'dg', 't'];
+      $scope.addingParams = ['f', 't'];
       break;
     case '3':
-      $scope.params = [];
-      $scope.addingParams = [];
+      $scope.params = ['f', 'dP', 't'];
+      $scope.addingParams = ['f', 't'];
       break;
     case '4':
-      $scope.params = ['dx', 'dy', 'dz'];
-      $scope.addingParams = ['x', 'y', 'z'];
+      $scope.params = ['f', 'dP', 't'];
+      $scope.addingParams = ['f', 't'];
       break;
     default:
       $scope.params = ['f', 'me'];
@@ -1215,13 +1315,108 @@ moduleService.service('Map', function(DB) {
               val: 1,
               "eval": ''
             }, {
-              name: 'a',
+              name: 'α',
               val: 12,
               "eval": 'микрострейн'
             }, {
-              name: 'b',
+              name: 'ß',
               val: 10.5,
               "eval": 'микрострейн'
+            }, {
+              name: 'T0',
+              val: 1,
+              "eval": '˚C'
+            }
+          ]);
+        }
+        if (exp.type.ui === 2) {
+          s.key = JSON.stringify([
+            {
+              name: 'ТСк',
+              val: 12.2,
+              "eval": 'με/˚С'
+            }, {
+              name: 'TCд',
+              val: 12.2,
+              "eval": 'με/˚С'
+            }, {
+              name: 'F0',
+              val: 1,
+              "eval": 'Гц'
+            }, {
+              name: 'T0',
+              val: 1,
+              "eval": '˚C'
+            }
+          ]);
+        }
+        if (exp.type.ui === 3) {
+          s.key = JSON.stringify([
+            {
+              name: 'A',
+              val: 3.65 * Math.pow(10, -12),
+              "eval": ''
+            }, {
+              name: 'B',
+              val: 8.67 * Math.pow(10, -8),
+              "eval": ''
+            }, {
+              name: 'C',
+              val: -2.78563 * Math.pow(10, -4),
+              "eval": ''
+            }, {
+              name: 'D',
+              val: 6.22362,
+              "eval": ''
+            }, {
+              name: 'k',
+              val: -0.002,
+              "eval": 'кг·˚С/см2'
+            }, {
+              name: 'S0',
+              val: 1.020,
+              "eval": 'кг/см2'
+            }, {
+              name: 'S1',
+              val: 1.001,
+              "eval": 'кг/см2'
+            }, {
+              name: 'T0',
+              val: 1,
+              "eval": '˚C'
+            }, {
+              name: 'P0',
+              val: 1,
+              "eval": 'кг/см2'
+            }
+          ]);
+        }
+        if (exp.type.ui === 4) {
+          s.key = JSON.stringify([
+            {
+              name: 'A',
+              val: 1,
+              "eval": ''
+            }, {
+              name: 'B',
+              val: 1,
+              "eval": ''
+            }, {
+              name: 'α',
+              val: 1,
+              "eval": ''
+            }, {
+              name: 'B0',
+              val: 1,
+              "eval": ''
+            }, {
+              name: 'B1',
+              val: 1,
+              "eval": ''
+            }, {
+              name: 'T0',
+              val: 1,
+              "eval": ''
             }
           ]);
         }
@@ -1250,10 +1445,13 @@ moduleService.service('Map', function(DB) {
   };
   this.addCat = function(nameCat, color, ui) {
     var c;
+    if (nameCat == null) {
+      nameCat = ui.name;
+    }
     c = new DB.SensCat;
     c.name = nameCat;
     c.color = color;
-    c.ui = ui;
+    c.ui = ui.id;
     persistence.add(c);
     return persistence.flush(function() {
       return console.log("sensor " + c.name + " added with color " + color + " and ui number " + ui + "!");

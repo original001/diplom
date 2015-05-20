@@ -115,5 +115,6 @@ moduleService
 		@loadKeySens = (sensId, $scope) ->
 			DB.Sensor.findBy persistence, null, 'id',sensId,(sens)->
 				$scope.keys = JSON.parse sens.key if sens
+				# if {}.keys($scope.keys).length > 4
 
 		return

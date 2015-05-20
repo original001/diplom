@@ -142,38 +142,94 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			templateUrl: 'view/dialog-add-graph.tpl.html'
 			targetEvent: e
 		.then (answer) ->
+			# работа с формулами (константы для датчиков устанавливаются в файле map_service.coffee)
 			switch $routeParams.ui
 
-				# логика работы для сенсора СИТИС
+				# логика работы для тензометра СИТИС
 				when '1' 
-					for i in $scope.keys when i.name == 'K'
-						k = i.val
+					for i in $scope.keys
+						switch i.name
+							when 'K' then k = i.val
+							when 'α' then a = i.val
+							when 'ß' then b = i.val
+							when 'T0' then T0 = i.val
 					params = {}
 					if answer.params.f?
-						params.f = answer.params.f
-						params.me = params.f * params.f * 0.001 * k * 4.479 # K & G
-						params.g = params.me * 210 * 0.001
+						F = params.f = answer.params.f
+						T = params.t = answer.params.t 
+						me = params.me = Math.pow(F,2) * 0.001 * k * 4.479 # K & G
+						dme = params.dme = me + (T-T0)*(a-b)
+						params.g = me * 210 * 0.001
+						params.dg = dme * 210 * 0.001
 					for k, v of answer.params when k != 'f'
 						params[k] = v	
 
+				# логика работы для тензометра C-Sensor
 				when '2' 
+					for i in $scope.keys
+						switch i.name
+							when 'ТСк' then TCk = i.val
+							when 'TCд' then TCd = i.val
+							when 'F0' then F0 = i.val
+							when 'T0' then T0 = i.val
 					params = {}
 					if answer.params.f?
-						params.f = answer.params.f
-						params.me = params.f * 5
-						params.g = params.f * 10
+						F = params.f = answer.params.f
+						T = params.t = answer.params.t 
+						me = params.me = Math.pow(F,2) * 0.001 * 4.062
+						dme = params.dme = Math.pow((F-F0),2)*4.062/1000-(TCk-TCd)*(T-T0)
+						params.g = me * 210 * 0.001
+						params.dg = dme * 210 * 0.001
 					for k, v of answer.params when k != 'f'
 						params[k] = v	
+
+
+				# Струнный датчик давления CS-05 (C-Sensor)
 				when '3' 
-					params = answer.params
-				when '4' 
+					for i in $scope.keys
+						switch i.name
+							when 'A' then A = i.val
+							when 'B' then B = i.val
+							when 'C' then C = i.val
+							when 'D' then D = i.val
+							when 'S0' then S0 = i.val
+							when 'S1' then S1 = i.val
+							when 'T0' then T0 = i.val
+							when 'P0' then P0 = i.val
+							when 'k' then k = i.val
 					params = {}
-					params.dx = answer.params.x if answer.params.x 
-					params.dy = answer.params.y if answer.params.y 
-					params.dz = answer.params.z if answer.params.z 
-					for k, v of answer.params when k != 'x' && k != 'y' && k != 'z'
+					if answer.params.f?
+						T1 = params.t = answer.params.t 
+						params.f = answer.params.f
+						R1 = Math.pow(params.f,2)/1000
+						P = A*Math.pow(R1,3)+B*Math.pow(R1,2)+C*(R1)+D+k*(T1-T0)-(S1-S0)
+						params.dP = P0 - P
+
+					for k, v of answer.params when k != 'f' # для дополнительных параметров
+						params[k] = v	
+
+				# Струнный датчик давления Спрут 1.06 (СИТИС)		
+				when '4' 
+					for i in $scope.keys
+						switch i.name
+							when 'A' then A = i.val
+							when 'B' then B = i.val
+							when 'α' then a = i.val
+							when 'B0' then B0 = i.val
+							when 'B1' then B1 = i.val
+							when 'T0' then T0 = i.val
+					params = {}
+					if answer.params.f?
+						T1 = params.t = answer.params.t 
+						Pt = a*(T1-T0)
+						Pb = B - B0
+						params.f = answer.params.f
+						params.dP = P-P0+Pt-Pb=(A*Math.pow(F,4)*10-6+B*F*F/1000)- (A*Math.pow(F0,4)*Math.pow(10,-6)+B*Math.pow(F0,2)/1000)+a*(T-T0)-(B-B0)*0.133322  
+
+					for k, v of answer.params when k != 'f' # для дополнительных параметров
 						params[k] = v	
 					
+				# Стандартная логика работы	
 				else 
 					params = {}
 					if answer.params.f?
@@ -181,23 +237,24 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 						params.me = params.f * 5
 					for k, v of answer.params when k != 'f'
 						params[k] = v	
+
 			Sens.addGraph answer.date, params, $scope, $routeParams.sensId
 
 	Sens.list $scope, $routeParams.sensId
 
 	switch $routeParams.ui
 		when '1' 
-			$scope.params = ['f','me','g']
-			$scope.addingParams = ['f']
+			$scope.params = ['f','me','dme','g','dg','t']
+			$scope.addingParams = ['f','t']
 		when '2' 
-			$scope.params = ['f','me','g']
-			$scope.addingParams = ['f']
+			$scope.params = ['f','me','dme','g','dg','t']
+			$scope.addingParams = ['f','t']
 		when '3' 
-			$scope.params = []
-			$scope.addingParams = []
+			$scope.params = ['f','dP','t']
+			$scope.addingParams = ['f','t']
 		when '4' 
-			$scope.params = ['dx','dy','dz']
-			$scope.addingParams = ['x','y','z']
+			$scope.params = ['f','dP','t']
+			$scope.addingParams = ['f','t']
 		else 
 			$scope.params = ['f','me']
 			$scope.addingParams = ['f']

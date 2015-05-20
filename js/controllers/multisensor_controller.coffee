@@ -2,18 +2,6 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 	# $scope.sensors = [
 	# 	id: "9024951B3FCE4B718A8420ABC9F9BEE7"
 	# 	name: "sensor1"
-	# ,
-	# 	id: "AD381C763FD842D289D0237FA6D34577"
-	# 	name: "sensor2"
-	# ,
-	# 	id: "162D9D16B0B54750813097443EE66A31"
-	# 	name: "sensor3"
-	# ,
-	# 	id: "2E0B77BC69D84D0A8D8CFD130248DF89"
-	# 	name: "sensor4"
-	# ,
-	# 	id: "FA45173B82C146EFB8271484166021B9"
-	# 	name: "monitor"
 	# ]
 
 	$scope.sensors = $rootScope.multisensors
