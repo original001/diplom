@@ -218,6 +218,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 							when 'B0' then B0 = i.val
 							when 'B1' then B1 = i.val
 							when 'T0' then T0 = i.val
+							when 'P0' then T0 = i.val
 					params = {}
 					if answer.params.f?
 						T1 = params.t = answer.params.t 

@@ -26,10 +26,10 @@
     <script src="plugins/snap.svg/dist/snap.svg-min.js"></script>
 </head>
 
-<body ng-app="Monitor">
+<body ng-app="Monitor" ng-controller="AppController">
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <md-button class="md-icon-button" aria-label="Settings">
+            <md-button class="md-icon-button" ng-click="sidenavToggle()" aria-label="Settings">
                 <md-icon md-svg-icon="img/menu.svg" style="color:white"></md-icon>
             </md-button>
             <h2> <span>Геотехнический мониторинг</span> </h2>
@@ -39,7 +39,30 @@
     </md-toolbar>
     <md-content ng-view class="index-md-content">
     </md-content>
-
+     <!-- sidenav -->
+    <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left">
+        <md-toolbar class="md-theme-light">
+            <h2 class="md-toolbar-tools"><span>Меню</span></h2>
+            <md-button ng-click="sidenavToggle()" class="md-icon-button close-icon" aria-label="home"></md-button>
+        </md-toolbar>
+        <md-content>
+            <md-list>
+                <p></p>
+                <md-list-item>
+                    <md-button ng-disabled="true">Админ панель (в разработке)</md-button>
+                </md-list-item>
+                <md-list-item>
+                    <md-button ng-click="sidenavToggle()" ng-href="http://novaview.ru/">Сайт разработчика</md-button>
+                </md-list-item>
+                <md-list-item>
+                    <md-button ng-click="sidenavToggle()" ng-href="mailto:wertyxa@bk.ru">Написать об ошибке</md-button>
+                </md-list-item>
+                <md-list-item>
+                    <md-button ng-click="sidenavToggle()" ng-href="#/help/">Руководство программой</md-button>
+                </md-list-item>
+            </md-list>
+        </md-content>
+    </md-sidenav>
     <script src="plugins/sqllite/SQLitePlugin.js"></script>
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="js/app.js"></script>

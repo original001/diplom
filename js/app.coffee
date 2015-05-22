@@ -30,6 +30,8 @@ angular.module 'Monitor', [
         .when '/table/:sensId',
             templateUrl:'view/table.html'
             controller: 'TableController'
+        .when '/help/',
+            templateUrl:'view/help.html'
         $locationProvider.html5Mode
             enable: false
             requireBase: false

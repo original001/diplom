@@ -1,10 +1,10 @@
 moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,MultiSens, $window, $mdDialog) ->
-	# $scope.sensors = [
-	# 	id: "9024951B3FCE4B718A8420ABC9F9BEE7"
-	# 	name: "sensor1"
-	# ]
+	$scope.sensors = [
+		id: "6E8B9BF826B5422A962ED96B5F8BEFE9"
+		name: "sensor1"
+	]
 
-	$scope.sensors = $rootScope.multisensors
+	# $scope.sensors = $rootScope.multisensors
 	$scope.objId = $routeParams.objId
 	$scope.params = []
 	$scope.graph = []
@@ -58,16 +58,32 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 
 		ky = (maxy - miny)/(h+50)
 
+		absCeil = (number, down) ->
+			positive = if number >= 0 then true else false 
+			if Math.abs(number) >= 1
+				length = (Math.floor(number) + '').length - 1 - !positive
+			else
+				length = - (Math.floor(1/number) + '').length + !positive
+			digit = number/Math.pow 10, length
+			digit = if !down then Math.ceil digit else Math.floor digit
+			digit *= Math.pow 10, length
+
 		if maxy == miny then paper.text 8, h - 5, maxy else for i in [0..10]
-			dl = (h + 50)/10 
-			val = maxy - (maxy-miny)*i/10
-			val *= 100
+			top = 70 - (absCeil(maxy) - maxy)/ky
+			top = Math.ceil top
+			bottom = 70 + h + 50 + (miny - absCeil(miny, true))/ky
+			bottom = Math.floor bottom
+			dl = (bottom - top)/10 
+			console.log top ,bottom
+			delta = Math.abs dl*ky
+			text = ''
+
 			paper
-				.text 8, 68+i*dl, Math.round(val)/100
+				.text 8, bottom - dl*i, absCeil(miny, true) + delta*i + ''
 				.attr
 					'font-size':'12px'
 			paper
-				.path "M 0,#{70+i*dl}L #{w+10},#{70+i*dl}"
+				.path "M 0,#{top+i*dl}L #{w+10},#{top+i*dl}"
 				.attr 
 					stroke: 'rgba(0,0,0,.3)'
 					strokeWidth: 1

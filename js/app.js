@@ -23,6 +23,8 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   }).when('/table/:sensId', {
     templateUrl: 'view/table.html',
     controller: 'TableController'
+  }).when('/help/', {
+    templateUrl: 'view/help.html'
   });
   return $locationProvider.html5Mode({
     enable: false,
@@ -90,6 +92,14 @@ cordovaApp = {
 };
 
 cordovaApp.initialize();
+
+moduleCtrl.controller('AppController', function($rootScope, $scope, $window, $document, $mdSidenav, $mdUtil) {
+  return $scope.sidenavToggle = function() {
+    return $mdSidenav('left').toggle().then(function() {
+      return console.log(1);
+    });
+  };
+});
 
 moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParams, List, $window, $mdDialog) {
   $scope.objId = $routeParams.objId;
@@ -347,7 +357,12 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
 
 moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $routeParams, MultiSens, $window, $mdDialog) {
   var $g, paper, s, updatePath;
-  $scope.sensors = $rootScope.multisensors;
+  $scope.sensors = [
+    {
+      id: "6E8B9BF826B5422A962ED96B5F8BEFE9",
+      name: "sensor1"
+    }
+  ];
   $scope.objId = $routeParams.objId;
   $scope.params = [];
   $scope.graph = [];
@@ -357,7 +372,7 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
   MultiSens.list($scope, $scope.sensors, $scope.objId);
   $scope.colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075', '#7183FF', '#B8C1FF', '#FF7967', '#83E3FF'];
   updatePath = function(sensors, paramY) {
-    var arr, dl, el, getx, gety, h, i, ind, j, kx, ky, maxDate, maxy, minDate, minx, miny, num, sens, sensInd, style, times, val, w, _i, _j, _k, _l, _len, _len1, _len2, _ref, _results;
+    var absCeil, arr, bottom, delta, dl, el, getx, gety, h, i, ind, j, kx, ky, maxDate, maxy, minDate, minx, miny, num, sens, sensInd, style, text, times, top, w, _i, _j, _k, _l, _len, _len1, _len2, _ref, _results;
     paper.clear();
     style = {
       stroke: '#000'
@@ -404,17 +419,34 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
     kx = (maxDate - minDate) / w;
     minx = minDate;
     ky = (maxy - miny) / (h + 50);
+    absCeil = function(number, down) {
+      var digit, length, positive;
+      positive = number >= 0 ? true : false;
+      if (Math.abs(number) >= 1) {
+        length = (Math.floor(number) + '').length - 1 - !positive;
+      } else {
+        length = -(Math.floor(1 / number) + '').length + !positive;
+      }
+      digit = number / Math.pow(10, length);
+      digit = !down ? Math.ceil(digit) : Math.floor(digit);
+      return digit *= Math.pow(10, length);
+    };
     if (maxy === miny) {
       paper.text(8, h - 5, maxy);
     } else {
       for (i = _k = 0; _k <= 10; i = ++_k) {
-        dl = (h + 50) / 10;
-        val = maxy - (maxy - miny) * i / 10;
-        val *= 100;
-        paper.text(8, 68 + i * dl, Math.round(val) / 100).attr({
+        top = 70 - (absCeil(maxy) - maxy) / ky;
+        top = Math.ceil(top);
+        bottom = 70 + h + 50 + (miny - absCeil(miny, true)) / ky;
+        bottom = Math.floor(bottom);
+        dl = (bottom - top) / 10;
+        console.log(top, bottom);
+        delta = Math.abs(dl * ky);
+        text = '';
+        paper.text(8, bottom - dl * i, absCeil(miny, true) + delta * i + '').attr({
           'font-size': '12px'
         });
-        paper.path("M 0," + (70 + i * dl) + "L " + (w + 10) + "," + (70 + i * dl)).attr({
+        paper.path("M 0," + (top + i * dl) + "L " + (w + 10) + "," + (top + i * dl)).attr({
           stroke: 'rgba(0,0,0,.3)',
           strokeWidth: 1
         });
@@ -809,6 +841,9 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
                 B1 = i.val;
                 break;
               case 'T0':
+                T0 = i.val;
+                break;
+              case 'P0':
                 T0 = i.val;
             }
           }
@@ -1411,6 +1446,10 @@ moduleService.service('Map', function(DB) {
               "eval": ''
             }, {
               name: 'B1',
+              val: 1,
+              "eval": ''
+            }, {
+              name: 'P0',
               val: 1,
               "eval": ''
             }, {

@@ -269,6 +269,19 @@
 	content: '\e05C';
 	font-family: 'icons';
 	font-size: 24px;
+	line-height: 44px;
+}
+.close-icon {
+	position: absolute;
+	right: 2px;
+	top: 7px;
+	float: right;
+}
+.close-icon:before {
+	content: '\e00e';
+	font-family: 'icons';
+	font-size: 24px;
+	line-height: 44px;
 }
 .linkblock {
 	color: inherit;
