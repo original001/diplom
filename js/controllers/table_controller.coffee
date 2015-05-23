@@ -5,6 +5,8 @@ moduleCtrl.controller 'TableController', ($scope, $routeParams, Table, $mdDialog
 
 	$scope.params = []
 	$scope.nameOfParams = []
+	$scope.round = (number)->
+		absCeil number, false, 4
 
 	Table.list $scope, $routeParams.sensId
 

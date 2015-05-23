@@ -44,7 +44,7 @@
         <tbody>
             <tr ng-repeat="row in params | orderBy:'date'">
                 <td>{{row.date | date:'HH:mm:ss/dd-MM-yy'}}</td>
-                <td ng-repeat="name in nameOfParams">{{row[name] | number:3 }}<span ng-if="row[name]==null">–</span></td>
+                <td ng-repeat="name in nameOfParams">{{round(row[name])}}<span ng-if="row[name]==null">–</span></td>
             </tr>
         </tbody>
     </table>

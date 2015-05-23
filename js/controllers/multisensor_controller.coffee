@@ -1,6 +1,6 @@
 moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,MultiSens, $window, $mdDialog) ->
 	$scope.sensors = [
-		id: "6E8B9BF826B5422A962ED96B5F8BEFE9"
+		id: "FCC26D4350144A16841DF2C68829C718"
 		name: "sensor1"
 	]
 
@@ -58,32 +58,18 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 
 		ky = (maxy - miny)/(h+50)
 
-		absCeil = (number, down) ->
-			positive = if number >= 0 then true else false 
-			if Math.abs(number) >= 1
-				length = (Math.floor(number) + '').length - 1 - !positive
-			else
-				length = - (Math.floor(1/number) + '').length + !positive
-			digit = number/Math.pow 10, length
-			digit = if !down then Math.ceil digit else Math.floor digit
-			digit *= Math.pow 10, length
-
 		if maxy == miny then paper.text 8, h - 5, maxy else for i in [0..10]
-			top = 70 - (absCeil(maxy) - maxy)/ky
-			top = Math.ceil top
-			bottom = 70 + h + 50 + (miny - absCeil(miny, true))/ky
-			bottom = Math.floor bottom
-			dl = (bottom - top)/10 
-			console.log top ,bottom
-			delta = Math.abs dl*ky
-			text = ''
+			delta = absCeil(maxy-miny)/10
+			dl = absCeil delta/ky, false, 3
+			console.log dl, delta
+			val = miny + delta*i
 
 			paper
-				.text 8, bottom - dl*i, absCeil(miny, true) + delta*i + ''
+				.text 8, 280-i*dl,'' + absCeil val, true, 3
 				.attr
 					'font-size':'12px'
 			paper
-				.path "M 0,#{top+i*dl}L #{w+10},#{top+i*dl}"
+				.path "M 0,#{280-i*dl}L #{w+10},#{280-i*dl}"
 				.attr 
 					stroke: 'rgba(0,0,0,.3)'
 					strokeWidth: 1

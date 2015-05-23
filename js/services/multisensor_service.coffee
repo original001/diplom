@@ -8,6 +8,8 @@ moduleService
 						l = graphs.length
 						if l > 0 then graphs.forEach (graph, ind)->
 							params = JSON.parse graph.params
+							
+							delete params.t
 
 							graphArr.push
 								date: new Date(graph.date)

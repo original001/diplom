@@ -84,7 +84,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				.circle getx(el), gety(el), 3
 				.attr
 					fill: '#CB0000'
-			paper.text getx(el) - 3 , gety(el) - 10, Math.round(el.params[paramY]*1000)/1000
+			paper.text getx(el) - 3 , gety(el) - 10, absCeil el.params[paramY], false, 4
 			paper
 				.text getx(el) - 3 , h*2, time
 				.transform 'r90,'+(getx(el)-5)+','+h*2
@@ -199,8 +199,8 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 							when 'k' then k = i.val
 					params = {}
 					if answer.params.f?
-						T1 = params.t = answer.params.t 
 						params.f = answer.params.f
+						T1 = params.t = answer.params.t 
 						R1 = Math.pow(params.f,2)/1000
 						P = A*Math.pow(R1,3)+B*Math.pow(R1,2)+C*(R1)+D+k*(T1-T0)-(S1-S0)
 						params.dP = P0 - P
@@ -221,10 +221,10 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 							when 'P0' then T0 = i.val
 					params = {}
 					if answer.params.f?
-						T1 = params.t = answer.params.t 
 						Pt = a*(T1-T0)
 						Pb = B - B0
 						params.f = answer.params.f
+						T1 = params.t = answer.params.t 
 						params.dP = P-P0+Pt-Pb=(A*Math.pow(F,4)*10-6+B*F*F/1000)- (A*Math.pow(F0,4)*Math.pow(10,-6)+B*Math.pow(F0,2)/1000)+a*(T-T0)-(B-B0)*0.133322  
 
 					for k, v of answer.params when k != 'f' # для дополнительных параметров
@@ -251,7 +251,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			$scope.params = ['f','me','dme','g','dg','t']
 			$scope.addingParams = ['f','t']
 		when '3' 
-			$scope.params = ['f','dP','t']
+			$scope.params = ['f','dP']
 			$scope.addingParams = ['f','t']
 		when '4' 
 			$scope.params = ['f','dP','t']

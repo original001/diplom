@@ -27,6 +27,8 @@ moduleService
 							date: new Date(graph.date)
 							params: params 
 
+						delete params.t
+
 						ar2 = Object.keys(params)
 						ar1 = $scope.params	
 
@@ -37,6 +39,7 @@ moduleService
 						for i in ar2		
 							$scope.params.push i
 							$scope.addingParams.push i
+
 
 						if ind == l - 1 
 							$scope.graph = graphArr
