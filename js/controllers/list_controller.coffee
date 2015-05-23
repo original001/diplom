@@ -1,11 +1,12 @@
 moduleCtrl.controller 'ListController', ($rootScope, $scope, $routeParams, List, $window, $mdDialog) ->
 	$scope.objId = $routeParams.objId
-	$scope.lazyShow = false
 	$scope.categories = []
 	$scope.checkboxMode = false
 	$scope.selected = []
 	$scope.disable = false
+	$scope.empty = false
 	
+	$scope.lazyShow = true
 	$ ->
 		w = $ window
 		$ '.index-md-content'
@@ -13,7 +14,6 @@ moduleCtrl.controller 'ListController', ($rootScope, $scope, $routeParams, List,
 		w.resize ->
 			$ '.index-md-content'
 				.height w.height() - 64
-
 
 	$scope.check = ->
 		$scope.checkboxMode = if $scope.checkboxMode then false else true

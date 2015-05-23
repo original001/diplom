@@ -5,6 +5,7 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 		sensors: []
 	]
 	$scope.mapId = 0
+
 	$scope.lazyShow = true
 	$scope.objId = $routeParams.objId
 
@@ -31,14 +32,6 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 	$rootScope.colors = $scope.colors
 	$rootScope.UI = $scope.UI
 
-	$scope.listCat = ->
-		Map.listCat $scope 
-
-	$scope.onTab = (id)->	
-		$scope.mapId = id
-
-	Map.list $scope, $routeParams.objId, $scope.colors
-
 	$ ->
 		w = $ window
 		$ '.index-md-content'
@@ -46,6 +39,14 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 		w.resize ->
 			$ '.index-md-content'
 				.height w.height() - 64
+
+	$scope.listCat = ->
+		Map.listCat $scope 
+
+	$scope.onTab = (id)->	
+		$scope.mapId = id
+
+	Map.list $scope, $routeParams.objId, $scope.colors
 
 	$scope.cancelAddPlan = ->
 		$ '.help-screen'

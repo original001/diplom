@@ -12,9 +12,12 @@ moduleService
 						id: cat.id
 						sensors: []
 			persistence.flush ->
-				if exp.obj then exp.obj.sensors.list (senses)->
-					if senses.length
-						$scope.lazyShow = true
+				exp.obj.sensors.list (senses)->
+					if !senses.length 
+						$scope.empty = true
+						$scope.lazyShow = false 
+						do $scope.$apply
+					else
 						senses.forEach (sens, ind, ar) ->
 							sens.fetch 'category', (cat) ->
 								if cat? then for i in $scope.categories

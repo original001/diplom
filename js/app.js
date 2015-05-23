@@ -111,19 +111,18 @@ absCeil = function(number, down, count, round) {
 
 moduleCtrl.controller('AppController', function($rootScope, $scope, $window, $document, $mdSidenav, $mdUtil) {
   return $scope.sidenavToggle = function() {
-    return $mdSidenav('left').toggle().then(function() {
-      return console.log(1);
-    });
+    return $mdSidenav('left').toggle();
   };
 });
 
 moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParams, List, $window, $mdDialog) {
   $scope.objId = $routeParams.objId;
-  $scope.lazyShow = false;
   $scope.categories = [];
   $scope.checkboxMode = false;
   $scope.selected = [];
   $scope.disable = false;
+  $scope.empty = false;
+  $scope.lazyShow = true;
   $(function() {
     var w;
     w = $(window);
@@ -165,7 +164,7 @@ moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParam
 
 moduleCtrl.controller('MainController', function($scope, $routeParams, Main, $mdDialog) {
   $scope.lists = [];
-  $scope.lazyShow = false;
+  $scope.lazyShow = true;
   $scope.colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075'];
   $(function() {
     var w;
@@ -261,13 +260,6 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
   ];
   $rootScope.colors = $scope.colors;
   $rootScope.UI = $scope.UI;
-  $scope.listCat = function() {
-    return Map.listCat($scope);
-  };
-  $scope.onTab = function(id) {
-    return $scope.mapId = id;
-  };
-  Map.list($scope, $routeParams.objId, $scope.colors);
   $(function() {
     var w;
     w = $(window);
@@ -276,6 +268,13 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
       return $('.index-md-content').height(w.height() - 64);
     });
   });
+  $scope.listCat = function() {
+    return Map.listCat($scope);
+  };
+  $scope.onTab = function(id) {
+    return $scope.mapId = id;
+  };
+  Map.list($scope, $routeParams.objId, $scope.colors);
   $scope.cancelAddPlan = function() {
     $('.help-screen').fadeOut(200, function() {
       return $(this).remove();
@@ -943,7 +942,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   };
 });
 
-moduleCtrl.controller('TableController', function($scope, $routeParams, Table, $mdDialog) {
+moduleCtrl.controller('TableController', function($rootScope, $scope, $routeParams, Table, $mdDialog) {
   $scope.lazyShow = false;
   $scope.sensor = {
     name: ''
@@ -1042,39 +1041,40 @@ moduleService.service('List', function(DB) {
       }
     });
     return persistence.flush(function() {
-      if (exp.obj) {
-        return exp.obj.sensors.list(function(senses) {
-          if (senses.length) {
-            $scope.lazyShow = true;
-            senses.forEach(function(sens, ind, ar) {
-              return sens.fetch('category', function(cat) {
-                var i, _i, _len, _ref, _results;
-                if (cat != null) {
-                  _ref = $scope.categories;
-                  _results = [];
-                  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                    i = _ref[_i];
-                    if (i.id === cat.id) {
-                      _results.push(i.sensors.push({
-                        name: sens.name,
-                        ui: cat.ui,
-                        id: sens.id
-                      }));
-                    } else {
-                      _results.push(void 0);
-                    }
+      return exp.obj.sensors.list(function(senses) {
+        if (!senses.length) {
+          $scope.empty = true;
+          $scope.lazyShow = false;
+          return $scope.$apply();
+        } else {
+          senses.forEach(function(sens, ind, ar) {
+            return sens.fetch('category', function(cat) {
+              var i, _i, _len, _ref, _results;
+              if (cat != null) {
+                _ref = $scope.categories;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  i = _ref[_i];
+                  if (i.id === cat.id) {
+                    _results.push(i.sensors.push({
+                      name: sens.name,
+                      ui: cat.ui,
+                      id: sens.id
+                    }));
+                  } else {
+                    _results.push(void 0);
                   }
-                  return _results;
                 }
-              });
+                return _results;
+              }
             });
-            return persistence.flush(function() {
-              $scope.lazyShow = false;
-              return $scope.$apply();
-            });
-          }
-        });
-      }
+          });
+          return persistence.flush(function() {
+            $scope.lazyShow = false;
+            return $scope.$apply();
+          });
+        }
+      });
     });
   };
 });
@@ -1083,8 +1083,9 @@ moduleService.service('Main', function(DB) {
   this.list = function($scope) {
     return DB.Obj.all().list(function(items) {
       var arr;
-      if (items.length) {
-        $scope.lazyShow = true;
+      if (!items.length) {
+        return $scope.lazyShow = false;
+      } else {
         arr = [];
         return items.forEach(function(item, ind, itemsArray) {
           var indLast;
@@ -1301,15 +1302,22 @@ moduleService.service('Map', function(DB) {
     });
   };
   this.update = function(id, newName, newImg, $scope) {
+    if (!newName && !newImg) {
+      return false;
+    }
     return DB.Maps.all().filter('id', '=', id).one(function(obj) {
-      obj.name = newName;
+      if (newName) {
+        obj.name = newName;
+      }
       if (newImg) {
         obj.img = newImg;
       }
       return persistence.flush(function() {
         return $scope.tabs.forEach(function(item, ind) {
           if (item.id === obj.id) {
-            item.name = newName;
+            if (newName) {
+              item.name = newName;
+            }
             if (newImg) {
               item.img = newImg;
             }

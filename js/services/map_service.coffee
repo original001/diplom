@@ -71,14 +71,15 @@ moduleService
 						
 
 		@update = (id, newName, newImg, $scope) ->
+			return false if !newName and !newImg
 			DB.Maps.all().filter 'id','=',id
 				.one (obj) ->
-					obj.name = newName
+					obj.name = newName if newName
 					obj.img = newImg if newImg
 					persistence.flush ->
 						$scope.tabs.forEach (item, ind) ->
 							if item.id == obj.id
-								item.name = newName
+								item.name = newName if newName
 								item.img = newImg if newImg
 								do $scope.$apply
 

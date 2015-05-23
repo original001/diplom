@@ -1,4 +1,4 @@
-moduleCtrl.controller 'TableController', ($scope, $routeParams, Table, $mdDialog) ->
+moduleCtrl.controller 'TableController', ($rootScope, $scope, $routeParams, Table, $mdDialog) ->
 	$scope.lazyShow = false
 	$scope.sensor =
 		name: ''
@@ -9,7 +9,7 @@ moduleCtrl.controller 'TableController', ($scope, $routeParams, Table, $mdDialog
 		absCeil number, false, 4
 
 	Table.list $scope, $routeParams.sensId
-
+	
 	$ ->
 		w = $ window
 		$ '.index-md-content'

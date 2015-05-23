@@ -1,7 +1,7 @@
 <div class="sample" layout="column" style="height:100%">
     <form  ng-show="!lazyShow">
         <md-subheader>Список датчиков
-            <md-button class="md-primary" style="float:right;margin:-10px 0 0" ng-click="check()">Построение нескольких графиков</md-button>
+            <md-button ng-disabled="empty" class="md-primary" style="float:right;margin:-10px 0 0" ng-click="check()">Построение нескольких графиков</md-button>
         </md-subheader>
         <md-list ng-repeat="cat in categories">
             <md-list-item style="background:rgba(0, 0, 0, .075);color:#000;font-weight:bold;height:36px">

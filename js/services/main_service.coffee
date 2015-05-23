@@ -1,8 +1,7 @@
 moduleService.service 'Main', (DB) ->
 		@list = ($scope) ->
 			DB.Obj.all().list (items) ->
-				if items.length
-					$scope.lazyShow = true
+				unless items.length then $scope.lazyShow = false else
 					arr = []
 					items.forEach (item, ind, itemsArray)->
 						indLast = itemsArray.length - 1

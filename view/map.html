@@ -1,11 +1,11 @@
 <div class="sample" layout="column" style="height:100%">
-    <md-select ng-model="sens.type" md-on-open="listCat()" class="md-button md-raised button-add-sensor" placeholder="Добавить датчик">
+    <md-select ng-disabled="!tabs.length" ng-model="sens.type" md-on-open="listCat()" class="md-button md-raised button-add-sensor" placeholder="Добавить датчик">
         <md-option ng-repeat="cat in categories" ng-click="addSens(cat)" ng-value="$index">{{cat.name}} <i class='sensor-mark' style="background:{{colors[cat.color]}}"></i></md-option>
         <md-button class="md-primary" ng-click="addCat($event)" style="width:100%;margin: 0">Добавить категорию</md-button>
     </md-select>
     <md-button ng-click="showModalAdd($event)" class="md-fab md-mini md-button md-default-theme button-custom button-add" aria-label="button"></md-button>
-    <md-button ng-click="deletePlan($event, mapId)" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
-    <md-button ng-click="editPlan($event, mapId)" class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
+    <md-button ng-disabled="!tabs.length" ng-click="deletePlan($event, mapId)" class="md-fab md-mini md-button md-default-theme button-custom button-remove" aria-label="button"></md-button>
+    <md-button ng-disabled="!tabs.length" ng-click="editPlan($event, mapId)" class="md-fab md-mini md-button md-default-theme button-custom button-rename" aria-label="button"></md-button>
     <md-button ng-href="#/list/{{objId}}" class="md-fab md-mini md-button md-default-theme button-custom button-list" aria-label="button"></md-button>
     <md-tabs md-selected="selectedIndex" md-border-bottom class="height100">
         <md-tab label="{{tab.name}}" ng-repeat="tab in tabs" md-on-select="onTab(tab.id)">
