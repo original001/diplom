@@ -96,12 +96,12 @@ cordovaApp =
 
 do cordovaApp.initialize
 
-absCeil = (number, down, count = 0) ->
+absCeil = (number, down, count = 0, round) ->
     positive = if number >= 0 then true else false 
     if Math.abs(number) >= 1
         length = (Math.floor(number) + '').length - 1 - count - !positive
     else
         length = - (Math.floor(1/number) + '').length - count + !positive
     digit = number/Math.pow 10, length
-    digit = if !down then Math.ceil digit else Math.floor digit
+    digit = if round then Math.round digit else if !down then Math.ceil digit else Math.floor digit
     digit /= Math.pow 10, -length

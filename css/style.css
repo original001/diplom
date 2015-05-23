@@ -11,6 +11,9 @@
   font-weight: normal;
   font-style: normal;
 }
+.index-md-content {
+	margin-right: 0 !important;
+}
 .obj-action {
 	margin: 0;
 	position: absolute;
@@ -264,6 +267,7 @@
 }
 .home-icon {
 	float: right;
+	margin-right: 0 !important;
 }
 .home-icon:before {
 	content: '\e05C';

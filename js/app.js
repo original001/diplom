@@ -93,7 +93,7 @@ cordovaApp = {
 
 cordovaApp.initialize();
 
-absCeil = function(number, down, count) {
+absCeil = function(number, down, count, round) {
   var digit, length, positive;
   if (count == null) {
     count = 0;
@@ -105,7 +105,7 @@ absCeil = function(number, down, count) {
     length = -(Math.floor(1 / number) + '').length - count + !positive;
   }
   digit = number / Math.pow(10, length);
-  digit = !down ? Math.ceil(digit) : Math.floor(digit);
+  digit = round ? Math.round(digit) : !down ? Math.ceil(digit) : Math.floor(digit);
   return digit /= Math.pow(10, -length);
 };
 
@@ -373,12 +373,7 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
 
 moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $routeParams, MultiSens, $window, $mdDialog) {
   var $g, paper, s, updatePath;
-  $scope.sensors = [
-    {
-      id: "FCC26D4350144A16841DF2C68829C718",
-      name: "sensor1"
-    }
-  ];
+  $scope.sensors = $rootScope.multisensors;
   $scope.objId = $routeParams.objId;
   $scope.params = [];
   $scope.graph = [];
@@ -388,7 +383,7 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
   MultiSens.list($scope, $scope.sensors, $scope.objId);
   $scope.colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075', '#7183FF', '#B8C1FF', '#FF7967', '#83E3FF'];
   updatePath = function(sensors, paramY) {
-    var arr, delta, dl, el, getx, gety, h, i, ind, j, kx, ky, maxDate, maxy, minDate, minx, miny, num, sens, sensInd, style, times, val, w, _i, _j, _k, _l, _len, _len1, _len2, _ref, _results;
+    var arr, delta, dl, dlExt, dlGraph, el, ext, getx, gety, h, i, ind, j, kx, ky, maxDate, maxy, minDate, minx, miny, num, sens, sensInd, style, times, val, w, _i, _j, _k, _l, _len, _len1, _len2, _ref, _results;
     paper.clear();
     style = {
       stroke: '#000'
@@ -435,18 +430,26 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
     kx = (maxDate - minDate) / w;
     minx = minDate;
     ky = (maxy - miny) / (h + 50);
+    miny = absCeil(miny, true, 2);
+    delta = absCeil(maxy - miny) / 10;
+    dl = absCeil(delta / ky, false, 3);
+    ext = -miny + absCeil(miny, true, 0);
+    ext = absCeil(ext, true, 2);
+    dlExt = Math.abs(absCeil(ext / ky, false, 3));
     if (maxy === miny) {
       paper.text(8, h - 5, maxy);
     } else {
-      for (i = _k = 0; _k <= 10; i = ++_k) {
-        delta = absCeil(maxy - miny) / 10;
-        dl = absCeil(delta / ky, false, 3);
-        console.log(dl, delta);
-        val = miny + delta * i;
-        paper.text(8, 280 - i * dl, '' + absCeil(val, true, 3)).attr({
+      for (i = _k = 0; _k < 12; i = ++_k) {
+        val = miny + ext + delta * i;
+        dlGraph = 280 + dlExt - i * dl;
+        if (dlGraph < 40 || dlGraph > 320) {
+          continue;
+        }
+        console.log(val, miny, ext, delta);
+        paper.text(8, 280 + dlExt - i * dl, '' + absCeil(val, true, 3, true)).attr({
           'font-size': '12px'
         });
-        paper.path("M 0," + (280 - i * dl) + "L " + (w + 10) + "," + (280 - i * dl)).attr({
+        paper.path("M 0," + dlGraph + "L " + (w + 10) + "," + dlGraph).attr({
           stroke: 'rgba(0,0,0,.3)',
           strokeWidth: 1
         });
@@ -505,7 +508,9 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
           paper.circle(getx(el), gety(el), 4).attr({
             fill: $scope.colors[sensInd - 1]
           });
-          paper.text(getx(el) - 3, h * 2, el.time).transform('r90,' + (getx(el) - 5) + ',' + h * 2);
+          paper.text(getx(el) - 3, h * 2, el.time).transform('r90,' + (getx(el) - 5) + ',' + h * 2).attr({
+            'font-size': '13px'
+          });
           if (ind === 0) {
             continue;
           }
@@ -721,12 +726,12 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
           }
           params = {};
           if (answer.params.f != null) {
-            F = params.f = answer.params.f;
-            T = params.t = answer.params.t;
+            F = params.f = absCeil(answer.params.f, true, 4, true);
+            T = params.t = absCeil(answer.params.t, true, 4, true);
             me = params.me = Math.pow(F, 2) * 0.001 * k * 4.479;
             dme = params.dme = me + (T - T0) * (a - b);
-            params.g = me * 210 * 0.001;
-            params.dg = dme * 210 * 0.001;
+            params.g = absCeil(me * 210 * 0.001, true, 4, true);
+            params.dg = absCeil(dme * 210 * 0.001, true, 4, true);
           }
           _ref1 = answer.params;
           for (k in _ref1) {
@@ -883,11 +888,11 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   Sens.list($scope, $routeParams.sensId);
   switch ($routeParams.ui) {
     case '1':
-      $scope.params = ['f', 'me', 'dme', 'g', 'dg', 't'];
+      $scope.params = ['f', 'me', 'dme', 'g', 'dg'];
       $scope.addingParams = ['f', 't'];
       break;
     case '2':
-      $scope.params = ['f', 'me', 'dme', 'g', 'dg', 't'];
+      $scope.params = ['f', 'me', 'dme', 'g', 'dg'];
       $scope.addingParams = ['f', 't'];
       break;
     case '3':
@@ -895,7 +900,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       $scope.addingParams = ['f', 't'];
       break;
     case '4':
-      $scope.params = ['f', 'dP', 't'];
+      $scope.params = ['f', 'dP'];
       $scope.addingParams = ['f', 't'];
       break;
     default:

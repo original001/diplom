@@ -155,12 +155,12 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 							when 'T0' then T0 = i.val
 					params = {}
 					if answer.params.f?
-						F = params.f = answer.params.f
-						T = params.t = answer.params.t 
+						F = params.f = absCeil answer.params.f, true, 4, true
+						T = params.t = absCeil answer.params.t, true, 4, true
 						me = params.me = Math.pow(F,2) * 0.001 * k * 4.479 # K & G
 						dme = params.dme = me + (T-T0)*(a-b)
-						params.g = me * 210 * 0.001
-						params.dg = dme * 210 * 0.001
+						params.g =absCeil me * 210 * 0.001, true, 4, true
+						params.dg =absCeil dme * 210 * 0.001, true, 4, true
 					for k, v of answer.params when k != 'f'
 						params[k] = v	
 
@@ -245,16 +245,16 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 
 	switch $routeParams.ui
 		when '1' 
-			$scope.params = ['f','me','dme','g','dg','t']
+			$scope.params = ['f','me','dme','g','dg']
 			$scope.addingParams = ['f','t']
 		when '2' 
-			$scope.params = ['f','me','dme','g','dg','t']
+			$scope.params = ['f','me','dme','g','dg']
 			$scope.addingParams = ['f','t']
 		when '3' 
 			$scope.params = ['f','dP']
 			$scope.addingParams = ['f','t']
 		when '4' 
-			$scope.params = ['f','dP','t']
+			$scope.params = ['f','dP']
 			$scope.addingParams = ['f','t']
 		else 
 			$scope.params = ['f','me']

@@ -1,10 +1,10 @@
 moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,MultiSens, $window, $mdDialog) ->
-	$scope.sensors = [
-		id: "FCC26D4350144A16841DF2C68829C718"
-		name: "sensor1"
-	]
+	# $scope.sensors = [
+	# 	id: "6B7D942F9A9744268CDCD7AC89317146"
+	# 	name: "sensor1"
+	# ]
 
-	# $scope.sensors = $rootScope.multisensors
+	$scope.sensors = $rootScope.multisensors
 	$scope.objId = $routeParams.objId
 	$scope.params = []
 	$scope.graph = []
@@ -58,18 +58,34 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 
 		ky = (maxy - miny)/(h+50)
 
-		if maxy == miny then paper.text 8, h - 5, maxy else for i in [0..10]
-			delta = absCeil(maxy-miny)/10
-			dl = absCeil delta/ky, false, 3
-			console.log dl, delta
-			val = miny + delta*i
+		# pretify coords
+
+		miny = absCeil miny, true, 2
+		delta = absCeil(maxy-miny)/10
+		dl = absCeil delta/ky, false, 3
+
+		ext = -miny + absCeil miny, true, 0
+		ext = absCeil ext, true, 2
+
+		dlExt = Math.abs absCeil ext/ky, false, 3
+
+		# create coords
+
+		if maxy == miny then paper.text 8, h - 5, maxy else for i in [0...12]
+
+			val = miny + ext + delta*i
+
+			dlGraph = 280+dlExt-i*dl
+			continue if dlGraph < 40 or dlGraph > 320
+
+			console.log val, miny, ext, delta
 
 			paper
-				.text 8, 280-i*dl,'' + absCeil val, true, 3
+				.text 8, 280+dlExt-i*dl,'' + absCeil val, true, 3, true
 				.attr
 					'font-size':'12px'
 			paper
-				.path "M 0,#{280-i*dl}L #{w+10},#{280-i*dl}"
+				.path "M 0,#{dlGraph}L #{w+10},#{dlGraph}"
 				.attr 
 					stroke: 'rgba(0,0,0,.3)'
 					strokeWidth: 1
@@ -130,6 +146,8 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 				paper
 					.text getx(el) - 3 , h*2, el.time
 					.transform 'r90,'+(getx(el)-5)+','+h*2
+					.attr
+						'font-size':'13px'
 				if ind == 0 then continue
 
 				paper

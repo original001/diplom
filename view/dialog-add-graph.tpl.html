@@ -4,7 +4,7 @@
             <div layout="row">
                 <md-input-container ng-repeat="param in addingParams">
                     <label>{{param}}</label>
-                    <input type="number" ng-model="graph.val[param]">
+                    <input type="number" ng-model="graph.val[param]" ng-required="true">
                 </md-input-container>
             </div>
             <div layout="row">
