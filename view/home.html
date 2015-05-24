@@ -1,6 +1,6 @@
 <md-list>
     <md-subheader class="md-no-sticky"><b>Объекты</b></md-subheader>
-    <md-list-item ng-repeat="list in lists" ng-click="navigate(list.id)" style="padding-right: 7px;">
+    <md-list-item ng-repeat="list in lists" style="padding-right: 10px;">
         <a class="td-none" ng-href="#/map/{{list.id}}">{{ list.name }}</a> 
         <i class="sens-counter" style="border-color:{{colors[cat.color]}}" ng-repeat="cat in list.categories">{{cat.count}}
             <md-tooltip>{{cat.name}}</md-tooltip>

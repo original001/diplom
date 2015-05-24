@@ -78,8 +78,6 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 			dlGraph = 280+dlExt-i*dl
 			continue if dlGraph < 40 or dlGraph > 320
 
-			console.log val, miny, ext, delta
-
 			paper
 				.text 8, 280+dlExt-i*dl,'' + absCeil val, true, 3, true
 				.attr

@@ -444,7 +444,6 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
         if (dlGraph < 40 || dlGraph > 320) {
           continue;
         }
-        console.log(val, miny, ext, delta);
         paper.text(8, 280 + dlExt - i * dl, '' + absCeil(val, true, 3, true)).attr({
           'font-size': '12px'
         });
@@ -857,7 +856,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
             Pb = B - B0;
             params.f = answer.params.f;
             T1 = params.t = answer.params.t;
-            params.dP = P - P0 + Pt - (Pb = (A * Math.pow(F, 4) * 10 - 6 + B * F * F / 1000) - (A * Math.pow(F0, 4) * Math.pow(10, -6) + B * Math.pow(F0, 2) / 1000) + a * (T - T0) - (B - B0) * 0.133322);
+            params.dP = P0 - Pt + Pb + (A * Math.pow(F, 4) * 10 - 6 + B * F * F / 1000) - (A * Math.pow(F0, 4) * Math.pow(10, -6) + B * Math.pow(F0, 2) / 1000) + a * (T - T0) - (B - B0) * 0.133322;
           }
           _ref7 = answer.params;
           for (k in _ref7) {

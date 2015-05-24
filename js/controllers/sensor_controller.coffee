@@ -10,16 +10,25 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	# autoloader
 	# random = Math.random() + 1.1
 	# random = random*5
-	# for i in $scope.keys when i.name == 'K'
-	# 	paramK = i.val
-	# for i in [3..20]
-	# 	paramF = Math.cos(i)*random 
-	# 	paramMe = paramF * paramF * 0.001 * paramK * 4.479 # K & G
-	# 	Sens.addGraph new Date("Wed May #{i} 2015 23:57:36 GMT+0600 (YEKT)"), 
-	# 		f: paramF
-	# 		me: paramMe
-	# 		g: paramMe * 210 * 0.001
-	# 	, $scope, $routeParams.sensId
+
+	# for i in [3..15]
+	# 	A = 1
+	# 	B = 10
+	# 	C = 1
+	# 	D = 1
+	# 	S0 = 1
+	# 	S1 = 10
+	# 	T0 = 20
+	# 	P0 = 10
+	# 	k = 1
+	# 	params = {}
+	# 	params.f = Math.cos(i)*random
+	# 	T1 = params.t = Math.sin(i)*random
+	# 	R1 = Math.pow(params.f,2)/1000
+	# 	P = A*Math.pow(R1,3)+B*Math.pow(R1,2)+C*(R1)+D+k*(T1-T0)-(S1-S0)
+	# 	params.dP = P0 - P
+
+	# 	Sens.addGraph new Date("Wed May #{i} 2015 23:57:36 GMT+0600 (YEKT)"),params , $scope, $routeParams.sensId
 
 	# autoloader end
 
@@ -225,7 +234,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 						Pb = B - B0
 						params.f = answer.params.f
 						T1 = params.t = answer.params.t 
-						params.dP = P-P0+Pt-Pb=(A*Math.pow(F,4)*10-6+B*F*F/1000)- (A*Math.pow(F0,4)*Math.pow(10,-6)+B*Math.pow(F0,2)/1000)+a*(T-T0)-(B-B0)*0.133322  
+						params.dP = P0-Pt+Pb+(A*Math.pow(F,4)*10-6+B*F*F/1000)-(A*Math.pow(F0,4)*Math.pow(10,-6)+B*Math.pow(F0,2)/1000)+a*(T-T0)-(B-B0)*0.133322  
 
 					for k, v of answer.params when k != 'f' # для дополнительных параметров
 						params[k] = v	
