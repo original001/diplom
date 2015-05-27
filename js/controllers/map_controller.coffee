@@ -13,20 +13,17 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 
 	$scope.colors = ['#d11d05',"#05A3D1","#051FD1","#FF528D",'#60061E','#1d1075']
 	$scope.UI = [
-		name:'Транзистор СИТИС'
+		name:'Тензодатчик СИТИС'
 		id:1
 	,
-		name:'Транзистор C-Sensor'
+		name:'Тензодатчик CS-01 C-Sensor'
 		id:2
 	,
-		name:'Датчик давления C-Sensor'
+		name:'Датчик давления CS-05 C-Sensor'
 		id:3
 	,
-		name:'Датчик давления СИТИС'
+		name:'Датчик давления 1.06 СИТИС'
 		id:4
-	,
-		name:'Стандартная'
-		id:0
 	]
 
 	$rootScope.colors = $scope.colors
@@ -81,7 +78,7 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 				left = (ofsX/w*100).toPrecision 3
 				top = (ofsY/h*100).toPrecision 3
 
-				Map.addSens 'sensor',cat.id, $scope.colors,top,left,$routeParams.objId,$scope.mapId,$scope
+				Map.addSens cat.id, $scope.colors,top,left,$routeParams.objId,$scope.mapId,$scope
 
 		return
 

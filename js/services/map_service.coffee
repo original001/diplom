@@ -83,22 +83,29 @@ moduleService
 								item.img = newImg if newImg
 								do $scope.$apply
 
-		@addSens = (sensName,sensTypeId,colors,top,left, objId,mapId, $scope) ->
+		@addSens = (sensTypeId,colors,top,left, objId,mapId, $scope) ->
 			exp =
 				obj: false
 				map: false
 				type: false
+				count: 0
 			DB.Obj.findBy persistence, null, 'id',objId,(obj)->
 				exp.obj = obj if obj
 			DB.Maps.findBy persistence, null, 'id',mapId,(map)->
 				exp.map = map if map
 			DB.SensCat.findBy persistence, null, 'id',sensTypeId,(type)->
 				exp.type = type if type
-			s = new DB.Sensor
-				name: sensName
-				top: top
-				left: left
+				DB.Sensor.all().filter('category','=',type.id).list (sensors) ->
+					exp.count = sensors.length + 1
 			persistence.flush ->
+				catName = exp.type.name
+				sp = catName.split(' ')
+				l = sp.length
+				sensName = sp[l-1].slice 0,6
+				s = new DB.Sensor
+					name: sensName + '-' + exp.count
+					top: top
+					left: left
 				if  exp.obj && exp.map && exp.type
 					s.category = exp.type
 					exp.obj.sensors.add(s)
@@ -227,7 +234,7 @@ moduleService
 								$scope.tabs[ind].sensors.push
 									id: s.id	
 									type: sensTypeId
-									name:sensName
+									name: s.name
 									top: top	
 									left: left
 									ui: exp.type.ui
