@@ -681,6 +681,40 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       return Sens.removeSens($routeParams.sensId, $scope);
     });
   };
+  $scope["import"] = function(e) {
+    return $mdDialog.show({
+      controller: DialogController,
+      templateUrl: 'view/dialog-import.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      var SensName, counter, i, ind, localSensName, sna, text, textArr, textDate, textF, textParams, textT, textTime, tpa, trimText, _i, _len, _results;
+      text = atob(answer.base64);
+      textArr = text.split('--------------------');
+      SensName = $scope.sensor[0].name;
+      sna = SensName.split('-');
+      counter = 0;
+      _results = [];
+      for (ind = _i = 0, _len = textArr.length; _i < _len; ind = ++_i) {
+        i = textArr[ind];
+        if (!(i)) {
+          continue;
+        }
+        localSensName = "" + sna[0] + "-" + (Number(sna[1]) + counter);
+        console.log(localSensName);
+        trimText = $.trim(textArr[ind]);
+        textDate = trimText.split(' ')[0];
+        textParams = trimText.split(' ')[1];
+        tpa = textParams.split(';');
+        textTime = tpa[0];
+        textT = tpa[1];
+        textF = tpa[2];
+        counter++;
+        console.log(new Date("" + (textDate.replace('/', ' ')) + " " + textTime));
+        _results.push(console.log(textT, textF));
+      }
+      return _results;
+    });
+  };
   $scope.editSens = function(e) {
     return $mdDialog.show({
       controller: SensEditDialogController,
@@ -1356,7 +1390,7 @@ moduleService.service('Map', function(DB) {
       l = sp.length;
       sensName = sp[l - 1].slice(0, 6);
       s = new DB.Sensor({
-        name: sensName + '-' + exp.count,
+        name: sensName.replace('-', '') + '-' + exp.count,
         top: top,
         left: left
       });
@@ -1769,6 +1803,9 @@ moduleService.service('Sens', function(DB, $window) {
         return $scope.keys = JSON.parse(sens.key);
       }
     });
+  };
+  this.addManyGraphs = function(sensId, sensName, date, F, T) {
+    return console.log(sensId, sensName, date, F, T);
   };
 });
 

@@ -103,7 +103,7 @@ moduleService
 				l = sp.length
 				sensName = sp[l-1].slice 0,6
 				s = new DB.Sensor
-					name: sensName + '-' + exp.count
+					name: sensName.replace('-','') + '-' + exp.count
 					top: top
 					left: left
 				if  exp.obj && exp.map && exp.type

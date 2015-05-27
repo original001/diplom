@@ -7,6 +7,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	$scope.keys = []
 	Sens.loadKeySens $routeParams.sensId, $scope
 
+
 	# autoloader
 	# random = Math.random() + 1.1
 	# random = random*5
@@ -133,6 +134,41 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 		$mdDialog.show confirm
 			.then ->
 				Sens.removeSens $routeParams.sensId, $scope
+
+	$scope.import = (e) ->
+		$mdDialog.show
+			controller: DialogController
+			templateUrl: 'view/dialog-import.tpl.html'
+			targetEvent: e
+		.then (answer) ->
+			text = atob answer.base64
+			textArr = text.split '--------------------'
+			SensName = $scope.sensor[0].name
+			sna = SensName.split '-'
+
+			counter = 0
+			for i,ind in textArr when i
+				localSensName = "#{sna[0]}-#{Number(sna[1]) + counter}"
+				console.log localSensName
+
+				trimText =  $.trim textArr[ind]
+
+				textDate = trimText.split(' ')[0]
+				textParams = trimText.split(' ')[1]
+				tpa = textParams.split(';')
+				textTime = tpa[0]
+
+				textT = tpa[1]
+				textF = tpa[2]
+
+				counter++
+
+				# Sens.addManyGraphs $routeParams.sensId,
+
+				console.log new Date "#{textDate.replace('/',' ')} #{textTime}"
+				console.log textT, textF
+			
+
 
 	$scope.editSens = (e) ->
 		$mdDialog.show

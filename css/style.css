@@ -224,12 +224,21 @@
 }
 .button-table {
 	font-family: 'icons';
-	top: 265px;
+	top: 315px;
 }
 .button-table:after {
 	font-weight: bold;
 	line-height: 1.8;
 	content: '\e027';
+}
+.button-import {
+	font-family: 'icons';
+	top: 265px;
+}
+.button-import:after {
+	font-weight: bold;
+	line-height: 1.8;
+	content: '\e01A';
 }
 .help-screen {
 	display: none;

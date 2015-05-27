@@ -120,4 +120,7 @@ moduleService
 				$scope.keys = JSON.parse sens.key if sens
 				# if {}.keys($scope.keys).length > 4
 
+		@addManyGraphs = (sensId, sensName, date, F, T)->
+			console.log sensId, sensName, date, F, T
+
 		return

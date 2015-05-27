@@ -1,0 +1,16 @@
+<md-dialog aria-label="Добавить карту">
+    <form name="nameFormObj">
+        <md-content>
+            <form name="nameFormObj">
+                <md-input-container>
+                    <label style="padding-bottom:30px">Файл импорта показаний</label>
+                    <input type="file" ng-model="plan.img" base-sixty-four-input>
+                </md-input-container>
+        </md-content>
+        </form>
+        <div class="md-actions">
+            <md-button ng-click="cancel()">Отмена</md-button>
+            <md-button class="md-raised" ng-disabled="nameFormObj.$invalid" ng-click="answer(plan.img)">Добавить</md-button>
+        </div>
+    </form>
+</md-dialog>
