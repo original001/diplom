@@ -8,14 +8,16 @@ moduleService
 					objId = obj.id
 					sens.fetch 'map',(map)->
 						mapName = map.name
-						arr.push
-							id: sens.id
-							name: sens.name
-							obj:objName
-							objId: objId
-							map:mapName
-						$scope.sensor = arr
-						do $scope.$apply
+						sens.fetch 'category',(cat)->
+							arr.push
+								id: sens.id
+								name: sens.name
+								obj:objName
+								objId: objId
+								map:mapName
+								cat:cat
+							$scope.sensor = arr
+							do $scope.$apply
 
 				sens.graphs.list (graphs) ->
 					graphArr = []
@@ -120,7 +122,23 @@ moduleService
 				$scope.keys = JSON.parse sens.key if sens
 				# if {}.keys($scope.keys).length > 4
 
-		@addManyGraphs = (sensId, sensName, date, F, T)->
-			console.log sensId, sensName, date, F, T
+		@addManyGraphs = (sensId, sensName, date, params, $scope)->
+			DB.Sensor.all().filter 'category','=', $scope.sensor[0].cat.id 
+				.filter 'name','=',sensName
+				.list (sensors) ->
+					unless sensors.length == 1 then console.log 'warning' else
+						sens = sensors[0]
+						t = new DB.Graph
+						t.date = date
+						t.params = JSON.stringify params
+						sens.graphs.add t
+						persistence.flush ->
+							if sens.id == $scope.sensor[0].id
+								$scope.graph.push
+									date: date
+									params: params
+								do $scope.$apply
+								$scope.updatePath Object.keys(params)[0]
+
 
 		return
