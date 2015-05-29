@@ -95,8 +95,8 @@ moduleService
 				exp.map = map if map
 			DB.SensCat.findBy persistence, null, 'id',sensTypeId,(type)->
 				exp.type = type if type
-				DB.Sensor.all().filter('category','=',type.id).list (sensors) ->
-					exp.count = sensors.length + 1
+				DB.Sensor.all().filter('category','=',type.id).order('date',false).limit(1).list (sensors) ->
+					exp.count = Number((sensors[0].name || '-0').split('-')[1]) + 1
 			persistence.flush ->
 				catName = exp.type.name
 				sp = catName.split(' ')
@@ -106,6 +106,7 @@ moduleService
 					name: sensName.replace('-','') + '-' + exp.count
 					top: top
 					left: left
+					date: new Date().getTime()
 				if  exp.obj && exp.map && exp.type
 					s.category = exp.type
 					exp.obj.sensors.add(s)
@@ -128,7 +129,7 @@ moduleService
 								eval: 'микрострейн'
 							,
 								name: 'T0'
-								val: 1
+								val: undefined
 								eval: '˚C'
 							]
 
@@ -145,11 +146,11 @@ moduleService
 								eval: 'με/˚С'
 							,
 								name: 'F0'
-								val: 1
+								val: undefined
 								eval: 'Гц'
 							,
 								name: 'T0'
-								val: 1
+								val: undefined
 								eval: '˚C'
 							]
 
@@ -186,11 +187,11 @@ moduleService
 								eval: 'кг/см2'
 							,
 								name: 'T0'
-								val: 1 
+								val: undefined 
 								eval: '˚C'
 							,
 								name: 'P0'
-								val: 1 
+								val: undefined 
 								eval: 'кг/см2'
 							]
 
@@ -223,7 +224,7 @@ moduleService
 								eval: ''
 							,
 								name: 'T0'
-								val: 1
+								val: undefined
 								eval: ''
 							]
 							

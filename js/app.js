@@ -43,11 +43,12 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
     sensor: "INT",
     GroupOfSens: "INT"
   }),
-  Sensor: persistence.define('Sensor7', {
+  Sensor: persistence.define('Sensor10', {
     name: "TEXT",
     top: "INT",
     left: "INT",
-    key: 'JSON'
+    key: 'JSON',
+    date: 'INT'
   }),
   Graph: persistence.define('Graph3', {
     date: "DATE",
@@ -764,6 +765,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
         if (answer.params.f != null) {
           F = params.f = absCeil(answer.params.f, true, 4, true);
           T = params.t = absCeil(answer.params.t, true, 4, true);
+          T0 || (T0 = T);
           me = params.me = Math.pow(F, 2) * 0.001 * k * 4.479;
           dme = params.dme = me + (T - T0) * (a - b);
           params.g = absCeil(me * 210 * 0.001, true, 4, true);
@@ -799,6 +801,8 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
         if (answer.params.f != null) {
           F = params.f = answer.params.f;
           T = params.t = answer.params.t;
+          T0 || (T0 = T);
+          F0 || (F0 = F);
           me = params.me = Math.pow(F, 2) * 0.001 * 4.062;
           dme = params.dme = Math.pow(F - F0, 2) * 4.062 / 1000 - (TCk - TCd) * (T - T0);
           params.g = me * 210 * 0.001;
@@ -849,8 +853,10 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
         if (answer.params.f != null) {
           params.f = answer.params.f;
           T1 = params.t = answer.params.t;
+          T0 || (T0 = T1);
           R1 = Math.pow(params.f, 2) / 1000;
           P = A * Math.pow(R1, 3) + B * Math.pow(R1, 2) + C * R1 + D + k * (T1 - T0) - (S1 - S0);
+          P0 || (P0 = P);
           params.dP = P0 - P;
         }
         _ref5 = answer.params;
@@ -894,6 +900,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
           Pb = B - B0;
           params.f = answer.params.f;
           T1 = params.t = answer.params.t;
+          T0 || (T0 = T1);
           params.dP = P0 - Pt + Pb + (A * Math.pow(F, 4) * 10 - 6 + B * F * F / 1000) - (A * Math.pow(F0, 4) * Math.pow(10, -6) + B * Math.pow(F0, 2) / 1000) + a * (T - T0) - (B - B0) * 0.133322;
         }
         _ref7 = answer.params;
@@ -1395,8 +1402,8 @@ moduleService.service('Map', function(DB) {
       if (type) {
         exp.type = type;
       }
-      return DB.Sensor.all().filter('category', '=', type.id).list(function(sensors) {
-        return exp.count = sensors.length + 1;
+      return DB.Sensor.all().filter('category', '=', type.id).order('date', false).limit(1).list(function(sensors) {
+        return exp.count = Number((sensors[0].name || '-0').split('-')[1]) + 1;
       });
     });
     return persistence.flush(function() {
@@ -1408,7 +1415,8 @@ moduleService.service('Map', function(DB) {
       s = new DB.Sensor({
         name: sensName.replace('-', '') + '-' + exp.count,
         top: top,
-        left: left
+        left: left,
+        date: new Date().getTime()
       });
       if (exp.obj && exp.map && exp.type) {
         s.category = exp.type;
@@ -1430,7 +1438,7 @@ moduleService.service('Map', function(DB) {
               "eval": 'микрострейн'
             }, {
               name: 'T0',
-              val: 1,
+              val: void 0,
               "eval": '˚C'
             }
           ]);
@@ -1447,11 +1455,11 @@ moduleService.service('Map', function(DB) {
               "eval": 'με/˚С'
             }, {
               name: 'F0',
-              val: 1,
+              val: void 0,
               "eval": 'Гц'
             }, {
               name: 'T0',
-              val: 1,
+              val: void 0,
               "eval": '˚C'
             }
           ]);
@@ -1488,11 +1496,11 @@ moduleService.service('Map', function(DB) {
               "eval": 'кг/см2'
             }, {
               name: 'T0',
-              val: 1,
+              val: void 0,
               "eval": '˚C'
             }, {
               name: 'P0',
-              val: 1,
+              val: void 0,
               "eval": 'кг/см2'
             }
           ]);
@@ -1525,7 +1533,7 @@ moduleService.service('Map', function(DB) {
               "eval": ''
             }, {
               name: 'T0',
-              val: 1,
+              val: void 0,
               "eval": ''
             }
           ]);
@@ -1825,24 +1833,47 @@ moduleService.service('Sens', function(DB, $window) {
   };
   this.addManyGraphs = function(sensId, sensName, date, params, $scope) {
     return DB.Sensor.all().filter('category', '=', $scope.sensor[0].cat.id).filter('name', '=', sensName).list(function(sensors) {
-      var sens, t;
+      var sens;
       if (sensors.length !== 1) {
         return console.log('warning');
       } else {
         sens = sensors[0];
-        t = new DB.Graph;
-        t.date = date;
-        t.params = JSON.stringify(params);
-        sens.graphs.add(t);
-        return persistence.flush(function() {
-          if (sens.id === $scope.sensor[0].id) {
-            $scope.graph.push({
-              date: date,
-              params: params
+        sens.graphs.list(function(graphs) {
+          var keys;
+          if (graphs.length !== 0) {
+            return false;
+          } else {
+            keys = JSON.parse(sens.key);
+            keys.forEach(function(key) {
+              if (key.name === 'T0') {
+                key.val = params.t;
+              }
+              if (key.name === 'F0') {
+                key.val = params.f;
+              }
+              if (key.name === 'P0') {
+                return key.val = params.p;
+              }
             });
-            $scope.$apply();
-            return $scope.updatePath(Object.keys(params)[0]);
+            return sens.key = JSON.stringify(keys);
           }
+        });
+        return persistence.flush(function() {
+          var t;
+          t = new DB.Graph;
+          t.date = date;
+          t.params = JSON.stringify(params);
+          sens.graphs.add(t);
+          return persistence.flush(function() {
+            if (sens.id === $scope.sensor[0].id) {
+              $scope.graph.push({
+                date: date,
+                params: params
+              });
+              $scope.$apply();
+              return $scope.updatePath(Object.keys(params)[0]);
+            }
+          });
         });
       }
     });

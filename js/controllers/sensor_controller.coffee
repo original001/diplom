@@ -7,32 +7,6 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	$scope.keys = []
 	Sens.loadKeySens $routeParams.sensId, $scope
 
-
-	# autoloader
-	# random = Math.random() + 1.1
-	# random = random*5
-
-	# for i in [3..15]
-	# 	A = 1
-	# 	B = 10
-	# 	C = 1
-	# 	D = 1
-	# 	S0 = 1
-	# 	S1 = 10
-	# 	T0 = 20
-	# 	P0 = 10
-	# 	k = 1
-	# 	params = {}
-	# 	params.f = Math.cos(i)*random
-	# 	T1 = params.t = Math.sin(i)*random
-	# 	R1 = Math.pow(params.f,2)/1000
-	# 	P = A*Math.pow(R1,3)+B*Math.pow(R1,2)+C*(R1)+D+k*(T1-T0)-(S1-S0)
-	# 	params.dP = P0 - P
-
-	# 	Sens.addGraph new Date("Wed May #{i} 2015 23:57:36 GMT+0600 (YEKT)"),params , $scope, $routeParams.sensId
-
-	# autoloader end
-
 	$g = $ '#graph'
 	s = Snap '#graph'
 	paper = s.paper
@@ -141,6 +115,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			templateUrl: 'view/dialog-import.tpl.html'
 			targetEvent: e
 		.then (answer) ->
+			# clear array with filter.array
 			text = atob answer.base64
 			textArr = text.split '--------------------'
 			SensName = $scope.sensor[0].name
@@ -203,6 +178,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				if answer.params.f?
 					F = params.f = absCeil answer.params.f, true, 4, true
 					T = params.t = absCeil answer.params.t, true, 4, true
+					T0 || T0 = T
 					me = params.me = Math.pow(F,2) * 0.001 * k * 4.479 # K & G
 					dme = params.dme = me + (T-T0)*(a-b)
 					params.g =absCeil me * 210 * 0.001, true, 4, true
@@ -222,6 +198,8 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				if answer.params.f?
 					F = params.f = answer.params.f
 					T = params.t = answer.params.t 
+					T0 || T0 = T
+					F0 || F0 = F
 					me = params.me = Math.pow(F,2) * 0.001 * 4.062
 					dme = params.dme = Math.pow((F-F0),2)*4.062/1000-(TCk-TCd)*(T-T0)
 					params.g = me * 210 * 0.001
@@ -247,8 +225,10 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				if answer.params.f?
 					params.f = answer.params.f
 					T1 = params.t = answer.params.t 
+					T0 || T0 = T1
 					R1 = Math.pow(params.f,2)/1000
 					P = A*Math.pow(R1,3)+B*Math.pow(R1,2)+C*(R1)+D+k*(T1-T0)-(S1-S0)
+					P0 || P0 = P
 					params.dP = P0 - P
 
 				for k, v of answer.params when k != 'f' # для дополнительных параметров
@@ -271,6 +251,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 					Pb = B - B0
 					params.f = answer.params.f
 					T1 = params.t = answer.params.t 
+					T0 || T0 = T1
 					params.dP = P0-Pt+Pb+(A*Math.pow(F,4)*10-6+B*F*F/1000)-(A*Math.pow(F0,4)*Math.pow(10,-6)+B*Math.pow(F0,2)/1000)+a*(T-T0)-(B-B0)*0.133322  
 
 				for k, v of answer.params when k != 'f' # для дополнительных параметров
@@ -286,7 +267,6 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 					params[k] = v	
 
 		return params
-
 
 	Sens.list $scope, $routeParams.sensId
 

@@ -128,17 +128,27 @@ moduleService
 				.list (sensors) ->
 					unless sensors.length == 1 then console.log 'warning' else
 						sens = sensors[0]
-						t = new DB.Graph
-						t.date = date
-						t.params = JSON.stringify params
-						sens.graphs.add t
+						sens.graphs.list (graphs)->
+							unless graphs.length == 0 then return false else
+								keys = JSON.parse sens.key
+								keys.forEach (key) ->
+									if key.name == 'T0' then key.val = params.t
+									if key.name == 'F0' then key.val = params.f
+									if key.name == 'P0' then key.val = params.p
+								sens.key = JSON.stringify keys
+
 						persistence.flush ->
-							if sens.id == $scope.sensor[0].id
-								$scope.graph.push
-									date: date
-									params: params
-								do $scope.$apply
-								$scope.updatePath Object.keys(params)[0]
+							t = new DB.Graph
+							t.date = date
+							t.params = JSON.stringify params
+							sens.graphs.add t
+							persistence.flush ->
+								if sens.id == $scope.sensor[0].id
+									$scope.graph.push
+										date: date
+										params: params
+									do $scope.$apply
+									$scope.updatePath Object.keys(params)[0]
 
 
 		return
