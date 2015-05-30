@@ -11,7 +11,7 @@ angular.module 'Monitor', [
             .primaryPalette('cyan')
 
 	.config ($routeProvider, $locationProvider) -> 
-		persistence.store.websql.config persistence, 'sensors3', 'База данных для мониторинга', 5 * 1024 * 1024
+		persistence.store.websql.config persistence, 'sensors4', 'База данных для мониторинга', 5 * 1024 * 1024
 		$routeProvider.when '/', 
             templateUrl: 'view/home.html'
             controller: 'MainController'
@@ -39,27 +39,27 @@ angular.module 'Monitor', [
 	.constant 'DB',
         Obj: persistence.define 'Obj',  
             name: "TEXT"
-        SensCat: persistence.define 'SensCat6',  
+        SensCat: persistence.define 'SensCat',  
             name: "TEXT"
             ui: "INT"
             color: "INT"
         SensMany: persistence.define 'SensMany',  
             sensor: "INT",
             GroupOfSens: "INT"
-        Sensor: persistence.define 'Sensor10',  
+        Sensor: persistence.define 'Sensor',  
             name: "TEXT",
             top: "INT"
             left: "INT"
             key: 'JSON'
             date: 'INT'
-        Graph: persistence.define 'Graph3',  
+        Graph: persistence.define 'Graph',  
             date: "DATE",
             params: 'JSON'
         GroupOfSens: persistence.define 'GroupOfSens',  
             name: "TEXT",
             sensCat: "INT",
             obj: "INT"
-        Maps: persistence.define 'Maps5',
+        Maps: persistence.define 'Maps',
             name: "TEXT",
             img: "TEXT",
     .config (DB) ->

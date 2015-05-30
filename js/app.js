@@ -4,7 +4,7 @@ var DialogController, absCeil, cordovaApp, moduleCtrl, moduleService;
 angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom.controllers.Main', 'Diplom.services.Main', 'naif.base64']).config(function($mdThemingProvider) {
   return $mdThemingProvider.theme('default').primaryPalette('cyan');
 }).config(function($routeProvider, $locationProvider) {
-  persistence.store.websql.config(persistence, 'sensors3', 'База данных для мониторинга', 5 * 1024 * 1024);
+  persistence.store.websql.config(persistence, 'sensors4', 'База данных для мониторинга', 5 * 1024 * 1024);
   $routeProvider.when('/', {
     templateUrl: 'view/home.html',
     controller: 'MainController'
@@ -34,7 +34,7 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
   Obj: persistence.define('Obj', {
     name: "TEXT"
   }),
-  SensCat: persistence.define('SensCat6', {
+  SensCat: persistence.define('SensCat', {
     name: "TEXT",
     ui: "INT",
     color: "INT"
@@ -43,14 +43,14 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
     sensor: "INT",
     GroupOfSens: "INT"
   }),
-  Sensor: persistence.define('Sensor10', {
+  Sensor: persistence.define('Sensor', {
     name: "TEXT",
     top: "INT",
     left: "INT",
     key: 'JSON',
     date: 'INT'
   }),
-  Graph: persistence.define('Graph3', {
+  Graph: persistence.define('Graph', {
     date: "DATE",
     params: 'JSON'
   }),
@@ -59,7 +59,7 @@ angular.module('Monitor', ['ngMaterial', 'ngRoute', 'mobile-angular-ui', 'Diplom
     sensCat: "INT",
     obj: "INT"
   }),
-  Maps: persistence.define('Maps5', {
+  Maps: persistence.define('Maps', {
     name: "TEXT",
     img: "TEXT"
   })
@@ -605,7 +605,6 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       begin = begin.slice(14, begin.indexOf('Job')).replace(',', '');
       date = '20' + begin.split(' ')[0].split('.').reverse().join(' ');
       date = new Date(date + ' ' + begin.split(' ')[1]);
-      console.log(date);
       rows.forEach(function(row) {
         return coords.push(row.split('\n')[3]);
       });
@@ -632,7 +631,6 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
         e = Number(arrCoords[1]);
         n = Number(arrCoords[2]);
         h = Number(arrCoords[3]);
-        console.log("Датчик: " + sens + "\nДом: " + obj + "\nE: " + e + "\nN: " + n + "\nH: " + h);
       }
       return coords;
     },
@@ -1231,7 +1229,8 @@ moduleService.service('Main', function(DB) {
     return DB.Obj.all().list(function(items) {
       var arr;
       if (!items.length) {
-        return $scope.lazyShow = false;
+        $scope.lazyShow = false;
+        return $scope.$apply();
       } else {
         arr = [];
         return items.forEach(function(item, ind, itemsArray) {
@@ -1516,139 +1515,13 @@ moduleService.service('Map', function(DB) {
         s.category = exp.type;
         exp.obj.sensors.add(s);
         exp.map.sensors.add(s);
-        if (exp.type.ui === 1) {
-          s.key = JSON.stringify([
-            {
-              name: 'K',
-              val: 1,
-              "eval": ''
-            }, {
-              name: 'α',
-              val: 12,
-              "eval": 'микрострейн'
-            }, {
-              name: 'ß',
-              val: 10.5,
-              "eval": 'микрострейн'
-            }, {
-              name: 'T0',
-              val: void 0,
-              "eval": '˚C'
-            }
-          ]);
-        }
-        if (exp.type.ui === 2) {
-          s.key = JSON.stringify([
-            {
-              name: 'ТСк',
-              val: 12.2,
-              "eval": 'με/˚С'
-            }, {
-              name: 'TCд',
-              val: 12.2,
-              "eval": 'με/˚С'
-            }, {
-              name: 'F0',
-              val: void 0,
-              "eval": 'Гц'
-            }, {
-              name: 'T0',
-              val: void 0,
-              "eval": '˚C'
-            }
-          ]);
-        }
-        if (exp.type.ui === 3) {
-          s.key = JSON.stringify([
-            {
-              name: 'A',
-              val: 3.65 * Math.pow(10, -12),
-              "eval": ''
-            }, {
-              name: 'B',
-              val: 8.67 * Math.pow(10, -8),
-              "eval": ''
-            }, {
-              name: 'C',
-              val: -2.78563 * Math.pow(10, -4),
-              "eval": ''
-            }, {
-              name: 'D',
-              val: 6.22362,
-              "eval": ''
-            }, {
-              name: 'k',
-              val: -0.002,
-              "eval": 'кг·˚С/см2'
-            }, {
-              name: 'S0',
-              val: 1.020,
-              "eval": 'кг/см2'
-            }, {
-              name: 'S1',
-              val: 1.001,
-              "eval": 'кг/см2'
-            }, {
-              name: 'T0',
-              val: void 0,
-              "eval": '˚C'
-            }, {
-              name: 'P0',
-              val: void 0,
-              "eval": 'кг/см2'
-            }
-          ]);
-        }
-        if (exp.type.ui === 4) {
-          s.key = JSON.stringify([
-            {
-              name: 'A',
-              val: 1,
-              "eval": ''
-            }, {
-              name: 'B',
-              val: 1,
-              "eval": ''
-            }, {
-              name: 'α',
-              val: 1,
-              "eval": ''
-            }, {
-              name: 'B0',
-              val: 1,
-              "eval": ''
-            }, {
-              name: 'B1',
-              val: 1,
-              "eval": ''
-            }, {
-              name: 'P0',
-              val: 1,
-              "eval": ''
-            }, {
-              name: 'T0',
-              val: void 0,
-              "eval": ''
-            }
-          ]);
-        }
-        if (exp.type.ui === 5) {
-          s.key = JSON.stringify([
-            {
-              name: 'E0',
-              val: 0,
-              "eval": ''
-            }, {
-              name: 'N0',
-              val: 0,
-              "eval": ''
-            }, {
-              name: 'H0',
-              val: 0,
-              "eval": ''
-            }
-          ]);
-        }
+        $.ajax({
+          url: "json/ui" + exp.type.ui + ".json",
+          dataType: 'text',
+          success: function(data) {
+            return s.key = data;
+          }
+        });
         return persistence.flush(function() {
           return $scope.tabs.forEach(function(tabs, ind) {
             var _base;

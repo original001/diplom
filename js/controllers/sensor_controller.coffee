@@ -21,7 +21,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			begin = begin.slice( 14, begin.indexOf('Job')).replace ',',''
 			date = '20' + begin.split( ' ')[0].split('.').reverse().join(' ')
 			date = new Date date + ' ' + begin.split( ' ')[1]
-			console.log date
+			# console.log date
 			rows.forEach (row) ->
 				 coords.push row.split('\n')[3]
 			coords = coords.filter (a)->
@@ -35,7 +35,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				n = Number arrCoords[2]
 				h = Number arrCoords[3]
 
-				console.log "Датчик: #{sens}\nДом: #{obj}\nE: #{e}\nN: #{n}\nH: #{h}"
+				# console.log "Датчик: #{sens}\nДом: #{obj}\nE: #{e}\nN: #{n}\nH: #{h}"
 			
 			coords
 		error:(data) ->
