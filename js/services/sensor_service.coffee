@@ -30,6 +30,9 @@ moduleService
 							params: params 
 
 						delete params.t
+						delete params.e
+						delete params.n
+						delete params.h
 
 						ar2 = Object.keys(params)
 						ar1 = $scope.params	
@@ -106,49 +109,68 @@ moduleService
 
 		@addGraph = (date, params, $scope, sensId) ->
 			DB.Sensor.findBy persistence, null, 'id',sensId,(sens)->
-				t = new DB.Graph
-				t.date = date
-				t.params = JSON.stringify params
-				sens.graphs.add t
-				persistence.flush ->
-					$scope.graph.push
-						date: date
-						params: params
-					do $scope.$apply
-					$scope.updatePath Object.keys(params)[0]
+				sens.graphs.list (graphs) ->
+					if graphs.length == 0 
+						keys = JSON.parse sens.key
+						keys.forEach (key) ->
+							if key.name == 'T0' then key.val = params.t
+							if key.name == 'F0' then key.val = params.f
+							if key.name == 'P0' then key.val = params.p
+							if key.name == 'E0' then key.val = params.e
+							if key.name == 'N0' then key.val = params.n
+							if key.name == 'H0' then key.val = params.h
+						sens.key = JSON.stringify keys
+					t = new DB.Graph
+					t.date = date
+					t.params = JSON.stringify params
+					sens.graphs.add t
+					persistence.flush ->
+						$scope.graph.push
+							date: date
+							params: params
+						do $scope.$apply
+						$scope.updatePath Object.keys(params)[0]
 
 		@loadKeySens = (sensId, $scope) ->
 			DB.Sensor.findBy persistence, null, 'id',sensId,(sens)->
 				$scope.keys = JSON.parse sens.key if sens
 				# if {}.keys($scope.keys).length > 4
 
-		@addManyGraphs = (sensId, sensName, date, params, $scope)->
-			DB.Sensor.all().filter 'category','=', $scope.sensor[0].cat.id 
-				.filter 'name','=',sensName
-				.list (sensors) ->
-					unless sensors.length == 1 then console.log 'warning' else
-						sens = sensors[0]
-						sens.graphs.list (graphs)->
-							unless graphs.length == 0 then return false else
-								keys = JSON.parse sens.key
-								keys.forEach (key) ->
-									if key.name == 'T0' then key.val = params.t
-									if key.name == 'F0' then key.val = params.f
-									if key.name == 'P0' then key.val = params.p
-								sens.key = JSON.stringify keys
-
-						persistence.flush ->
-							t = new DB.Graph
-							t.date = date
-							t.params = JSON.stringify params
-							sens.graphs.add t
-							persistence.flush ->
-								if sens.id == $scope.sensor[0].id
-									$scope.graph.push
-										date: date
-										params: params
+		@getCatSensor = (sensId,$scope)->
+			DB.Sensor.findBy persistence, null, 'id',sensId,(sensor)->
+				sensor.fetch 'category',(cat)->
+					DB.Sensor.all().filter 'category','=', cat.id
+						.list (sensors) ->
+							if sensors.length then sensors.forEach (sens,ind)->
+								if sens.name == sensor.name 
+									$scope.catSensors = sensors.splice ind
 									do $scope.$apply
-									$scope.updatePath Object.keys(params)[0]
+									return
+
+
+		@addManyGraphs = (sens, date, params, $scope)->
+			sens.graphs.list (graphs)->
+				if graphs.length == 0 
+					keys = JSON.parse sens.key
+					keys.forEach (key) ->
+						if key.name == 'T0' then key.val = params.t
+						if key.name == 'F0' then key.val = params.f
+						if key.name == 'P0' then key.val = params.p
+						if key.name == 'E0' then key.val = params.e
+						if key.name == 'N0' then key.val = params.n
+						if key.name == 'H0' then key.val = params.h
+					sens.key = JSON.stringify keys
+				t = new DB.Graph
+				t.date = date
+				t.params = JSON.stringify params
+				sens.graphs.add t
+				persistence.flush ->
+					if sens.id == $scope.sensor[0].id
+						$scope.graph.push
+							date: date
+							params: params
+						do $scope.$apply
+						$scope.updatePath Object.keys(params)[0]
 
 
 		return

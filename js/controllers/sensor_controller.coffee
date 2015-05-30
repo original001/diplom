@@ -5,7 +5,41 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	$scope.paramInput = false
 
 	$scope.keys = []
+	$scope.catSensors = []
+
 	Sens.loadKeySens $routeParams.sensId, $scope
+	Sens.getCatSensor $routeParams.sensId,$scope
+
+	$.ajax
+		url: 'res/INDUSTRII5.txt'
+		dataType: 'text'
+		success:(data) ->
+			rows = data.split 'Points'
+			coords = []
+			begin = rows[0]
+			begin = begin.slice(begin.indexOf('Date/Time:'))
+			begin = begin.slice( 14, begin.indexOf('Job')).replace ',',''
+			date = '20' + begin.split( ' ')[0].split('.').reverse().join(' ')
+			date = new Date date + ' ' + begin.split( ' ')[1]
+			console.log date
+			rows.forEach (row) ->
+				 coords.push row.split('\n')[3]
+			coords = coords.filter (a)->
+				ind = a.indexOf('_')
+				if ind == -1 || isNaN Number(a.slice(0, ind)) then return false else true
+			for i in coords
+				sens = i.slice(0, i.indexOf('_'))
+				obj = i.slice(i.indexOf('_')+1,i.indexOf(' '))
+				arrCoords = i.split(' ').filter (a) -> if a == '' then false else true
+				e = Number arrCoords[1]
+				n = Number arrCoords[2]
+				h = Number arrCoords[3]
+
+				console.log "Датчик: #{sens}\nДом: #{obj}\nE: #{e}\nN: #{n}\nH: #{h}"
+			
+			coords
+		error:(data) ->
+			console.log 'error: ' + data
 
 	$g = $ '#graph'
 	s = Snap '#graph'
@@ -68,7 +102,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				.circle getx(el), gety(el), 3
 				.attr
 					fill: '#CB0000'
-			paper.text getx(el) - 3 , gety(el) - 10, absCeil el.params[paramY], false, 4
+			paper.text getx(el) - 3 , gety(el) - 10,'' + absCeil el.params[paramY], false, 4
 			paper
 				.text getx(el) - 3 , h*2, time
 				.transform 'r90,'+(getx(el)-5)+','+h*2
@@ -115,31 +149,38 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			templateUrl: 'view/dialog-import.tpl.html'
 			targetEvent: e
 		.then (answer) ->
-			# clear array with filter.array
-			text = atob answer.base64
-			textArr = text.split '--------------------'
-			SensName = $scope.sensor[0].name
-			sna = SensName.split '-'
+			# логика обработки текстого файла для геодезии
+			console.log $scope.sensor
+			if $scope.sensor[0].cat.ui == 5 
+				console.log 1
 
-			counter = 0
-			for i,ind in textArr when i
-				localSensName = "#{sna[0]}-#{Number(sna[1]) + counter}"
-				trimText =  $.trim textArr[ind]
-				trimText = trimText.replace '\n',' '
+			# логика обработки текстого файла для остального
+			else
+				text = atob answer.base64
+				textArr = text.split '--------------------'
+				textArr = textArr.filter (a) -> !!a
+				SensName = $scope.sensor[0].name
+				sna = SensName.split '-'
 
-				textDate = trimText.split(' ')[0]
-				textParams = trimText.split(' ')[1]
-				tpa = textParams.split(';')
-				textTime = tpa[0]
+				counter = 0
+				for i,ind in $scope.catSensors
+					localSensName = i.name
+					trimText = $.trim textArr[ind]
+					trimText = trimText.replace '\n',' '
 
-				counter++
+					textDate = trimText.split(' ')[0]
+					textParams = trimText.split(' ')[1]
+					tpa = textParams.split(';')
+					textTime = tpa[0]
 
-				answer = 
-					params: 
-						t:tpa[1].replace ',','.'
-						f:tpa[2].replace ',','.'
+					counter++
 
-				Sens.addManyGraphs $routeParams.sensId,localSensName, new Date("#{textDate.replace('/',' ')} #{textTime}"),countParams(answer), $scope
+					answer = 
+						params: 
+							t:tpa[1].replace ',','.'
+							f:tpa[2].replace ',','.'
+
+					Sens.addManyGraphs i, new Date("#{textDate.replace('/',' ')} #{textTime}"),countParams(answer), $scope
 			
 
 
@@ -223,10 +264,10 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 						when 'k' then k = i.val
 				params = {}
 				if answer.params.f?
-					params.f = answer.params.f
+					F = params.f = answer.params.f
 					T1 = params.t = answer.params.t 
 					T0 || T0 = T1
-					R1 = Math.pow(params.f,2)/1000
+					R1 = Math.pow(F,2)/1000
 					P = A*Math.pow(R1,3)+B*Math.pow(R1,2)+C*(R1)+D+k*(T1-T0)-(S1-S0)
 					P0 || P0 = P
 					params.dP = P0 - P
@@ -256,7 +297,24 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 
 				for k, v of answer.params when k != 'f' # для дополнительных параметров
 					params[k] = v	
-				
+
+			# Геодезическая призма
+			when '5'	
+				params = {}
+				E = params.e = answer.params.e
+				N = params.n = answer.params.n
+				H = params.h = answer.params.h
+				for i in $scope.keys
+					switch i.name
+						when 'E0' then E0 = i.val
+						when 'N0' then N0 = i.val
+						when 'H0' then H0 = i.val
+				params.de = (E0 || E) - E
+				params.dn = (N0 || N) - N
+				params.dh = (H0 || H) - H
+				for k, v of answer.params when ['e','n','h'].indexOf(k) == -1 # для дополнительных параметров
+					console.log k
+					params[k] = v	
 			# Стандартная логика работы	
 			else 
 				params = {}
@@ -283,6 +341,9 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 		when '4' 
 			$scope.params = ['f','dP']
 			$scope.addingParams = ['f','t']
+		when '5'
+			$scope.params = ['de','dn','dh']
+			$scope.addingParams = ['e','n','h']
 		else 
 			$scope.params = ['f','me']
 			$scope.addingParams = ['f']

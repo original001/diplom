@@ -96,7 +96,7 @@ moduleService
 			DB.SensCat.findBy persistence, null, 'id',sensTypeId,(type)->
 				exp.type = type if type
 				DB.Sensor.all().filter('category','=',type.id).order('date',false).limit(1).list (sensors) ->
-					exp.count = Number((sensors[0].name || '-0').split('-')[1]) + 1
+					exp.count = if sensors.length then Number(sensors[0].name.split('-')[1]) + 1 else 1
 			persistence.flush ->
 				catName = exp.type.name
 				sp = catName.split(' ')
@@ -227,6 +227,22 @@ moduleService
 								val: undefined
 								eval: ''
 							]
+
+					if exp.type.ui == 5 
+						s.key = 
+							JSON.stringify [
+								name: 'E0'
+								val: 0
+								eval: ''
+							,
+								name: 'N0'
+								val: 0
+								eval: ''
+							,
+								name: 'H0'
+								val: 0
+								eval: ''
+							]
 							
 					persistence.flush ->
 						$scope.tabs.forEach (tabs, ind) ->
@@ -249,7 +265,7 @@ moduleService
 			c.ui = ui.id
 			persistence.add c
 			persistence.flush ->
-				console.log "sensor #{c.name} added with color #{color} and ui number #{ui}!"
+				console.log "sensor #{c.name} added with color #{color} and ui number #{ui.id}!"
 
 		# @renameCat = (id, newcolor) ->
 		# 	DB.SensCat.findBy persistence, null, 'id',id,(cat)->

@@ -10,6 +10,9 @@ moduleService
 							params = JSON.parse graph.params
 							
 							delete params.t
+							delete params.e
+							delete params.n
+							delete params.h
 
 							graphArr.push
 								date: new Date(graph.date)

@@ -24,6 +24,9 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 	,
 		name:'Датчик давления 1.06 СИТИС'
 		id:4
+	,
+		name:'Геодезическая призма'
+		id:5
 	]
 
 	$rootScope.colors = $scope.colors
