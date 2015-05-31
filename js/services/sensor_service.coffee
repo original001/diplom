@@ -120,16 +120,19 @@ moduleService
 							if key.name == 'N0' then key.val = params.n
 							if key.name == 'H0' then key.val = params.h
 						sens.key = JSON.stringify keys
+						$scope.keys = keys
+						do $scope.$apply
 					t = new DB.Graph
 					t.date = date
 					t.params = JSON.stringify params
 					sens.graphs.add t
 					persistence.flush ->
-						$scope.graph.push
-							date: date
-							params: params
-						do $scope.$apply
-						$scope.updatePath Object.keys(params)[0]
+						if $scope.graph? 
+							$scope.graph.push
+								date: date
+								params: params
+							do $scope.$apply
+							$scope.updatePath Object.keys(params)[0]
 
 		@loadKeySens = (sensId, $scope) ->
 			DB.Sensor.findBy persistence, null, 'id',sensId,(sens)->

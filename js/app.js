@@ -228,7 +228,7 @@ DialogController = function($scope, $mdDialog) {
 };
 
 moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) {
-  var CatDialogController;
+  var CatDialogController, DialogImportController;
   $scope.tabs = [
     {
       name: 'tab',
@@ -268,6 +268,22 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
     return w.resize(function() {
       return $('.index-md-content').height(w.height() - 64);
     });
+  });
+  $.ajax({
+    url: 'res/INDUSTRII5.txt',
+    dataType: 'txt',
+    error: function(data) {
+      var begin, coords, date, rows, street;
+      rows = data.responseText.split('Points');
+      coords = [];
+      begin = rows[0];
+      date = begin.slice(begin.indexOf('Date/Time:'));
+      date = date.slice(14, date.indexOf('Job')).replace(',', '');
+      date = '20' + date.split(' ')[0].split('.').reverse().join(' ');
+      date = new Date(date + ' ' + begin.split(' ')[1]);
+      street = begin.slice(begin.indexOf('Job			:') + 7, begin.indexOf('Creator'));
+      return street = $.trim(street);
+    }
   });
   $scope.listCat = function() {
     return Map.listCat($scope);
@@ -356,7 +372,59 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
       return Map.addCat(answer.name, answer.color, answer.ui);
     });
   };
-  return CatDialogController = function($scope, $mdDialog) {
+  $scope.importGeo = function(e) {
+    return $mdDialog.show({
+      controller: DialogImportController,
+      templateUrl: 'view/dialog-import.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      var arrCoords, begin, coords, date, i, obj, objName, params, rows, sens, street, text, _i, _len, _results;
+      text = atob(answer.base64);
+      rows = text.split('Points');
+      coords = [];
+      begin = rows[0];
+      date = begin.slice(begin.indexOf('Date/Time:'));
+      date = date.slice(14, date.indexOf('Job')).replace(',', '');
+      date = '20' + date.split(' ')[0].split('.').reverse().join(' ');
+      date = new Date(date + ' ' + begin.split(' ')[1]);
+      street = begin.slice(begin.indexOf('Job			:') + 7, begin.indexOf('Creator'));
+      street = $.trim(street);
+      rows.forEach(function(row) {
+        return coords.push(row.split('\n')[3]);
+      });
+      coords = coords.filter(function(a) {
+        var ind;
+        ind = a.indexOf('_');
+        if (ind === -1 || isNaN(Number(a.slice(0, ind)))) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+      _results = [];
+      for (_i = 0, _len = coords.length; _i < _len; _i++) {
+        i = coords[_i];
+        sens = i.slice(0, i.indexOf('_'));
+        obj = i.slice(i.indexOf('_') + 1, i.indexOf(' '));
+        objName = "" + street + " " + obj;
+        arrCoords = i.split(' ').filter(function(a) {
+          if (a === '') {
+            return false;
+          } else {
+            return true;
+          }
+        });
+        params = {
+          e: Number(arrCoords[1]),
+          n: Number(arrCoords[2]),
+          h: Number(arrCoords[3])
+        };
+        _results.push(Map.importGeo($scope, sens, objName, params, date));
+      }
+      return _results;
+    });
+  };
+  CatDialogController = function($scope, $mdDialog) {
     $scope.cancel = function() {
       return $mdDialog.cancel();
     };
@@ -367,6 +435,14 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
     $scope.UI = $rootScope.UI;
     return $scope.listColor = function() {
       return Map.listColor($scope);
+    };
+  };
+  return DialogImportController = function($scope, $mdDialog) {
+    $scope.cancel = function() {
+      return $mdDialog.cancel();
+    };
+    return $scope.answer = function(answer) {
+      return $mdDialog.hide(answer);
     };
   };
 });
@@ -593,51 +669,6 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
   $scope.catSensors = [];
   Sens.loadKeySens($routeParams.sensId, $scope);
   Sens.getCatSensor($routeParams.sensId, $scope);
-  $.ajax({
-    url: 'res/INDUSTRII5.txt',
-    dataType: 'text',
-    success: function(data) {
-      var arrCoords, begin, coords, date, e, h, i, n, obj, rows, sens, _i, _len;
-      rows = data.split('Points');
-      coords = [];
-      begin = rows[0];
-      begin = begin.slice(begin.indexOf('Date/Time:'));
-      begin = begin.slice(14, begin.indexOf('Job')).replace(',', '');
-      date = '20' + begin.split(' ')[0].split('.').reverse().join(' ');
-      date = new Date(date + ' ' + begin.split(' ')[1]);
-      rows.forEach(function(row) {
-        return coords.push(row.split('\n')[3]);
-      });
-      coords = coords.filter(function(a) {
-        var ind;
-        ind = a.indexOf('_');
-        if (ind === -1 || isNaN(Number(a.slice(0, ind)))) {
-          return false;
-        } else {
-          return true;
-        }
-      });
-      for (_i = 0, _len = coords.length; _i < _len; _i++) {
-        i = coords[_i];
-        sens = i.slice(0, i.indexOf('_'));
-        obj = i.slice(i.indexOf('_') + 1, i.indexOf(' '));
-        arrCoords = i.split(' ').filter(function(a) {
-          if (a === '') {
-            return false;
-          } else {
-            return true;
-          }
-        });
-        e = Number(arrCoords[1]);
-        n = Number(arrCoords[2]);
-        h = Number(arrCoords[3]);
-      }
-      return coords;
-    },
-    error: function(data) {
-      return console.log('error: ' + data);
-    }
-  });
   $g = $('#graph');
   s = Snap('#graph');
   paper = s.paper;
@@ -739,40 +770,35 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       targetEvent: e
     }).then(function(answer) {
       var SensName, counter, i, ind, localSensName, sna, text, textArr, textDate, textParams, textTime, tpa, trimText, _i, _len, _ref, _results;
-      console.log($scope.sensor);
-      if ($scope.sensor[0].cat.ui === 5) {
-        return console.log(1);
-      } else {
-        text = atob(answer.base64);
-        textArr = text.split('--------------------');
-        textArr = textArr.filter(function(a) {
-          return !!a;
-        });
-        SensName = $scope.sensor[0].name;
-        sna = SensName.split('-');
-        counter = 0;
-        _ref = $scope.catSensors;
-        _results = [];
-        for (ind = _i = 0, _len = _ref.length; _i < _len; ind = ++_i) {
-          i = _ref[ind];
-          localSensName = i.name;
-          trimText = $.trim(textArr[ind]);
-          trimText = trimText.replace('\n', ' ');
-          textDate = trimText.split(' ')[0];
-          textParams = trimText.split(' ')[1];
-          tpa = textParams.split(';');
-          textTime = tpa[0];
-          counter++;
-          answer = {
-            params: {
-              t: tpa[1].replace(',', '.'),
-              f: tpa[2].replace(',', '.')
-            }
-          };
-          _results.push(Sens.addManyGraphs(i, new Date("" + (textDate.replace('/', ' ')) + " " + textTime), countParams(answer), $scope));
-        }
-        return _results;
+      text = atob(answer.base64);
+      textArr = text.split('--------------------');
+      textArr = textArr.filter(function(a) {
+        return !!a;
+      });
+      SensName = $scope.sensor[0].name;
+      sna = SensName.split('-');
+      counter = 0;
+      _ref = $scope.catSensors;
+      _results = [];
+      for (ind = _i = 0, _len = _ref.length; _i < _len; ind = ++_i) {
+        i = _ref[ind];
+        localSensName = i.name;
+        trimText = $.trim(textArr[ind]);
+        trimText = trimText.replace('\n', ' ');
+        textDate = trimText.split(' ')[0];
+        textParams = trimText.split(' ')[1];
+        tpa = textParams.split(';');
+        textTime = tpa[0];
+        counter++;
+        answer = {
+          params: {
+            t: tpa[1].replace(',', '.'),
+            f: tpa[2].replace(',', '.')
+          }
+        };
+        _results.push(Sens.addManyGraphs(i, new Date("" + (textDate.replace('/', ' ')) + " " + textTime), countParams(answer), $scope));
       }
+      return _results;
     });
   };
   $scope.editSens = function(e) {
@@ -992,11 +1018,9 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
         _ref9 = answer.params;
         for (k in _ref9) {
           v = _ref9[k];
-          if (!(['e', 'n', 'h'].indexOf(k) === -1)) {
-            continue;
+          if (['e', 'n', 'h'].indexOf(k) === -1) {
+            params[k] = v;
           }
-          console.log(k);
-          params[k] = v;
         }
         break;
       default:
@@ -1348,7 +1372,7 @@ moduleService.service('Main', function(DB) {
   };
 });
 
-moduleService.service('Map', function(DB) {
+moduleService.service('Map', function(DB, Sens) {
   this.list = function($scope, objId, colors) {
     return DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
       if (obj) {
@@ -1493,56 +1517,71 @@ moduleService.service('Map', function(DB) {
     });
     DB.SensCat.findBy(persistence, null, 'id', sensTypeId, function(type) {
       if (type) {
-        exp.type = type;
+        return exp.type = type;
       }
-      return DB.Sensor.all().filter('category', '=', type.id).order('date', false).limit(1).list(function(sensors) {
-        return exp.count = sensors.length ? Number(sensors[0].name.split('-')[1]) + 1 : 1;
-      });
     });
     return persistence.flush(function() {
-      var catName, l, s, sensName, sp;
-      catName = exp.type.name;
-      sp = catName.split(' ');
-      l = sp.length;
-      sensName = sp[l - 1].slice(0, 6);
-      s = new DB.Sensor({
-        name: sensName.replace('-', '') + '-' + exp.count,
-        top: top,
-        left: left,
-        date: new Date().getTime()
-      });
-      if (exp.obj && exp.map && exp.type) {
-        s.category = exp.type;
-        exp.obj.sensors.add(s);
-        exp.map.sensors.add(s);
-        $.ajax({
-          url: "json/ui" + exp.type.ui + ".json",
-          dataType: 'text',
-          success: function(data) {
-            return s.key = data;
+      DB.Sensor.all().filter('obj', '=', exp.obj.id).filter('category', '=', exp.type.id).order('date', false).list(function(sensors) {
+        var sens, _i, _len, _name;
+        if (!sensors.length) {
+          return exp.count = 1;
+        } else {
+          for (_i = 0, _len = sensors.length; _i < _len; _i++) {
+            sens = sensors[_i];
+            console.log(sens.name);
+            _name = Number(sens.name.split('-')[1]) + 1;
+            if (!isNaN(_name)) {
+              exp.count = _name;
+              return false;
+            }
           }
+        }
+      });
+      return persistence.flush(function() {
+        var catName, l, s, sensName, sp;
+        catName = exp.type.name;
+        sp = catName.split(' ');
+        l = sp.length;
+        sensName = sp[l - 1].slice(0, 6);
+        s = new DB.Sensor({
+          name: sensName.replace('-', '') + '-' + exp.count,
+          top: top,
+          left: left,
+          date: new Date().getTime()
         });
-        return persistence.flush(function() {
-          return $scope.tabs.forEach(function(tabs, ind) {
-            var _base;
-            if (tabs.id === exp.map.id) {
-              if ((_base = $scope.tabs[ind]).sensors == null) {
-                _base.sensors = [];
-              }
-              $scope.tabs[ind].sensors.push({
-                id: s.id,
-                type: sensTypeId,
-                name: s.name,
-                top: top,
-                left: left,
-                ui: exp.type.ui,
-                color: colors[exp.type.color]
-              });
-              return $scope.$apply();
+        if (exp.obj && exp.map && exp.type) {
+          s.category = exp.type;
+          exp.obj.sensors.add(s);
+          exp.map.sensors.add(s);
+          $.ajax({
+            url: "json/ui" + exp.type.ui + ".json",
+            dataType: 'text',
+            success: function(data) {
+              return s.key = data;
             }
           });
-        });
-      }
+          return persistence.flush(function() {
+            return $scope.tabs.forEach(function(tabs, ind) {
+              var _base;
+              if (tabs.id === exp.map.id) {
+                if ((_base = $scope.tabs[ind]).sensors == null) {
+                  _base.sensors = [];
+                }
+                $scope.tabs[ind].sensors.push({
+                  id: s.id,
+                  type: sensTypeId,
+                  name: s.name,
+                  top: top,
+                  left: left,
+                  ui: exp.type.ui,
+                  color: colors[exp.type.color]
+                });
+                return $scope.$apply();
+              }
+            });
+          });
+        }
+      });
     });
   };
   this.addCat = function(nameCat, color, ui) {
@@ -1576,6 +1615,41 @@ moduleService.service('Map', function(DB) {
           }
         });
       }
+    });
+  };
+  this.importGeo = function($scope, sensName, objName, params, date) {
+    return DB.Obj.findBy(persistence, null, 'name', objName, function(obj) {
+      return obj.sensors.list(function(sensors) {
+        var E, E0, H, H0, N, N0, i, localparams, sens, _i, _j, _len, _len1, _ref;
+        for (_i = 0, _len = sensors.length; _i < _len; _i++) {
+          sens = sensors[_i];
+          if (sens.name.split('-')[1] === sensName) {
+            localparams = {};
+            E = localparams.e = params.e;
+            N = localparams.n = params.n;
+            H = localparams.h = params.h;
+            _ref = JSON.parse(sens.key);
+            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+              i = _ref[_j];
+              switch (i.name) {
+                case 'E0':
+                  E0 = i.val;
+                  break;
+                case 'N0':
+                  N0 = i.val;
+                  break;
+                case 'H0':
+                  H0 = i.val;
+              }
+            }
+            localparams.de = (E0 || E) - E - 3;
+            localparams.dn = (N0 || N) - N - 4;
+            localparams.dh = (H0 || H) - H - 5;
+            Sens.addGraph(date.setDate(5), localparams, $scope, sens.id);
+            return false;
+          }
+        }
+      });
     });
   };
 });
@@ -1824,18 +1898,22 @@ moduleService.service('Sens', function(DB, $window) {
             }
           });
           sens.key = JSON.stringify(keys);
+          $scope.keys = keys;
+          $scope.$apply();
         }
         t = new DB.Graph;
         t.date = date;
         t.params = JSON.stringify(params);
         sens.graphs.add(t);
         return persistence.flush(function() {
-          $scope.graph.push({
-            date: date,
-            params: params
-          });
-          $scope.$apply();
-          return $scope.updatePath(Object.keys(params)[0]);
+          if ($scope.graph != null) {
+            $scope.graph.push({
+              date: date,
+              params: params
+            });
+            $scope.$apply();
+            return $scope.updatePath(Object.keys(params)[0]);
+          }
         });
       });
     });

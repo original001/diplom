@@ -10,36 +10,6 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 	Sens.loadKeySens $routeParams.sensId, $scope
 	Sens.getCatSensor $routeParams.sensId,$scope
 
-	$.ajax
-		url: 'res/INDUSTRII5.txt'
-		dataType: 'text'
-		success:(data) ->
-			rows = data.split 'Points'
-			coords = []
-			begin = rows[0]
-			begin = begin.slice(begin.indexOf('Date/Time:'))
-			begin = begin.slice( 14, begin.indexOf('Job')).replace ',',''
-			date = '20' + begin.split( ' ')[0].split('.').reverse().join(' ')
-			date = new Date date + ' ' + begin.split( ' ')[1]
-			# console.log date
-			rows.forEach (row) ->
-				 coords.push row.split('\n')[3]
-			coords = coords.filter (a)->
-				ind = a.indexOf('_')
-				if ind == -1 || isNaN Number(a.slice(0, ind)) then return false else true
-			for i in coords
-				sens = i.slice(0, i.indexOf('_'))
-				obj = i.slice(i.indexOf('_')+1,i.indexOf(' '))
-				arrCoords = i.split(' ').filter (a) -> if a == '' then false else true
-				e = Number arrCoords[1]
-				n = Number arrCoords[2]
-				h = Number arrCoords[3]
-
-				# console.log "Датчик: #{sens}\nДом: #{obj}\nE: #{e}\nN: #{n}\nH: #{h}"
-			
-			coords
-		error:(data) ->
-			console.log 'error: ' + data
 
 	$g = $ '#graph'
 	s = Snap '#graph'
@@ -149,38 +119,31 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			templateUrl: 'view/dialog-import.tpl.html'
 			targetEvent: e
 		.then (answer) ->
-			# логика обработки текстого файла для геодезии
-			console.log $scope.sensor
-			if $scope.sensor[0].cat.ui == 5 
-				console.log 1
+			text = atob answer.base64
+			textArr = text.split '--------------------'
+			textArr = textArr.filter (a) -> !!a
+			SensName = $scope.sensor[0].name
+			sna = SensName.split '-'
 
-			# логика обработки текстого файла для остального
-			else
-				text = atob answer.base64
-				textArr = text.split '--------------------'
-				textArr = textArr.filter (a) -> !!a
-				SensName = $scope.sensor[0].name
-				sna = SensName.split '-'
+			counter = 0
+			for i,ind in $scope.catSensors
+				localSensName = i.name
+				trimText = $.trim textArr[ind]
+				trimText = trimText.replace '\n',' '
 
-				counter = 0
-				for i,ind in $scope.catSensors
-					localSensName = i.name
-					trimText = $.trim textArr[ind]
-					trimText = trimText.replace '\n',' '
+				textDate = trimText.split(' ')[0]
+				textParams = trimText.split(' ')[1]
+				tpa = textParams.split(';')
+				textTime = tpa[0]
 
-					textDate = trimText.split(' ')[0]
-					textParams = trimText.split(' ')[1]
-					tpa = textParams.split(';')
-					textTime = tpa[0]
+				counter++
 
-					counter++
+				answer = 
+					params: 
+						t:tpa[1].replace ',','.'
+						f:tpa[2].replace ',','.'
 
-					answer = 
-						params: 
-							t:tpa[1].replace ',','.'
-							f:tpa[2].replace ',','.'
-
-					Sens.addManyGraphs i, new Date("#{textDate.replace('/',' ')} #{textTime}"),countParams(answer), $scope
+				Sens.addManyGraphs i, new Date("#{textDate.replace('/',' ')} #{textTime}"),countParams(answer), $scope
 			
 
 
@@ -313,7 +276,6 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				params.dn = (N0 || N) - N
 				params.dh = (H0 || H) - H
 				for k, v of answer.params when ['e','n','h'].indexOf(k) == -1 # для дополнительных параметров
-					console.log k
 					params[k] = v	
 			# Стандартная логика работы	
 			else 

@@ -40,6 +40,20 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 			$ '.index-md-content'
 				.height w.height() - 64
 
+	$.ajax
+		url: 'res/INDUSTRII5.txt'
+		dataType: 'txt'
+		error: (data) ->
+			rows = data.responseText.split 'Points'
+			coords = []
+			begin = rows[0]
+			date = begin.slice(begin.indexOf('Date/Time:'))
+			date = date.slice(14,date.indexOf('Job')).replace ',',''
+			date = '20' + date.split(' ')[0].split('.').reverse().join(' ')
+			date = new Date date + ' ' + begin.split( ' ')[1]
+			street = begin.slice(begin.indexOf('Job			:')+7,begin.indexOf('Creator'))
+			street = $.trim street
+
 	$scope.listCat = ->
 		Map.listCat $scope 
 
@@ -144,6 +158,41 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 		.then (answer) ->
 			Map.addCat answer.name, answer.color, answer.ui
 
+	$scope.importGeo = (e) ->
+		$mdDialog.show
+			controller: DialogImportController
+			templateUrl: 'view/dialog-import.tpl.html'
+			targetEvent: e
+		.then (answer) ->
+			text = atob answer.base64
+			rows = text.split 'Points'
+			coords = []
+			begin = rows[0]
+			date = begin.slice(begin.indexOf('Date/Time:'))
+			date = date.slice(14,date.indexOf('Job')).replace ',',''
+			date = '20' + date.split( ' ')[0].split('.').reverse().join(' ')
+			date = new Date date + ' ' + begin.split( ' ')[1]
+			street = begin.slice(begin.indexOf('Job			:')+7,begin.indexOf('Creator'))
+			street = $.trim street
+			rows.forEach (row) ->
+				 coords.push row.split('\n')[3]
+			coords = coords.filter (a)->
+				ind = a.indexOf('_')
+				if ind == -1 || isNaN Number(a.slice(0, ind)) then return false else true
+			for i in coords
+				sens = i.slice(0, i.indexOf('_'))
+				obj = i.slice(i.indexOf('_')+1,i.indexOf(' '))
+				objName = "#{street} #{obj}"
+				arrCoords = i.split(' ').filter (a) -> if a == '' then false else true
+				params =
+					e: Number arrCoords[1]
+					n: Number arrCoords[2]
+					h: Number arrCoords[3]
+
+				Map.importGeo $scope, sens, objName, params, date
+
+				# console.log "Датчик: #{sens}\nДом: #{obj}\nE: #{e}\nN: #{n}\nH: #{h}"
+
 	CatDialogController = ($scope, $mdDialog) ->
 		$scope.cancel = ->
 			do $mdDialog.cancel
@@ -155,3 +204,10 @@ moduleCtrl.controller 'MapController', ($rootScope ,$scope, $routeParams, Map, $
 
 		$scope.listColor = ->
 			Map.listColor $scope
+
+	DialogImportController = ($scope, $mdDialog) ->
+		$scope.cancel = ->
+			do $mdDialog.cancel
+
+		$scope.answer = (answer) ->
+			$mdDialog.hide answer

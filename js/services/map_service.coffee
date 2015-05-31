@@ -1,5 +1,5 @@
 moduleService
-	.service 'Map', (DB) ->
+	.service 'Map', (DB, Sens) ->
 		@list = ($scope, objId, colors) ->
 			DB.Obj.findBy persistence, null, 'id',objId,(obj)->
 				if obj
@@ -95,42 +95,54 @@ moduleService
 				exp.map = map if map
 			DB.SensCat.findBy persistence, null, 'id',sensTypeId,(type)->
 				exp.type = type if type
-				DB.Sensor.all().filter('category','=',type.id).order('date',false).limit(1).list (sensors) ->
-					exp.count = if sensors.length then Number(sensors[0].name.split('-')[1]) + 1 else 1
-			persistence.flush ->
-				catName = exp.type.name
-				sp = catName.split(' ')
-				l = sp.length
-				sensName = sp[l-1].slice 0,6
-				s = new DB.Sensor
-					name: sensName.replace('-','') + '-' + exp.count
-					top: top
-					left: left
-					date: new Date().getTime()
-				if  exp.obj && exp.map && exp.type
-					s.category = exp.type
-					exp.obj.sensors.add(s)
-					exp.map.sensors.add(s)
 
-					$.ajax
-						url:"json/ui#{exp.type.ui}.json"
-						dataType: 'text'
-						success: (data) ->
-							s.key = data
-							
-					persistence.flush ->
-						$scope.tabs.forEach (tabs, ind) ->
-							if tabs.id == exp.map.id
-								$scope.tabs[ind].sensors ?= []
-								$scope.tabs[ind].sensors.push
-									id: s.id	
-									type: sensTypeId
-									name: s.name
-									top: top	
-									left: left
-									ui: exp.type.ui
-									color: colors[exp.type.color]
-								do $scope.$apply
+			persistence.flush ->
+				DB.Sensor.all()
+					.filter('obj','=',exp.obj.id)
+					.filter('category','=',exp.type.id)
+					.order('date',false)
+					.list (sensors) ->
+						if !sensors.length then exp.count = 1 else for sens in sensors
+							console.log sens.name
+							_name = Number(sens.name.split('-')[1]) + 1 
+							unless isNaN _name 
+								exp.count = _name
+								return false
+
+				persistence.flush ->
+					catName = exp.type.name
+					sp = catName.split(' ')
+					l = sp.length
+					sensName = sp[l-1].slice 0,6
+					s = new DB.Sensor
+						name: sensName.replace('-','') + '-' + exp.count
+						top: top
+						left: left
+						date: new Date().getTime()
+					if  exp.obj && exp.map && exp.type
+						s.category = exp.type
+						exp.obj.sensors.add(s)
+						exp.map.sensors.add(s)
+
+						$.ajax
+							url:"json/ui#{exp.type.ui}.json"
+							dataType: 'text'
+							success: (data) ->
+								s.key = data
+								
+						persistence.flush ->
+							$scope.tabs.forEach (tabs, ind) ->
+								if tabs.id == exp.map.id
+									$scope.tabs[ind].sensors ?= []
+									$scope.tabs[ind].sensors.push
+										id: s.id	
+										type: sensTypeId
+										name: s.name
+										top: top	
+										left: left
+										ui: exp.type.ui
+										color: colors[exp.type.color]
+									do $scope.$apply
 
 		@addCat = (nameCat = ui.name, color, ui) ->
 			c = new DB.SensCat
@@ -140,11 +152,6 @@ moduleService
 			persistence.add c
 			persistence.flush ->
 				console.log "sensor #{c.name} added with color #{color} and ui number #{ui.id}!"
-
-		# @renameCat = (id, newcolor) ->
-		# 	DB.SensCat.findBy persistence, null, 'id',id,(cat)->
-		# 		cat.name = newname
-		# 		cat.color = newcolor
 
 		@listCat = ($scope) ->
 			DB.SensCat.all().list (cats) ->
@@ -158,5 +165,28 @@ moduleService
 						if ind == ar.length-1
 							$scope.categories = arrCats
 							do $scope.$apply
+
+		@importGeo = ($scope, sensName, objName, params, date) ->
+			DB.Obj.findBy persistence, null, 'name',objName,(obj)->
+				obj.sensors.list (sensors)->
+					for sens in sensors
+						if sens.name.split('-')[1] == sensName
+
+							localparams = {}
+							E = localparams.e = params.e
+							N = localparams.n = params.n
+							H = localparams.h = params.h
+							for i in JSON.parse sens.key
+								switch i.name
+									when 'E0' then E0 = i.val
+									when 'N0' then N0 = i.val
+									when 'H0' then H0 = i.val
+							localparams.de = (E0 || E) - E - 3
+							localparams.dn = (N0 || N) - N - 4
+							localparams.dh = (H0 || H) - H - 5 
+
+							Sens.addGraph date.setDate(5), localparams, $scope, sens.id
+
+							return false
 
 		return

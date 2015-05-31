@@ -180,6 +180,15 @@
 	line-height: 2;
 	content: '';
 }
+.button-geo {
+	font-family: 'FontAwesome';
+	top: 265px;
+}
+.button-geo:after {
+	font-weight: bold;
+	line-height: 2;
+	content: '\f05B';
+}
 .button-rename {
 	font-family: 'icons';
 	top: 165px;
