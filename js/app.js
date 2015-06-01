@@ -110,9 +110,71 @@ absCeil = function(number, down, count, round) {
   return digit /= Math.pow(10, -length);
 };
 
-moduleCtrl.controller('AppController', function($rootScope, $scope, $window, $document, $mdSidenav, $mdUtil) {
-  return $scope.sidenavToggle = function() {
+moduleCtrl.controller('AppController', function($rootScope, $scope, $window, $document, $mdSidenav, $mdUtil, $mdDialog, App) {
+  var DialogImportController;
+  $scope.sidenavToggle = function() {
     return $mdSidenav('left').toggle();
+  };
+  $scope.importGeo = function(e) {
+    $mdSidenav('left').toggle();
+    return $mdDialog.show({
+      controller: DialogImportController,
+      templateUrl: 'view/dialog-import.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      var arrCoords, begin, coords, date, i, obj, objName, params, rows, sens, street, text, _i, _len, _results;
+      text = atob(answer.base64);
+      rows = text.split('Points');
+      coords = [];
+      begin = rows[0];
+      date = begin.slice(begin.indexOf('Date/Time:'));
+      date = date.slice(14, date.indexOf('Job')).replace(',', '');
+      date = '20' + date.split(' ')[0].split('.').reverse().join(' ');
+      date = new Date(date + ' ' + begin.split(' ')[1]);
+      street = begin.slice(begin.indexOf('Job			:') + 7, begin.indexOf('Creator'));
+      street = $.trim(street);
+      rows.forEach(function(row) {
+        return coords.push(row.split('\n')[3]);
+      });
+      coords = coords.filter(function(a) {
+        var ind;
+        ind = a.indexOf('_');
+        if (ind === -1 || isNaN(Number(a.slice(0, ind)))) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+      _results = [];
+      for (_i = 0, _len = coords.length; _i < _len; _i++) {
+        i = coords[_i];
+        sens = i.slice(0, i.indexOf('_'));
+        obj = i.slice(i.indexOf('_') + 1, i.indexOf(' '));
+        objName = "" + street + " " + obj;
+        arrCoords = i.split(' ').filter(function(a) {
+          if (a === '') {
+            return false;
+          } else {
+            return true;
+          }
+        });
+        params = {
+          e: Number(arrCoords[1]),
+          n: Number(arrCoords[2]),
+          h: Number(arrCoords[3])
+        };
+        _results.push(App.importGeo($scope, sens, objName, params, date));
+      }
+      return _results;
+    });
+  };
+  return DialogImportController = function($scope, $mdDialog) {
+    $scope.cancel = function() {
+      return $mdDialog.cancel();
+    };
+    return $scope.answer = function(answer) {
+      return $mdDialog.hide(answer);
+    };
   };
 });
 
@@ -228,7 +290,7 @@ DialogController = function($scope, $mdDialog) {
 };
 
 moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams, Map, $mdDialog, $window, $document, $mdToast, $animate) {
-  var CatDialogController, DialogImportController;
+  var CatDialogController;
   $scope.tabs = [
     {
       name: 'tab',
@@ -372,59 +434,7 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
       return Map.addCat(answer.name, answer.color, answer.ui);
     });
   };
-  $scope.importGeo = function(e) {
-    return $mdDialog.show({
-      controller: DialogImportController,
-      templateUrl: 'view/dialog-import.tpl.html',
-      targetEvent: e
-    }).then(function(answer) {
-      var arrCoords, begin, coords, date, i, obj, objName, params, rows, sens, street, text, _i, _len, _results;
-      text = atob(answer.base64);
-      rows = text.split('Points');
-      coords = [];
-      begin = rows[0];
-      date = begin.slice(begin.indexOf('Date/Time:'));
-      date = date.slice(14, date.indexOf('Job')).replace(',', '');
-      date = '20' + date.split(' ')[0].split('.').reverse().join(' ');
-      date = new Date(date + ' ' + begin.split(' ')[1]);
-      street = begin.slice(begin.indexOf('Job			:') + 7, begin.indexOf('Creator'));
-      street = $.trim(street);
-      rows.forEach(function(row) {
-        return coords.push(row.split('\n')[3]);
-      });
-      coords = coords.filter(function(a) {
-        var ind;
-        ind = a.indexOf('_');
-        if (ind === -1 || isNaN(Number(a.slice(0, ind)))) {
-          return false;
-        } else {
-          return true;
-        }
-      });
-      _results = [];
-      for (_i = 0, _len = coords.length; _i < _len; _i++) {
-        i = coords[_i];
-        sens = i.slice(0, i.indexOf('_'));
-        obj = i.slice(i.indexOf('_') + 1, i.indexOf(' '));
-        objName = "" + street + " " + obj;
-        arrCoords = i.split(' ').filter(function(a) {
-          if (a === '') {
-            return false;
-          } else {
-            return true;
-          }
-        });
-        params = {
-          e: Number(arrCoords[1]),
-          n: Number(arrCoords[2]),
-          h: Number(arrCoords[3])
-        };
-        _results.push(Map.importGeo($scope, sens, objName, params, date));
-      }
-      return _results;
-    });
-  };
-  CatDialogController = function($scope, $mdDialog) {
+  return CatDialogController = function($scope, $mdDialog) {
     $scope.cancel = function() {
       return $mdDialog.cancel();
     };
@@ -435,14 +445,6 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
     $scope.UI = $rootScope.UI;
     return $scope.listColor = function() {
       return Map.listColor($scope);
-    };
-  };
-  return DialogImportController = function($scope, $mdDialog) {
-    $scope.cancel = function() {
-      return $mdDialog.cancel();
-    };
-    return $scope.answer = function(answer) {
-      return $mdDialog.hide(answer);
     };
   };
 });
@@ -1617,41 +1619,6 @@ moduleService.service('Map', function(DB, Sens) {
       }
     });
   };
-  this.importGeo = function($scope, sensName, objName, params, date) {
-    return DB.Obj.findBy(persistence, null, 'name', objName, function(obj) {
-      return obj.sensors.list(function(sensors) {
-        var E, E0, H, H0, N, N0, i, localparams, sens, _i, _j, _len, _len1, _ref;
-        for (_i = 0, _len = sensors.length; _i < _len; _i++) {
-          sens = sensors[_i];
-          if (sens.name.split('-')[1] === sensName) {
-            localparams = {};
-            E = localparams.e = params.e;
-            N = localparams.n = params.n;
-            H = localparams.h = params.h;
-            _ref = JSON.parse(sens.key);
-            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-              i = _ref[_j];
-              switch (i.name) {
-                case 'E0':
-                  E0 = i.val;
-                  break;
-                case 'N0':
-                  N0 = i.val;
-                  break;
-                case 'H0':
-                  H0 = i.val;
-              }
-            }
-            localparams.de = (E0 || E) - E - 3;
-            localparams.dn = (N0 || N) - N - 4;
-            localparams.dh = (H0 || H) - H - 5;
-            Sens.addGraph(date.setDate(5), localparams, $scope, sens.id);
-            return false;
-          }
-        }
-      });
-    });
-  };
 });
 
 moduleService.service('MultiSens', function(DB, $window) {
@@ -2044,6 +2011,44 @@ moduleService.service('Table', function(DB) {
       return persistence.flush(function() {
         $scope.sensor = arr;
         return $scope.$apply();
+      });
+    });
+  };
+});
+
+moduleService.service('App', function(DB, Sens) {
+  this.importGeo = function($scope, sensName, objName, params, date) {
+    return DB.Obj.findBy(persistence, null, 'name', objName, function(obj) {
+      return obj.sensors.list(function(sensors) {
+        var E, E0, H, H0, N, N0, i, localparams, sens, _i, _j, _len, _len1, _ref;
+        for (_i = 0, _len = sensors.length; _i < _len; _i++) {
+          sens = sensors[_i];
+          if (sens.name.split('-')[1] === sensName) {
+            localparams = {};
+            E = localparams.e = params.e;
+            N = localparams.n = params.n;
+            H = localparams.h = params.h;
+            _ref = JSON.parse(sens.key);
+            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+              i = _ref[_j];
+              switch (i.name) {
+                case 'E0':
+                  E0 = i.val;
+                  break;
+                case 'N0':
+                  N0 = i.val;
+                  break;
+                case 'H0':
+                  H0 = i.val;
+              }
+            }
+            localparams.de = (E0 || E) - E;
+            localparams.dn = (N0 || N) - N;
+            localparams.dh = (H0 || H) - H;
+            Sens.addGraph(date, localparams, $scope, sens.id);
+            return false;
+          }
+        }
       });
     });
   };
