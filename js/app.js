@@ -110,53 +110,6 @@ absCeil = function(number, down, count, round) {
   return digit /= Math.pow(10, -length);
 };
 
-moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParams, List, $window, $mdDialog) {
-  $scope.objId = $routeParams.objId;
-  $scope.categories = [];
-  $scope.checkboxMode = false;
-  $scope.selected = [];
-  $scope.disable = false;
-  $scope.empty = false;
-  $scope.lazyShow = true;
-  $(function() {
-    var w;
-    w = $(window);
-    $('.index-md-content').height(w.height() - 64);
-    return w.resize(function() {
-      return $('.index-md-content').height(w.height() - 64);
-    });
-  });
-  $scope.check = function() {
-    return $scope.checkboxMode = $scope.checkboxMode ? false : true;
-  };
-  $scope.build = function() {
-    $rootScope.multisensors = $scope.selected;
-    return $window.location.href = "#/multisensors/" + $scope.objId;
-  };
-  $scope.getData = function(item, list, ev) {
-    var i, ind, _i, _len;
-    for (ind = _i = 0, _len = list.length; _i < _len; ind = ++_i) {
-      i = list[ind];
-      if (!(i.id === item.id)) {
-        continue;
-      }
-      $scope.selected.splice(ind, 1);
-      return false;
-    }
-    if ($scope.selected.length > 9) {
-      $mdDialog.show($mdDialog.alert().parent(angular.element(document.body)).title('Не более 10 графиков за раз').ariaLabel('count of sensor').ok('Окей').targetEvent(ev), $scope.disable = true).then(function() {
-        return $scope.disable = false;
-      });
-      return false;
-    }
-    return $scope.selected.push({
-      id: item.id,
-      name: item.name
-    });
-  };
-  return List.list($scope, $scope.objId);
-});
-
 moduleCtrl.controller('MainController', function($scope, $routeParams, Main, $mdDialog) {
   $scope.lists = [];
   $scope.lazyShow = true;
@@ -659,8 +612,11 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
           T1 = params.t = answer.params.t;
           T0 || (T0 = T1);
           R1 = Math.pow(F, 2) / 1000;
-          P = A * Math.pow(R1, 3) + B * Math.pow(R1, 2) + C * R1 + D + k * (T1 - T0) - (S1 - S0);
+          P = params.p = absCeil(A * Math.pow(R1, 3) + B * Math.pow(R1, 2) + C * R1 + D + k * (T1 - T0) - (S1 - S0), true, 5, true);
           P0 || (P0 = P);
+          Object.defineProperty(params, 'p', {
+            enumerable: false
+          });
           params.dP = P0 - P;
         }
         _ref5 = answer.params;
@@ -830,65 +786,6 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       return $mdDialog.hide(answer);
     };
     return $scope.sensor = $rootScope.sensor;
-  };
-});
-
-moduleService.service('List', function(DB) {
-  this.list = function($scope, objId) {
-    var exp;
-    exp = {
-      obj: false
-    };
-    DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
-      return exp.obj = obj ? obj : false;
-    });
-    DB.SensCat.all().list(function(cats) {
-      if (cats.length) {
-        return cats.forEach(function(cat, ind, ar) {
-          return $scope.categories.push({
-            name: cat.name,
-            id: cat.id,
-            sensors: []
-          });
-        });
-      }
-    });
-    return persistence.flush(function() {
-      return exp.obj.sensors.list(function(senses) {
-        if (!senses.length) {
-          $scope.empty = true;
-          $scope.lazyShow = false;
-          return $scope.$apply();
-        } else {
-          senses.forEach(function(sens, ind, ar) {
-            return sens.fetch('category', function(cat) {
-              var i, _i, _len, _ref, _results;
-              if (cat != null) {
-                _ref = $scope.categories;
-                _results = [];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  i = _ref[_i];
-                  if (i.id === cat.id) {
-                    _results.push(i.sensors.push({
-                      name: sens.name,
-                      ui: cat.ui,
-                      id: sens.id
-                    }));
-                  } else {
-                    _results.push(void 0);
-                  }
-                }
-                return _results;
-              }
-            });
-          });
-          return persistence.flush(function() {
-            $scope.lazyShow = false;
-            return $scope.$apply();
-          });
-        }
-      });
-    });
   };
 });
 
@@ -1603,6 +1500,53 @@ moduleCtrl.controller('AppController', function($rootScope, $scope, $window, $do
   };
 });
 
+moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParams, List, $window, $mdDialog) {
+  $scope.objId = $routeParams.objId;
+  $scope.categories = [];
+  $scope.checkboxMode = false;
+  $scope.selected = [];
+  $scope.disable = false;
+  $scope.empty = false;
+  $scope.lazyShow = true;
+  $(function() {
+    var w;
+    w = $(window);
+    $('.index-md-content').height(w.height() - 64);
+    return w.resize(function() {
+      return $('.index-md-content').height(w.height() - 64);
+    });
+  });
+  $scope.check = function() {
+    return $scope.checkboxMode = $scope.checkboxMode ? false : true;
+  };
+  $scope.build = function() {
+    $rootScope.multisensors = $scope.selected;
+    return $window.location.href = "#/multisensors/" + $scope.objId;
+  };
+  $scope.getData = function(item, list, ev) {
+    var i, ind, _i, _len;
+    for (ind = _i = 0, _len = list.length; _i < _len; ind = ++_i) {
+      i = list[ind];
+      if (!(i.id === item.id)) {
+        continue;
+      }
+      $scope.selected.splice(ind, 1);
+      return false;
+    }
+    if ($scope.selected.length > 9) {
+      $mdDialog.show($mdDialog.alert().parent(angular.element(document.body)).title('Не более 10 графиков за раз').ariaLabel('count of sensor').ok('Окей').targetEvent(ev), $scope.disable = true).then(function() {
+        return $scope.disable = false;
+      });
+      return false;
+    }
+    return $scope.selected.push({
+      id: item.id,
+      name: item.name
+    });
+  };
+  return List.list($scope, $scope.objId);
+});
+
 moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $routeParams, MultiSens, $window, $mdDialog) {
   var $g, paper, s, updatePath;
   $scope.sensors = $rootScope.multisensors;
@@ -1926,6 +1870,65 @@ moduleService.service('App', function(DB, Sens) {
             Sens.addGraph(date, localparams, $scope, sens.id);
             return false;
           }
+        }
+      });
+    });
+  };
+});
+
+moduleService.service('List', function(DB) {
+  this.list = function($scope, objId) {
+    var exp;
+    exp = {
+      obj: false
+    };
+    DB.Obj.findBy(persistence, null, 'id', objId, function(obj) {
+      return exp.obj = obj ? obj : false;
+    });
+    DB.SensCat.all().list(function(cats) {
+      if (cats.length) {
+        return cats.forEach(function(cat, ind, ar) {
+          return $scope.categories.push({
+            name: cat.name,
+            id: cat.id,
+            sensors: []
+          });
+        });
+      }
+    });
+    return persistence.flush(function() {
+      return exp.obj.sensors.list(function(senses) {
+        if (!senses.length) {
+          $scope.empty = true;
+          $scope.lazyShow = false;
+          return $scope.$apply();
+        } else {
+          senses.forEach(function(sens, ind, ar) {
+            return sens.fetch('category', function(cat) {
+              var i, _i, _len, _ref, _results;
+              if (cat != null) {
+                _ref = $scope.categories;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  i = _ref[_i];
+                  if (i.id === cat.id) {
+                    _results.push(i.sensors.push({
+                      name: sens.name,
+                      ui: cat.ui,
+                      id: sens.id
+                    }));
+                  } else {
+                    _results.push(void 0);
+                  }
+                }
+                return _results;
+              }
+            });
+          });
+          return persistence.flush(function() {
+            $scope.lazyShow = false;
+            return $scope.$apply();
+          });
         }
       });
     });

@@ -231,8 +231,10 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 					T1 = params.t = answer.params.t 
 					T0 || T0 = T1
 					R1 = Math.pow(F,2)/1000
-					P = A*Math.pow(R1,3)+B*Math.pow(R1,2)+C*(R1)+D+k*(T1-T0)-(S1-S0)
+					P = params.p = absCeil A*Math.pow(R1,3)+B*Math.pow(R1,2)+C*(R1)+D+k*(T1-T0)-(S1-S0), true, 5, true
 					P0 || P0 = P
+					Object.defineProperty params,'p',
+						enumerable:false
 					params.dP = P0 - P
 
 				for k, v of answer.params when k != 'f' # для дополнительных параметров
