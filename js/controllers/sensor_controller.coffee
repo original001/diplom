@@ -72,7 +72,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 				.circle getx(el), gety(el), 3
 				.attr
 					fill: '#CB0000'
-			paper.text getx(el) - 3 , gety(el) - 10,'' + absCeil el.params[paramY], false, 4
+			paper.text getx(el) - 3 , gety(el) - 10,'' + absCeil el.params[paramY], false, 4, true
 			paper
 				.text getx(el) - 3 , h*2, time
 				.transform 'r90,'+(getx(el)-5)+','+h*2
@@ -272,9 +272,9 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 						when 'E0' then E0 = i.val
 						when 'N0' then N0 = i.val
 						when 'H0' then H0 = i.val
-				params.de = absCeil (E0 || E) - E ,true,2,true
-				params.dn = absCeil (N0 || N) - N ,true,2,true
-				params.dh = absCeil (H0 || H) - H ,true,2,true
+				params.de = absCeil (E0 || E) - E ,true,5,true
+				params.dn = absCeil (N0 || N) - N ,true,5,true
+				params.dh = absCeil (H0 || H) - H ,true,5,true
 				for k, v of answer.params when ['e','n','h'].indexOf(k) == -1 # для дополнительных параметров
 					params[k] = v	
 			# Стандартная логика работы	

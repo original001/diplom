@@ -110,74 +110,6 @@ absCeil = function(number, down, count, round) {
   return digit /= Math.pow(10, -length);
 };
 
-moduleCtrl.controller('AppController', function($rootScope, $scope, $window, $document, $mdSidenav, $mdUtil, $mdDialog, App) {
-  var DialogImportController;
-  $scope.sidenavToggle = function() {
-    return $mdSidenav('left').toggle();
-  };
-  $scope.importGeo = function(e) {
-    $mdSidenav('left').toggle();
-    return $mdDialog.show({
-      controller: DialogImportController,
-      templateUrl: 'view/dialog-import.tpl.html',
-      targetEvent: e
-    }).then(function(answer) {
-      var arrCoords, begin, coords, date, i, obj, objName, params, rows, sens, street, text, _i, _len, _results;
-      text = atob(answer.base64);
-      rows = text.split('Points');
-      coords = [];
-      begin = rows[0];
-      date = begin.slice(begin.indexOf('Date/Time:'));
-      date = date.slice(14, date.indexOf('Job')).replace(',', '');
-      date = '20' + date.split(' ')[0].split('.').reverse().join(' ');
-      date = new Date(date + ' ' + begin.split(' ')[1]);
-      street = begin.slice(begin.indexOf('Job			:') + 7, begin.indexOf('Creator'));
-      street = $.trim(street);
-      rows.forEach(function(row) {
-        return coords.push(row.split('\n')[3]);
-      });
-      coords = coords.filter(function(a) {
-        var ind;
-        ind = a.indexOf('_');
-        if (ind === -1 || isNaN(Number(a.slice(0, ind)))) {
-          return false;
-        } else {
-          return true;
-        }
-      });
-      _results = [];
-      for (_i = 0, _len = coords.length; _i < _len; _i++) {
-        i = coords[_i];
-        sens = i.slice(0, i.indexOf('_'));
-        obj = i.slice(i.indexOf('_') + 1, i.indexOf(' '));
-        objName = "" + street + " " + obj;
-        arrCoords = i.split(' ').filter(function(a) {
-          if (a === '') {
-            return false;
-          } else {
-            return true;
-          }
-        });
-        params = {
-          e: Number(arrCoords[1]),
-          n: Number(arrCoords[2]),
-          h: Number(arrCoords[3])
-        };
-        _results.push(App.importGeo($scope, sens, objName, params, date));
-      }
-      return _results;
-    });
-  };
-  return DialogImportController = function($scope, $mdDialog) {
-    $scope.cancel = function() {
-      return $mdDialog.cancel();
-    };
-    return $scope.answer = function(answer) {
-      return $mdDialog.hide(answer);
-    };
-  };
-});
-
 moduleCtrl.controller('ListController', function($rootScope, $scope, $routeParams, List, $window, $mdDialog) {
   $scope.objId = $routeParams.objId;
   $scope.categories = [];
@@ -449,233 +381,6 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
   };
 });
 
-moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $routeParams, MultiSens, $window, $mdDialog) {
-  var $g, paper, s, updatePath;
-  $scope.sensors = [
-    {
-      id: "5DAC865D329E414CB872A85EB30D8B3B",
-      name: "sensor1"
-    }, {
-      id: "A01D426739F64AE8814EDD6D51E5D3A8",
-      name: "sensor2"
-    }, {
-      id: "6E7B98B3795149A7827A0B7223E2673F",
-      name: "sensor3"
-    }, {
-      id: "0CDF1CA6765F42ED8389C61373BF9691",
-      name: "sensor4"
-    }
-  ];
-  $scope.objId = $routeParams.objId;
-  $scope.params = [];
-  $scope.graph = [];
-  $g = $('#graph');
-  s = Snap('#graph');
-  paper = s.paper;
-  MultiSens.list($scope, $scope.sensors, $scope.objId);
-  $scope.colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075', '#7183FF', '#B8C1FF', '#FF7967', '#83E3FF'];
-  updatePath = function(sensors, paramY) {
-    var arr, delta, dl, dlExt, dlGraph, el, ext, getx, gety, h, i, ind, j, kx, ky, maxDate, maxy, minDate, minx, miny, num, sens, sensInd, style, times, val, w, _i, _j, _k, _l, _len, _len1, _len2, _ref, _results;
-    paper.clear();
-    style = {
-      stroke: '#000'
-    };
-    num = 0;
-    maxy = -999999999999;
-    miny = 999999999999;
-    minDate = 9999999999999;
-    maxDate = 0;
-    times = [];
-    for (_i = 0, _len = sensors.length; _i < _len; _i++) {
-      i = sensors[_i];
-      _ref = i.graph;
-      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-        j = _ref[_j];
-        if (j.params[paramY]) {
-          num += 1;
-          if (j.date.getTime() > maxDate) {
-            maxDate = j.date.getTime();
-          }
-          if (j.date.getTime() < minDate) {
-            minDate = j.date.getTime();
-          }
-          if (j.params[paramY] > maxy) {
-            maxy = j.params[paramY];
-          }
-          if (j.params[paramY] < miny) {
-            miny = j.params[paramY];
-          }
-          j.time = [j.date.getDate(), j.date.getMonth() + 1, j.date.getFullYear() - 2000].join('.');
-          if (times.indexOf(j.time) > -1) {
-            j.time = '';
-          } else {
-            times.push(j.time);
-          }
-        }
-      }
-    }
-    h = 320 / 2;
-    w = 20 * num;
-    if (w > $g.width()) {
-      $g.width(w + 40);
-    }
-    kx = (maxDate - minDate) / w;
-    minx = minDate;
-    ky = (maxy - miny) / (h + 50);
-    miny = absCeil(miny, true, 2);
-    delta = absCeil(maxy - miny) / 10;
-    dl = absCeil(delta / ky, false, 3);
-    ext = -miny + absCeil(miny, true, 0);
-    ext = absCeil(ext, true, 2);
-    dlExt = Math.abs(absCeil(ext / ky, false, 3));
-    if (maxy === miny) {
-      paper.text(8, h - 5, maxy);
-    } else {
-      for (i = _k = 0; _k < 12; i = ++_k) {
-        val = absCeil(miny + ext + delta * i, false, 1, true);
-        dlGraph = 280 + dlExt - i * dl;
-        if (dlGraph < 40 || dlGraph > 320) {
-          continue;
-        }
-        paper.text(8, 280 + dlExt - i * dl, '' + absCeil(val, true, 3, true)).attr({
-          'font-size': '12px'
-        });
-        paper.path("M 0," + dlGraph + "L " + (w + 10) + "," + dlGraph).attr({
-          stroke: 'rgba(0,0,0,.3)',
-          strokeWidth: 1
-        });
-      }
-    }
-    paper.path("M 5," + (h * 2 - 5) + "L " + (w + 10) + "," + (h * 2 - 5) + "," + w + "," + (h * 2 - 10) + "," + w + "," + (h * 2) + "," + (w + 10) + "," + (h * 2 - 5) + ",").attr(style);
-    paper.path("M 5," + (h * 2 - 5) + "L 5,0,10,10,0,10,5,0").attr(style);
-    paper.text(10, 20, paramY);
-    paper.text(w + 15, h * 2, 't');
-    sensInd = 0;
-    _results = [];
-    for (_l = 0, _len2 = sensors.length; _l < _len2; _l++) {
-      sens = sensors[_l];
-      if (!(sens.graph.length > 0)) {
-        continue;
-      }
-      arr = sens.graph;
-      style = {
-        stroke: $scope.colors[sensInd],
-        strokeWidth: 2
-      };
-      arr = arr.filter(function(el, i, a) {
-        if (el.params.hasOwnProperty(paramY)) {
-          return true;
-        } else {
-          return false;
-        }
-      });
-      if (!arr.length) {
-        continue;
-      }
-      paper.path("M 0," + (h * 2 + 70 + 20 * (sensInd + 1)) + "L 50," + (h * 2 + 70 + 20 * (sensInd + 1))).attr(style);
-      paper.text(60, h * 2 + 74 + 20 * (sensInd + 1), sens.name);
-      $g.height(380 + 20 * (sensInd + 2));
-      arr = arr.sort(function(a, b) {
-        return a.date.getTime() - b.date.getTime();
-      });
-      getx = function(x) {
-        if (!kx) {
-          return 5;
-        }
-        return (x.date.getTime() - minx) / kx + 5;
-      };
-      gety = function(y) {
-        if (!ky) {
-          return h;
-        }
-        return h + 120 - (y.params[paramY] - miny) / ky;
-      };
-      sensInd += 1;
-      _results.push((function() {
-        var _len3, _m, _results1;
-        _results1 = [];
-        for (ind = _m = 0, _len3 = arr.length; _m < _len3; ind = ++_m) {
-          el = arr[ind];
-          paper.circle(getx(el), gety(el), 4).attr({
-            fill: $scope.colors[sensInd - 1]
-          });
-          paper.text(getx(el) - 3, h * 2, el.time).transform('r90,' + (getx(el) - 5) + ',' + h * 2).attr({
-            'font-size': '13px'
-          });
-          if (ind === 0) {
-            continue;
-          }
-          paper.path('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)).attr(style);
-          _results1.push(console.log('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)));
-        }
-        return _results1;
-      })());
-    }
-    return _results;
-  };
-  $scope.updatePath = function(param) {
-    return updatePath($scope.sensors, param);
-  };
-  $scope.alert = function(e, title, content) {
-    if (title == null) {
-      title = '';
-    }
-    if (content == null) {
-      content = '';
-    }
-    return $mdDialog.show($mdDialog.alert().parent(angular.element(document.body)).title(title).content(content).ariaLabel('Alert Dialog').ok('ОК').targetEvent(e));
-  };
-  $scope.setName = function(e) {
-    return $mdDialog.show({
-      controller: DialogController,
-      templateUrl: 'view/dialog-add.tpl.html',
-      targetEvent: e
-    }).then(function(answer) {
-      return $scope.render(answer);
-    });
-  };
-  return $scope.render = function(name) {
-    var downloadFile, encodedSvgStr, fail, onGetFileSuccess, onRequestFileSystemSuccess, serializer, svg, svgData, svgStr;
-    svg = document.getElementById('graph');
-    serializer = new XMLSerializer();
-    svgStr = serializer.serializeToString(svg);
-    encodedSvgStr = unescape(encodeURIComponent(svgStr));
-    svgData = btoa(encodedSvgStr);
-    downloadFile = function() {
-      console.log('downloadFile');
-      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onRequestFileSystemSuccess, fail);
-    };
-    onRequestFileSystemSuccess = function(fileSystem) {
-      console.log('onRequestFileSystemSuccess');
-      return fileSystem.root.getFile('/storage/emulated/0/Download/svg.svg', {
-        create: true,
-        exclusive: false
-      }, onGetFileSuccess, fail);
-    };
-    onGetFileSuccess = function(fileEntry) {
-      var fileTransfer, path;
-      console.log('onGetFileSuccess!');
-      path = fileEntry.toURL().replace('svg.svg', '');
-      fileTransfer = new FileTransfer();
-      fileEntry.remove();
-      return fileTransfer.download("data:image/svg+xml;base64," + svgData, path + ("" + name + ".svg"), function(file) {
-        return $scope.alert(null, 'График успешно загружен', "Файл находится в папке Download, имя файла - " + name + ".svg");
-      }, function(error) {
-        return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + error.code + ", объект загрузки – " + error.target);
-      });
-    };
-    fail = function(evt) {
-      return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + evt.target.error.code);
-    };
-    if (cordovaApp.isReady) {
-      console.log('ready and fire function');
-      return downloadFile();
-    } else {
-      return $scope.alert(null, 'Oшибка!', "cordova.js не загружен");
-    }
-  };
-});
-
 moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParams, Sens, $window, $document, $mdDialog) {
   var $g, DialogImportController, SensDialogController, SensEditDialogController, countParams, paper, s, updatePath;
   $scope.sensor = [];
@@ -747,7 +452,7 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       paper.circle(getx(el), gety(el), 3).attr({
         fill: '#CB0000'
       });
-      paper.text(getx(el) - 3, gety(el) - 10, '' + absCeil(el.params[paramY], false, 4));
+      paper.text(getx(el) - 3, gety(el) - 10, '' + absCeil(el.params[paramY], false, 4, true));
       paper.text(getx(el) - 3, h * 2, time).transform('r90,' + (getx(el) - 5) + ',' + h * 2);
       if (ind === 0) {
         continue;
@@ -1029,9 +734,9 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
               H0 = i.val;
           }
         }
-        params.de = absCeil((E0 || E) - E, true, 2, true);
-        params.dn = absCeil((N0 || N) - N, true, 2, true);
-        params.dh = absCeil((H0 || H) - H, true, 2, true);
+        params.de = absCeil((E0 || E) - E, true, 5, true);
+        params.dn = absCeil((N0 || N) - N, true, 5, true);
+        params.dh = absCeil((H0 || H) - H, true, 5, true);
         _ref9 = answer.params;
         for (k in _ref9) {
           v = _ref9[k];
@@ -1125,122 +830,6 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
       return $mdDialog.hide(answer);
     };
     return $scope.sensor = $rootScope.sensor;
-  };
-});
-
-moduleCtrl.controller('TableController', function($rootScope, $scope, $routeParams, Table, $mdDialog) {
-  $scope.lazyShow = false;
-  $scope.sensor = {
-    name: ''
-  };
-  $scope.params = [];
-  $scope.nameOfParams = [];
-  $scope.round = function(number) {
-    return absCeil(number, false, 4);
-  };
-  Table.list($scope, $routeParams.sensId);
-  $(function() {
-    var w;
-    w = $(window);
-    $('.index-md-content').height(w.height() - 64);
-    return w.resize(function() {
-      return $('.index-md-content').height(w.height() - 64);
-    });
-  });
-  $scope.setName = function(e) {
-    return $mdDialog.show({
-      controller: DialogController,
-      templateUrl: 'view/dialog-add.tpl.html',
-      targetEvent: e
-    }).then(function(answer) {
-      console.log(answer);
-      return $scope.exportTable(answer);
-    });
-  };
-  $scope.alert = function(e, title, content) {
-    if (title == null) {
-      title = '';
-    }
-    if (content == null) {
-      content = '';
-    }
-    return $mdDialog.show($mdDialog.alert().parent(angular.element(document.body)).title(title).content(content).ariaLabel('Alert Dialog').ok('ОК').targetEvent(e));
-  };
-  return $scope.exportTable = function(name) {
-    var downloadFile, fail, html, onGetFileSuccess, onRequestFileSystemSuccess;
-    html = document.getElementById('table').innerHTML;
-    html = html.replace(/\s{2,}/g, '').replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g, '%23').replace(/"/g, '%22').replace(/'/g, '%27');
-    html = '<!DOCTYPE html><html><head><meta charset="utf-8" /></head><body>' + html + '</body></html>';
-    downloadFile = function() {
-      console.log('downloadFile');
-      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onRequestFileSystemSuccess, fail);
-    };
-    onRequestFileSystemSuccess = function(fileSystem) {
-      console.log('onRequestFileSystemSuccess');
-      return fileSystem.root.getFile('/storage/emulated/0/Download/table.html', {
-        create: true,
-        exclusive: false
-      }, onGetFileSuccess, fail);
-    };
-    onGetFileSuccess = function(fileEntry) {
-      var fileTransfer, path;
-      console.log('onGetFileSuccess!');
-      path = fileEntry.toURL().replace('table.html', '');
-      fileTransfer = new FileTransfer();
-      fileEntry.remove();
-      return fileTransfer.download("data:text/html," + html, path + ("" + name + ".html"), function(file) {
-        return $scope.alert(null, 'График успешно загружен', "Файл находится в папке Download, имя файла - " + name + ".html");
-      }, function(error) {
-        return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + error.code + ", объект загрузки – " + error.target);
-      });
-    };
-    fail = function(evt) {
-      return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + evt.target.error.code);
-    };
-    if (cordovaApp.isReady) {
-      console.log('ready and fire function');
-      return downloadFile();
-    } else {
-      return $scope.alert(null, 'Oшибка!', "cordova.js не загружен");
-    }
-  };
-});
-
-moduleService.service('App', function(DB, Sens) {
-  this.importGeo = function($scope, sensName, objName, params, date) {
-    return DB.Obj.findBy(persistence, null, 'name', objName, function(obj) {
-      return obj.sensors.list(function(sensors) {
-        var E, E0, H, H0, N, N0, i, localparams, sens, _i, _j, _len, _len1, _ref;
-        for (_i = 0, _len = sensors.length; _i < _len; _i++) {
-          sens = sensors[_i];
-          if (sens.name.split('-')[1] === sensName) {
-            localparams = {};
-            E = localparams.e = params.e;
-            N = localparams.n = params.n;
-            H = localparams.h = params.h;
-            _ref = JSON.parse(sens.key);
-            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-              i = _ref[_j];
-              switch (i.name) {
-                case 'E0':
-                  E0 = i.val;
-                  break;
-                case 'N0':
-                  N0 = i.val;
-                  break;
-                case 'H0':
-                  H0 = i.val;
-              }
-            }
-            localparams.de = (E0 || E) - E;
-            localparams.dn = (N0 || N) - N;
-            localparams.dh = (H0 || H) - H;
-            Sens.addGraph(date, localparams, $scope, sens.id);
-            return false;
-          }
-        }
-      });
-    });
   };
 });
 
@@ -1674,66 +1263,6 @@ moduleService.service('Map', function(DB, Sens) {
   };
 });
 
-moduleService.service('MultiSens', function(DB, $window) {
-  this.list = function($scope, sensors, objId) {
-    if (sensors) {
-      return sensors.forEach(function(sensor, sensInd) {
-        return DB.Sensor.findBy(persistence, null, 'id', sensor.id, function(sens) {
-          sens.graphs.list(function(graphs) {
-            var graphArr, l;
-            graphArr = [];
-            l = graphs.length;
-            if (l > 0) {
-              return graphs.forEach(function(graph, ind) {
-                var ar1, ar2, el1, el2, i, j, params, _i, _j, _k, _len, _len1, _len2;
-                params = JSON.parse(graph.params);
-                delete params.t;
-                delete params.e;
-                delete params.n;
-                delete params.h;
-                graphArr.push({
-                  date: new Date(graph.date),
-                  params: params
-                });
-                ar2 = Object.keys(params);
-                ar1 = $scope.params;
-                for (i = _i = 0, _len = ar1.length; _i < _len; i = ++_i) {
-                  el1 = ar1[i];
-                  for (j = _j = 0, _len1 = ar2.length; _j < _len1; j = ++_j) {
-                    el2 = ar2[j];
-                    if (el1 !== el2) {
-                      continue;
-                    }
-                    ar2.splice(j, 1);
-                  }
-                }
-                for (_k = 0, _len2 = ar2.length; _k < _len2; _k++) {
-                  i = ar2[_k];
-                  $scope.params.push(i);
-                }
-                if (ind === l - 1) {
-                  return $scope.graph = graphArr;
-                }
-              });
-            } else {
-              return $scope.graph = [];
-            }
-          });
-          return persistence.flush(function() {
-            var firstVar;
-            $scope.sensors[sensInd].graph = $scope.graph;
-            $scope.$apply();
-            if (sensInd === sensors.length - 1) {
-              firstVar = Object.getOwnPropertyNames($scope.sensors[0].graph[0].params)[0];
-              return $scope.updatePath(firstVar);
-            }
-          });
-        });
-      });
-    }
-  };
-});
-
 moduleService.service('Sens', function(DB, $window) {
   this.list = function($scope, sensId) {
     return DB.Sensor.findBy(persistence, null, 'id', sensId, function(sens) {
@@ -2003,6 +1532,463 @@ moduleService.service('Sens', function(DB, $window) {
         }
       });
     });
+  };
+});
+
+moduleCtrl.controller('AppController', function($rootScope, $scope, $window, $document, $mdSidenav, $mdUtil, $mdDialog, App) {
+  var DialogImportController;
+  $scope.sidenavToggle = function() {
+    return $mdSidenav('left').toggle();
+  };
+  $scope.importGeo = function(e) {
+    $mdSidenav('left').toggle();
+    return $mdDialog.show({
+      controller: DialogImportController,
+      templateUrl: 'view/dialog-import.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      var arrCoords, begin, coords, date, i, obj, objName, params, rows, sens, street, text, _i, _len, _results;
+      text = atob(answer.base64);
+      rows = text.split('Points');
+      coords = [];
+      begin = rows[0];
+      date = begin.slice(begin.indexOf('Date/Time:'));
+      date = date.slice(14, date.indexOf('Job')).replace(',', '');
+      date = '20' + date.split(' ')[0].split('.').reverse().join(' ');
+      date = new Date(date + ' ' + begin.split(' ')[1]);
+      street = begin.slice(begin.indexOf('Job			:') + 7, begin.indexOf('Creator'));
+      street = $.trim(street);
+      rows.forEach(function(row) {
+        return coords.push(row.split('\n')[3]);
+      });
+      coords = coords.filter(function(a) {
+        var ind;
+        ind = a.indexOf('_');
+        if (ind === -1 || isNaN(Number(a.slice(0, ind)))) {
+          return false;
+        } else {
+          return true;
+        }
+      });
+      _results = [];
+      for (_i = 0, _len = coords.length; _i < _len; _i++) {
+        i = coords[_i];
+        sens = i.slice(0, i.indexOf('_'));
+        obj = i.slice(i.indexOf('_') + 1, i.indexOf(' '));
+        objName = "" + street + " " + obj;
+        arrCoords = i.split(' ').filter(function(a) {
+          if (a === '') {
+            return false;
+          } else {
+            return true;
+          }
+        });
+        params = {
+          e: Number(arrCoords[1]),
+          n: Number(arrCoords[2]),
+          h: Number(arrCoords[3])
+        };
+        _results.push(App.importGeo($scope, sens, objName, params, date));
+      }
+      return _results;
+    });
+  };
+  return DialogImportController = function($scope, $mdDialog) {
+    $scope.cancel = function() {
+      return $mdDialog.cancel();
+    };
+    return $scope.answer = function(answer) {
+      return $mdDialog.hide(answer);
+    };
+  };
+});
+
+moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $routeParams, MultiSens, $window, $mdDialog) {
+  var $g, paper, s, updatePath;
+  $scope.sensors = $rootScope.multisensors;
+  $scope.objId = $routeParams.objId;
+  $scope.params = [];
+  $scope.graph = [];
+  $g = $('#graph');
+  s = Snap('#graph');
+  paper = s.paper;
+  MultiSens.list($scope, $scope.sensors, $scope.objId);
+  $scope.colors = ['#d11d05', "#05A3D1", "#051FD1", "#FF528D", '#60061E', '#1d1075', '#7183FF', '#B8C1FF', '#FF7967', '#83E3FF'];
+  updatePath = function(sensors, paramY) {
+    var arr, delta, dl, dlExt, dlGraph, el, ext, getx, gety, h, i, ind, j, kx, ky, maxDate, maxy, minDate, minx, miny, num, sens, sensInd, style, times, val, w, _i, _j, _k, _l, _len, _len1, _len2, _ref, _results;
+    paper.clear();
+    style = {
+      stroke: '#000'
+    };
+    num = 0;
+    maxy = -999999999999;
+    miny = 999999999999;
+    minDate = 9999999999999;
+    maxDate = 0;
+    times = [];
+    for (_i = 0, _len = sensors.length; _i < _len; _i++) {
+      i = sensors[_i];
+      _ref = i.graph;
+      for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+        j = _ref[_j];
+        if (j.params[paramY] != null) {
+          num += 1;
+          if (j.date.getTime() > maxDate) {
+            maxDate = j.date.getTime();
+          }
+          if (j.date.getTime() < minDate) {
+            minDate = j.date.getTime();
+          }
+          if (j.params[paramY] > maxy) {
+            maxy = j.params[paramY];
+          }
+          if (j.params[paramY] < miny) {
+            miny = j.params[paramY];
+          }
+          j.time = [j.date.getDate(), j.date.getMonth() + 1, j.date.getFullYear() - 2000].join('.');
+          if (times.indexOf(j.time) > -1) {
+            j.time = '';
+          } else {
+            times.push(j.time);
+          }
+        }
+      }
+    }
+    h = 320 / 2;
+    w = 20 * num;
+    if (w > $g.width()) {
+      $g.width(w + 40);
+    }
+    kx = (maxDate - minDate) / w;
+    minx = minDate;
+    ky = (maxy - miny) / (h + 50);
+    miny = absCeil(miny, true, 2, true);
+    maxy = absCeil(maxy, true, 2, true);
+    delta = absCeil(maxy - miny) / 10;
+    dl = absCeil(delta / ky, false, 3);
+    ext = -miny + absCeil(miny, true, 0);
+    ext = absCeil(ext, true, 2);
+    dlExt = Math.abs(absCeil(ext / ky, false, 3));
+    if (maxy === miny) {
+      paper.text(8, h - 5, maxy);
+    } else {
+      for (i = _k = 0; _k <= 10; i = ++_k) {
+        val = absCeil(miny + ext + delta * i, false, 1, true);
+        dlGraph = 280 + dlExt - i * dl;
+        if (dlGraph < 40 || dlGraph > 320) {
+          continue;
+        }
+        paper.text(8, 280 + dlExt - i * dl, '' + absCeil(val, true, 3, true)).attr({
+          'font-size': '12px'
+        });
+        paper.path("M 0," + dlGraph + "L " + (w + 10) + "," + dlGraph).attr({
+          stroke: 'rgba(0,0,0,.3)',
+          strokeWidth: 1
+        });
+      }
+    }
+    paper.path("M 5," + (h * 2 - 5) + "L " + (w + 10) + "," + (h * 2 - 5) + "," + w + "," + (h * 2 - 10) + "," + w + "," + (h * 2) + "," + (w + 10) + "," + (h * 2 - 5) + ",").attr(style);
+    paper.path("M 5," + (h * 2 - 5) + "L 5,0,10,10,0,10,5,0").attr(style);
+    paper.text(10, 20, paramY);
+    paper.text(w + 15, h * 2, 't');
+    sensInd = 0;
+    _results = [];
+    for (_l = 0, _len2 = sensors.length; _l < _len2; _l++) {
+      sens = sensors[_l];
+      if (!(sens.graph.length > 0)) {
+        continue;
+      }
+      arr = sens.graph;
+      style = {
+        stroke: $scope.colors[sensInd],
+        strokeWidth: 2
+      };
+      arr = arr.filter(function(el, i, a) {
+        if (el.params.hasOwnProperty(paramY)) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+      if (!arr.length) {
+        continue;
+      }
+      paper.path("M 0," + (h * 2 + 70 + 20 * (sensInd + 1)) + "L 50," + (h * 2 + 70 + 20 * (sensInd + 1))).attr(style);
+      paper.text(60, h * 2 + 74 + 20 * (sensInd + 1), sens.name);
+      $g.height(380 + 20 * (sensInd + 2));
+      arr = arr.sort(function(a, b) {
+        return a.date.getTime() - b.date.getTime();
+      });
+      getx = function(x) {
+        if (!kx) {
+          return 5;
+        }
+        return (x.date.getTime() - minx) / kx + 5;
+      };
+      gety = function(y) {
+        if (!ky) {
+          return h;
+        }
+        return h + 120 - (y.params[paramY] - miny) / ky;
+      };
+      sensInd += 1;
+      _results.push((function() {
+        var _len3, _m, _results1;
+        _results1 = [];
+        for (ind = _m = 0, _len3 = arr.length; _m < _len3; ind = ++_m) {
+          el = arr[ind];
+          paper.circle(getx(el), gety(el), 4).attr({
+            fill: $scope.colors[sensInd - 1]
+          });
+          paper.text(getx(el) - 3, h * 2, el.time).transform('r90,' + (getx(el) - 5) + ',' + h * 2).attr({
+            'font-size': '13px'
+          });
+          if (ind === 0) {
+            continue;
+          }
+          _results1.push(paper.path('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)).attr(style));
+        }
+        return _results1;
+      })());
+    }
+    return _results;
+  };
+  $scope.updatePath = function(param) {
+    return updatePath($scope.sensors, param);
+  };
+  $scope.alert = function(e, title, content) {
+    if (title == null) {
+      title = '';
+    }
+    if (content == null) {
+      content = '';
+    }
+    return $mdDialog.show($mdDialog.alert().parent(angular.element(document.body)).title(title).content(content).ariaLabel('Alert Dialog').ok('ОК').targetEvent(e));
+  };
+  $scope.setName = function(e) {
+    return $mdDialog.show({
+      controller: DialogController,
+      templateUrl: 'view/dialog-add.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      return $scope.render(answer);
+    });
+  };
+  return $scope.render = function(name) {
+    var downloadFile, encodedSvgStr, fail, onGetFileSuccess, onRequestFileSystemSuccess, serializer, svg, svgData, svgStr;
+    svg = document.getElementById('graph');
+    serializer = new XMLSerializer();
+    svgStr = serializer.serializeToString(svg);
+    encodedSvgStr = unescape(encodeURIComponent(svgStr));
+    svgData = btoa(encodedSvgStr);
+    downloadFile = function() {
+      console.log('downloadFile');
+      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onRequestFileSystemSuccess, fail);
+    };
+    onRequestFileSystemSuccess = function(fileSystem) {
+      console.log('onRequestFileSystemSuccess');
+      return fileSystem.root.getFile('/storage/emulated/0/Download/svg.svg', {
+        create: true,
+        exclusive: false
+      }, onGetFileSuccess, fail);
+    };
+    onGetFileSuccess = function(fileEntry) {
+      var fileTransfer, path;
+      console.log('onGetFileSuccess!');
+      path = fileEntry.toURL().replace('svg.svg', '');
+      fileTransfer = new FileTransfer();
+      fileEntry.remove();
+      return fileTransfer.download("data:image/svg+xml;base64," + svgData, path + ("" + name + ".svg"), function(file) {
+        return $scope.alert(null, 'График успешно загружен', "Файл находится в папке Download, имя файла - " + name + ".svg");
+      }, function(error) {
+        return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + error.code + ", объект загрузки – " + error.target);
+      });
+    };
+    fail = function(evt) {
+      return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + evt.target.error.code);
+    };
+    if (cordovaApp.isReady) {
+      console.log('ready and fire function');
+      return downloadFile();
+    } else {
+      return $scope.alert(null, 'Oшибка!', "cordova.js не загружен");
+    }
+  };
+});
+
+moduleCtrl.controller('TableController', function($rootScope, $scope, $routeParams, Table, $mdDialog) {
+  $scope.lazyShow = false;
+  $scope.sensor = {
+    name: ''
+  };
+  $scope.params = [];
+  $scope.nameOfParams = [];
+  $scope.round = function(number) {
+    return absCeil(number, false, 5, true);
+  };
+  Table.list($scope, $routeParams.sensId);
+  $(function() {
+    var w;
+    w = $(window);
+    $('.index-md-content').height(w.height() - 64);
+    return w.resize(function() {
+      return $('.index-md-content').height(w.height() - 64);
+    });
+  });
+  $scope.setName = function(e) {
+    return $mdDialog.show({
+      controller: DialogController,
+      templateUrl: 'view/dialog-add.tpl.html',
+      targetEvent: e
+    }).then(function(answer) {
+      console.log(answer);
+      return $scope.exportTable(answer);
+    });
+  };
+  $scope.alert = function(e, title, content) {
+    if (title == null) {
+      title = '';
+    }
+    if (content == null) {
+      content = '';
+    }
+    return $mdDialog.show($mdDialog.alert().parent(angular.element(document.body)).title(title).content(content).ariaLabel('Alert Dialog').ok('ОК').targetEvent(e));
+  };
+  return $scope.exportTable = function(name) {
+    var downloadFile, fail, html, onGetFileSuccess, onRequestFileSystemSuccess;
+    html = document.getElementById('table').innerHTML;
+    html = html.replace(/\s{2,}/g, '').replace(/%/g, '%25').replace(/&/g, '%26').replace(/#/g, '%23').replace(/"/g, '%22').replace(/'/g, '%27');
+    html = '<!DOCTYPE html><html><head><meta charset="utf-8" /></head><body>' + html + '</body></html>';
+    downloadFile = function() {
+      console.log('downloadFile');
+      return window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onRequestFileSystemSuccess, fail);
+    };
+    onRequestFileSystemSuccess = function(fileSystem) {
+      console.log('onRequestFileSystemSuccess');
+      return fileSystem.root.getFile('/storage/emulated/0/Download/table.html', {
+        create: true,
+        exclusive: false
+      }, onGetFileSuccess, fail);
+    };
+    onGetFileSuccess = function(fileEntry) {
+      var fileTransfer, path;
+      console.log('onGetFileSuccess!');
+      path = fileEntry.toURL().replace('table.html', '');
+      fileTransfer = new FileTransfer();
+      fileEntry.remove();
+      return fileTransfer.download("data:text/html," + html, path + ("" + name + ".html"), function(file) {
+        return $scope.alert(null, 'График успешно загружен', "Файл находится в папке Download, имя файла - " + name + ".html");
+      }, function(error) {
+        return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + error.code + ", объект загрузки – " + error.target);
+      });
+    };
+    fail = function(evt) {
+      return $scope.alert(null, 'При загрузке возникла ошибка', "Код ошибки – " + evt.target.error.code);
+    };
+    if (cordovaApp.isReady) {
+      console.log('ready and fire function');
+      return downloadFile();
+    } else {
+      return $scope.alert(null, 'Oшибка!', "cordova.js не загружен");
+    }
+  };
+});
+
+moduleService.service('App', function(DB, Sens) {
+  this.importGeo = function($scope, sensName, objName, params, date) {
+    return DB.Obj.findBy(persistence, null, 'name', objName, function(obj) {
+      return obj.sensors.list(function(sensors) {
+        var E, E0, H, H0, N, N0, i, localparams, sens, _i, _j, _len, _len1, _ref;
+        for (_i = 0, _len = sensors.length; _i < _len; _i++) {
+          sens = sensors[_i];
+          if (sens.name.split('-')[1] === sensName) {
+            localparams = {};
+            E = localparams.e = params.e;
+            N = localparams.n = params.n;
+            H = localparams.h = params.h;
+            _ref = JSON.parse(sens.key);
+            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+              i = _ref[_j];
+              switch (i.name) {
+                case 'E0':
+                  E0 = i.val;
+                  break;
+                case 'N0':
+                  N0 = i.val;
+                  break;
+                case 'H0':
+                  H0 = i.val;
+              }
+            }
+            localparams.de = (E0 || E) - E;
+            localparams.dn = (N0 || N) - N;
+            localparams.dh = (H0 || H) - H;
+            Sens.addGraph(date, localparams, $scope, sens.id);
+            return false;
+          }
+        }
+      });
+    });
+  };
+});
+
+moduleService.service('MultiSens', function(DB, $window) {
+  this.list = function($scope, sensors, objId) {
+    if (sensors) {
+      return sensors.forEach(function(sensor, sensInd) {
+        return DB.Sensor.findBy(persistence, null, 'id', sensor.id, function(sens) {
+          sens.graphs.list(function(graphs) {
+            var graphArr, l;
+            graphArr = [];
+            l = graphs.length;
+            if (l > 0) {
+              return graphs.forEach(function(graph, ind) {
+                var ar1, ar2, el1, el2, i, j, params, _i, _j, _k, _len, _len1, _len2;
+                params = JSON.parse(graph.params);
+                delete params.t;
+                delete params.e;
+                delete params.n;
+                delete params.h;
+                graphArr.push({
+                  date: new Date(graph.date),
+                  params: params
+                });
+                ar2 = Object.keys(params);
+                ar1 = $scope.params;
+                for (i = _i = 0, _len = ar1.length; _i < _len; i = ++_i) {
+                  el1 = ar1[i];
+                  for (j = _j = 0, _len1 = ar2.length; _j < _len1; j = ++_j) {
+                    el2 = ar2[j];
+                    if (el1 !== el2) {
+                      continue;
+                    }
+                    ar2.splice(j, 1);
+                  }
+                }
+                for (_k = 0, _len2 = ar2.length; _k < _len2; _k++) {
+                  i = ar2[_k];
+                  $scope.params.push(i);
+                }
+                if (ind === l - 1) {
+                  return $scope.graph = graphArr;
+                }
+              });
+            } else {
+              return $scope.graph = [];
+            }
+          });
+          return persistence.flush(function() {
+            var firstVar;
+            $scope.sensors[sensInd].graph = $scope.graph;
+            $scope.$apply();
+            if (sensInd === sensors.length - 1) {
+              firstVar = Object.getOwnPropertyNames($scope.sensors[0].graph[0].params)[0];
+              return $scope.updatePath(firstVar);
+            }
+          });
+        });
+      });
+    }
   };
 });
 

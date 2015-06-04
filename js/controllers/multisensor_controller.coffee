@@ -1,19 +1,19 @@
 moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,MultiSens, $window, $mdDialog) ->
-	$scope.sensors = [
-		id: "5DAC865D329E414CB872A85EB30D8B3B"
-		name: "sensor1"
-	,
-		id: "A01D426739F64AE8814EDD6D51E5D3A8"
-		name: "sensor2"
-	,
-		id: "6E7B98B3795149A7827A0B7223E2673F"
-		name: "sensor3"
-	,
-		id: "0CDF1CA6765F42ED8389C61373BF9691"
-		name: "sensor4"
-	]
+	# $scope.sensors = [
+	# 	id: "5DAC865D329E414CB872A85EB30D8B3B"
+	# 	name: "sensor1"
+	# ,
+	# 	id: "A01D426739F64AE8814EDD6D51E5D3A8"
+	# 	name: "sensor2"
+	# ,
+	# 	id: "6E7B98B3795149A7827A0B7223E2673F"
+	# 	name: "sensor3"
+	# ,
+	# 	id: "0CDF1CA6765F42ED8389C61373BF9691"
+	# 	name: "sensor4"
+	# ]
 
-	# $scope.sensors = $rootScope.multisensors
+	$scope.sensors = $rootScope.multisensors
 	$scope.objId = $routeParams.objId
 	$scope.params = []
 	$scope.graph = []
@@ -43,12 +43,11 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 
 		for i in sensors
 			for j in i.graph
-				if j.params[paramY]
+				if j.params[paramY]?
 					num += 1
 					if j.date.getTime() > maxDate then maxDate = j.date.getTime() 
 					if j.date.getTime() < minDate then minDate = j.date.getTime() 
 					if j.params[paramY] > maxy then maxy = j.params[paramY]
-
 					if j.params[paramY] < miny then miny = j.params[paramY]
 					j.time = [
 						j.date.getDate()	
@@ -69,7 +68,8 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 
 		# pretify coords
 
-		miny = absCeil miny, true, 2
+		miny = absCeil miny, true, 2, true
+		maxy = absCeil maxy, true, 2, true
 		delta = absCeil(maxy-miny)/10
 		dl = absCeil delta/ky, false, 3
 
@@ -80,7 +80,21 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 
 		# create coords
 
-		if maxy == miny then paper.text 8, h - 5, maxy else for i in [0...12]
+		# 	delta = (280 - 48)/10
+		# 	deltaVal = (maxy - miny)/10
+		# 	cur = 280 - delta*i
+
+		# 	paper
+		# 		.text 8, cur, miny + deltaVal*i
+		# 		.attr
+		# 			'font-size':'12px'
+		# 	paper
+		# 		.path "M 0,#{cur}L #{w+10},#{cur}"
+		# 		.attr 
+		# 			stroke: 'rgba(0,0,0,.3)'
+		# 			strokeWidth: 1
+
+		if maxy == miny then paper.text 8, h - 5, maxy else for i in [0..10]
 
 			val = absCeil miny + ext + delta*i, false, 1, true
 
@@ -161,7 +175,6 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 					.path 'M '+getx(arr[ind-1])+','+gety(arr[ind-1])+'L '+getx(el)+','+gety(el)
 					.attr style	
 
-				console.log 'M '+getx(arr[ind-1])+','+gety(arr[ind-1])+'L '+getx(el)+','+gety(el)
 
 					
 	$scope.updatePath = (param) ->

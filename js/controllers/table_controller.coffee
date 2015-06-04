@@ -6,7 +6,7 @@ moduleCtrl.controller 'TableController', ($rootScope, $scope, $routeParams, Tabl
 	$scope.params = []
 	$scope.nameOfParams = []
 	$scope.round = (number)->
-		absCeil number, false, 4
+		absCeil number, false, 5, true
 
 	Table.list $scope, $routeParams.sensId
 	

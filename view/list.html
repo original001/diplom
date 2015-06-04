@@ -3,7 +3,7 @@
         <md-subheader>Список датчиков
             <md-button ng-disabled="empty" class="md-primary" style="float:right;margin:-10px 0 0" ng-click="check()">Построение нескольких графиков</md-button>
         </md-subheader>
-        <md-list ng-repeat="cat in categories">
+        <md-list ng-repeat="cat in categories" ng-if="cat.sensors.length > 0">
             <md-list-item style="background:rgba(0, 0, 0, .075);color:#000;font-weight:bold;height:36px">
                 <p>{{cat.name}}</p>
             </md-list-item>
