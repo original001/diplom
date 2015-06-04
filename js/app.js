@@ -451,7 +451,21 @@ moduleCtrl.controller('MapController', function($rootScope, $scope, $routeParams
 
 moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $routeParams, MultiSens, $window, $mdDialog) {
   var $g, paper, s, updatePath;
-  $scope.sensors = $rootScope.multisensors;
+  $scope.sensors = [
+    {
+      id: "5DAC865D329E414CB872A85EB30D8B3B",
+      name: "sensor1"
+    }, {
+      id: "A01D426739F64AE8814EDD6D51E5D3A8",
+      name: "sensor2"
+    }, {
+      id: "6E7B98B3795149A7827A0B7223E2673F",
+      name: "sensor3"
+    }, {
+      id: "0CDF1CA6765F42ED8389C61373BF9691",
+      name: "sensor4"
+    }
+  ];
   $scope.objId = $routeParams.objId;
   $scope.params = [];
   $scope.graph = [];
@@ -518,7 +532,7 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
       paper.text(8, h - 5, maxy);
     } else {
       for (i = _k = 0; _k < 12; i = ++_k) {
-        val = miny + ext + delta * i;
+        val = absCeil(miny + ext + delta * i, false, 1, true);
         dlGraph = 280 + dlExt - i * dl;
         if (dlGraph < 40 || dlGraph > 320) {
           continue;
@@ -591,7 +605,8 @@ moduleCtrl.controller('MultiSensController', function($rootScope, $scope, $route
           if (ind === 0) {
             continue;
           }
-          _results1.push(paper.path('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)).attr(style));
+          paper.path('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)).attr(style);
+          _results1.push(console.log('M ' + getx(arr[ind - 1]) + ',' + gety(arr[ind - 1]) + 'L ' + getx(el) + ',' + gety(el)));
         }
         return _results1;
       })());
@@ -1014,9 +1029,9 @@ moduleCtrl.controller('SensController', function($rootScope, $scope, $routeParam
               H0 = i.val;
           }
         }
-        params.de = (E0 || E) - E;
-        params.dn = (N0 || N) - N;
-        params.dh = (H0 || H) - H;
+        params.de = absCeil((E0 || E) - E, true, 2, true);
+        params.dn = absCeil((N0 || N) - N, true, 2, true);
+        params.dh = absCeil((H0 || H) - H, true, 2, true);
         _ref9 = answer.params;
         for (k in _ref9) {
           v = _ref9[k];
@@ -1188,6 +1203,44 @@ moduleCtrl.controller('TableController', function($rootScope, $scope, $routePara
     } else {
       return $scope.alert(null, 'Oшибка!', "cordova.js не загружен");
     }
+  };
+});
+
+moduleService.service('App', function(DB, Sens) {
+  this.importGeo = function($scope, sensName, objName, params, date) {
+    return DB.Obj.findBy(persistence, null, 'name', objName, function(obj) {
+      return obj.sensors.list(function(sensors) {
+        var E, E0, H, H0, N, N0, i, localparams, sens, _i, _j, _len, _len1, _ref;
+        for (_i = 0, _len = sensors.length; _i < _len; _i++) {
+          sens = sensors[_i];
+          if (sens.name.split('-')[1] === sensName) {
+            localparams = {};
+            E = localparams.e = params.e;
+            N = localparams.n = params.n;
+            H = localparams.h = params.h;
+            _ref = JSON.parse(sens.key);
+            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+              i = _ref[_j];
+              switch (i.name) {
+                case 'E0':
+                  E0 = i.val;
+                  break;
+                case 'N0':
+                  N0 = i.val;
+                  break;
+                case 'H0':
+                  H0 = i.val;
+              }
+            }
+            localparams.de = (E0 || E) - E;
+            localparams.dn = (N0 || N) - N;
+            localparams.dh = (H0 || H) - H;
+            Sens.addGraph(date, localparams, $scope, sens.id);
+            return false;
+          }
+        }
+      });
+    });
   };
 });
 
@@ -2011,44 +2064,6 @@ moduleService.service('Table', function(DB) {
       return persistence.flush(function() {
         $scope.sensor = arr;
         return $scope.$apply();
-      });
-    });
-  };
-});
-
-moduleService.service('App', function(DB, Sens) {
-  this.importGeo = function($scope, sensName, objName, params, date) {
-    return DB.Obj.findBy(persistence, null, 'name', objName, function(obj) {
-      return obj.sensors.list(function(sensors) {
-        var E, E0, H, H0, N, N0, i, localparams, sens, _i, _j, _len, _len1, _ref;
-        for (_i = 0, _len = sensors.length; _i < _len; _i++) {
-          sens = sensors[_i];
-          if (sens.name.split('-')[1] === sensName) {
-            localparams = {};
-            E = localparams.e = params.e;
-            N = localparams.n = params.n;
-            H = localparams.h = params.h;
-            _ref = JSON.parse(sens.key);
-            for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-              i = _ref[_j];
-              switch (i.name) {
-                case 'E0':
-                  E0 = i.val;
-                  break;
-                case 'N0':
-                  N0 = i.val;
-                  break;
-                case 'H0':
-                  H0 = i.val;
-              }
-            }
-            localparams.de = (E0 || E) - E;
-            localparams.dn = (N0 || N) - N;
-            localparams.dh = (H0 || H) - H;
-            Sens.addGraph(date, localparams, $scope, sens.id);
-            return false;
-          }
-        }
       });
     });
   };

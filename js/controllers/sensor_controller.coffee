@@ -272,9 +272,9 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 						when 'E0' then E0 = i.val
 						when 'N0' then N0 = i.val
 						when 'H0' then H0 = i.val
-				params.de = (E0 || E) - E
-				params.dn = (N0 || N) - N
-				params.dh = (H0 || H) - H
+				params.de = absCeil (E0 || E) - E ,true,2,true
+				params.dn = absCeil (N0 || N) - N ,true,2,true
+				params.dh = absCeil (H0 || H) - H ,true,2,true
 				for k, v of answer.params when ['e','n','h'].indexOf(k) == -1 # для дополнительных параметров
 					params[k] = v	
 			# Стандартная логика работы	

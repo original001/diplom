@@ -1,10 +1,19 @@
 moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,MultiSens, $window, $mdDialog) ->
-	# $scope.sensors = [
-	# 	id: "6B7D942F9A9744268CDCD7AC89317146"
-	# 	name: "sensor1"
-	# ]
+	$scope.sensors = [
+		id: "5DAC865D329E414CB872A85EB30D8B3B"
+		name: "sensor1"
+	,
+		id: "A01D426739F64AE8814EDD6D51E5D3A8"
+		name: "sensor2"
+	,
+		id: "6E7B98B3795149A7827A0B7223E2673F"
+		name: "sensor3"
+	,
+		id: "0CDF1CA6765F42ED8389C61373BF9691"
+		name: "sensor4"
+	]
 
-	$scope.sensors = $rootScope.multisensors
+	# $scope.sensors = $rootScope.multisensors
 	$scope.objId = $routeParams.objId
 	$scope.params = []
 	$scope.graph = []
@@ -73,7 +82,7 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 
 		if maxy == miny then paper.text 8, h - 5, maxy else for i in [0...12]
 
-			val = miny + ext + delta*i
+			val = absCeil miny + ext + delta*i, false, 1, true
 
 			dlGraph = 280+dlExt-i*dl
 			continue if dlGraph < 40 or dlGraph > 320
@@ -151,6 +160,8 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 				paper
 					.path 'M '+getx(arr[ind-1])+','+gety(arr[ind-1])+'L '+getx(el)+','+gety(el)
 					.attr style	
+
+				console.log 'M '+getx(arr[ind-1])+','+gety(arr[ind-1])+'L '+getx(el)+','+gety(el)
 
 					
 	$scope.updatePath = (param) ->
