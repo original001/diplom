@@ -163,6 +163,8 @@ moduleService
 						if key.name == 'N0' then key.val = params.n
 						if key.name == 'H0' then key.val = params.h
 					sens.key = JSON.stringify keys
+					$scope.keys = keys
+					do $scope.$apply
 				t = new DB.Graph
 				t.date = date
 				t.params = JSON.stringify params

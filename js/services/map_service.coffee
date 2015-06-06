@@ -103,7 +103,6 @@ moduleService
 					.order('date',false)
 					.list (sensors) ->
 						if !sensors.length then exp.count = 1 else for sens in sensors
-							console.log sens.name
 							_name = Number(sens.name.split('-')[1]) + 1 
 							unless isNaN _name 
 								exp.count = _name

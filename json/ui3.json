@@ -28,8 +28,10 @@
     "eval": "кг/см2"
 }, {
     "name": "T0",
-    "eval": "˚C"
+    "eval": "˚C",
+    "val": null
 }, {
     "name": "P0",
-    "eval": "кг/см2"
+    "eval": "кг/см2",
+    "val": null
 }]

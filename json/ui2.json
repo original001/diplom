@@ -8,8 +8,10 @@
     "eval": "με/˚С"
 }, {
     "name": "F0",
-    "eval": "Гц"
+    "eval": "Гц",
+    "val": null
 }, {
     "name": "T0",
-    "eval": "˚C"
+    "eval": "˚C",
+    "val": null
 }]
