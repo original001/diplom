@@ -218,7 +218,7 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
         onRequestFileSystemSuccess = (fileSystem) ->
             console.log('onRequestFileSystemSuccess')
             fileSystem.root.getFile(
-                '/storage/emulated/0/Download/svg.svg',
+                '/Download/svg.svg',
                 {create: true, exclusive: false},
                 onGetFileSuccess,
                 fail)
