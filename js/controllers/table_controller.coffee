@@ -60,7 +60,7 @@ moduleCtrl.controller 'TableController', ($rootScope, $scope, $routeParams, Tabl
         onRequestFileSystemSuccess = (fileSystem) ->
             console.log('onRequestFileSystemSuccess')
             fileSystem.root.getFile(
-                '/storage/emulated/0/Download/table.html',
+                '/Download/table.html',
                 {create: true, exclusive: false},
                 onGetFileSuccess,
                 fail)
