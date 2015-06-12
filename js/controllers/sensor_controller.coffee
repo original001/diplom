@@ -129,8 +129,10 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			for i,ind in $scope.catSensors
 				localSensName = i.name
 				trimText = $.trim textArr[ind]
-				trimText = trimText.replace '\n',' '
 
+				unless trimText then continue
+
+				trimText = trimText.replace '\n',' '
 				textDate = trimText.split(' ')[0]
 				textParams = trimText.split(' ')[1]
 				tpa = textParams.split(';')
@@ -143,7 +145,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 						t:tpa[1].replace ',','.'
 						f:tpa[2].replace ',','.'
 
-				Sens.addManyGraphs i, new Date("#{textDate.replace('/',' ')} #{textTime}"),countParams(answer), $scope
+				Sens.addManyGraphs i, new Date("#{textDate.replace('/',' ')} #{textTime}"),countParams(answer,i.id), $scope
 			
 
 
@@ -167,11 +169,12 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 			Sens.addGraph answer.date, countParams(answer), $scope, $routeParams.sensId
 
 	# работа с формулами (константы для датчиков устанавливаются в файле map_service.coffee)
-	countParams = (answer) ->
+	countParams = (answer, sensId) ->
 		switch $routeParams.ui
 
 			# логика работы для тензометра СИТИС
 			when '1' 
+				Sens.loadKeySens sensId || $routeParams.sensId, $scope
 				for i in $scope.keys
 					switch i.name
 						when 'K' then k = i.val
@@ -192,6 +195,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 
 			# логика работы для тензометра C-Sensor
 			when '2' 
+				Sens.loadKeySens sensId || $routeParams.sensId, $scope
 				for i in $scope.keys
 					switch i.name
 						when 'ТСк' then TCk = i.val
@@ -214,6 +218,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 
 			# Струнный датчик давления CS-05 (C-Sensor)
 			when '3' 
+				Sens.loadKeySens sensId || $routeParams.sensId, $scope
 				for i in $scope.keys
 					switch i.name
 						when 'A' then A = i.val
@@ -231,19 +236,18 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 					T1 = params.t = answer.params.t 
 					T0 || T0 = T1
 					R1 = Math.pow(F,2)/1000
-					console.log "R1 = #{R1}; F = #{F}; T0 = #{T0}; T1 = #{T1}"
 					P = params.p = absCeil A*Math.pow(R1,3)+B*Math.pow(R1,2)+C*(R1)+D+k*(T1-T0)-(S1-S0), true, 5, true
 					P0 || P0 = P
 					Object.defineProperty params,'p',
 						enumerable:false
 					params.dP = P - P0
-					console.log "P = #{P}; P0 = #{P0}; dP = #{params.dP}"
 
 				for k, v of answer.params when k != 'f' # для дополнительных параметров
 					params[k] = v	
 
 			# Струнный датчик давления Спрут 1.06 (СИТИС)		
 			when '4' 
+				Sens.loadKeySens sensId || $routeParams.sensId, $scope
 				for i in $scope.keys
 					switch i.name
 						when 'A' then A = i.val
@@ -266,6 +270,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 
 			# Геодезическая призма
 			when '5'	
+				Sens.loadKeySens sensId || $routeParams.sensId, $scope
 				params = {}
 				E = params.e = answer.params.e
 				N = params.n = answer.params.n
