@@ -231,11 +231,13 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 					T1 = params.t = answer.params.t 
 					T0 || T0 = T1
 					R1 = Math.pow(F,2)/1000
+					console.log "R1 = #{R1}; F = #{F}; T0 = #{T0}; T1 = #{T1}"
 					P = params.p = absCeil A*Math.pow(R1,3)+B*Math.pow(R1,2)+C*(R1)+D+k*(T1-T0)-(S1-S0), true, 5, true
 					P0 || P0 = P
 					Object.defineProperty params,'p',
 						enumerable:false
-					params.dP = P0 - P
+					params.dP = P - P0
+					console.log "P = #{P}; P0 = #{P0}; dP = #{params.dP}"
 
 				for k, v of answer.params when k != 'f' # для дополнительных параметров
 					params[k] = v	
@@ -250,7 +252,6 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 						when 'B0' then B0 = i.val
 						when 'B1' then B1 = i.val
 						when 'T0' then T0 = i.val
-						when 'P0' then T0 = i.val
 				params = {}
 				if answer.params.f?
 					Pt = a*(T1-T0)
@@ -258,7 +259,7 @@ moduleCtrl.controller 'SensController', ($rootScope, $scope, $routeParams ,Sens,
 					params.f = answer.params.f
 					T1 = params.t = answer.params.t 
 					T0 || T0 = T1
-					params.dP = P0-Pt+Pb+(A*Math.pow(F,4)*10-6+B*F*F/1000)-(A*Math.pow(F0,4)*Math.pow(10,-6)+B*Math.pow(F0,2)/1000)+a*(T-T0)-(B-B0)*0.133322  
+					params.dP = (A*Math.pow(F,4)*Math.pow(10,-6)+B*F*F/1000)-(A*Math.pow(F0,4)*Math.pow(10,-6)+B*Math.pow(F0,2)/1000)+a*(T-T0)-(B-B0)*0.133322  
 
 				for k, v of answer.params when k != 'f' # для дополнительных параметров
 					params[k] = v	
