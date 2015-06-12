@@ -152,6 +152,10 @@ moduleService
 			persistence.flush ->
 				console.log "sensor #{c.name} added with color #{color} and ui number #{ui.id}!"
 
+		@removeCat = (catId) ->
+			DB.SensCat.all().filter 'id','=',catId
+				.destroyAll()
+
 		@listCat = ($scope) ->
 			DB.SensCat.all().list (cats) ->
 				if cats

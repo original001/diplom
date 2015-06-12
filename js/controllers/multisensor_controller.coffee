@@ -163,10 +163,8 @@ moduleCtrl.controller 'MultiSensController', ($rootScope, $scope, $routeParams ,
 					.circle getx(el), gety(el), 4
 					.attr
 						fill: $scope.colors[sensInd-1]
-				paper
-					.text getx(el) - 3 , gety(el) - 10, absCeil el.params[paramY], true, 4, true
-					.attr
-						'font-size':'10px'
+						
+				# paper.text getx(el) - 3 , gety(el) - 10, absCeil el.params[paramY], true, 4, true
 				paper
 					.text getx(el) - 3 , h*2, el.time
 					.transform 'r90,'+(getx(el)-5)+','+h*2
